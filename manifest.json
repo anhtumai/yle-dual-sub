@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "YLE Areena Dual Subtitles Extension",
+  "version": "1.0",
+  "description": "An extension to add dual subtitles on YLE Areena videos.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://areena.yle.fi/*"],
+      "run_at": "document_start",
+      "js": ["contentscript.js", "inject.js"]
+    }
+  ],
+  "permissions": ["scripting"],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://areena.yle.fi/*"]
+    }
+  ]
+}
