@@ -31,7 +31,6 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       try {
         if (mutation?.target?.dataset["testid"] === "subtitles-wrapper") {
-          //console.log("Subtitle wrapper changed", mutation, mutation.target.innerText);
 
           const targetElement = mutation.target;
           targetElement.style.display = "none";
@@ -52,14 +51,9 @@ const observer = new MutationObserver((mutations) => {
           if (mutation.addedNodes.length > 0) {
             const spanClassName = mutation.addedNodes[0].className;
             const finnishText = mutation.target.innerText;
-            console.log("original finnishText displayed in content: ", finnishText);
             const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
             const translatedEnglishText =
               sharedTranslationMap.get(finnishText.trim().toLowerCase()) || "Translating...";
-            console.log(
-              "Document sharedTranslationMap from content script: ",
-              sharedTranslationMap,
-            );
             const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
             displayedSubtitlesWrapper.appendChild(finnishSpan);

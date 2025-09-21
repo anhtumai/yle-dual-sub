@@ -57,7 +57,6 @@ function parseVttFile(vttFileContent) {
 
         subtitleContents.forEach(async (subtitleContent) => {
           const { index, time, text } = subtitleContent;
-          console.log("Finnish Text from subtitleContent: ", subtitleContent);
           const finnishText = text.trim().replace(/\n/g, "");
           const translatedText = await getDeeplTranslation(finnishText);
 
