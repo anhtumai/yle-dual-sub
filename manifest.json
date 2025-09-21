@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "matches": ["https://areena.yle.fi/*"],
-      "run_at": "document_start",
+      "run_at": "document_end",
       "js": ["contentscript.js", "inject.js"]
     }
   ],

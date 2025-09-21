@@ -1,5 +1,12 @@
 const decoder = new TextDecoder('utf-8');
 
+const translationMap = new Map();
+
+async function getDeeplTranslation(text) {
+    // TODO: Implement this DeepL api call after getting the API Key
+    return `{Translated: ${text}}`
+}
+
 function parseVttFile(vttFileContent) {
     /**
      * Parses a VTT file content and returns an array of subtitle content.
@@ -52,8 +59,16 @@ function parseVttFile(vttFileContent) {
 
                 const subtitleContents = parseVttFile(fullVttFileResponseText);
 
-                
-                console.log("Cues:", subtitleContents);
+                console.log("Subtitle Contents:", subtitleContents);
+
+                subtitleContents.forEach(async (subtitleContent) => {
+                    const { index, time, text } = subtitleContent;
+                    const translatedText = await getDeeplTranslation(text); 
+
+                    console.log("Get Text: ", text);
+
+                    translationMap.set(text.trim(), translatedText);
+                })
 
 
             }
