@@ -1,7 +1,5 @@
 const decoder = new TextDecoder("utf-8");
 
-const translationMap = new Map();
-
 async function getDeeplTranslation(text) {
   // TODO: Implement this DeepL api call after getting the API Key
   return `{Translated: ${text}}`;
@@ -57,15 +55,18 @@ function parseVttFile(vttFileContent) {
 
         const subtitleContents = parseVttFile(fullVttFileResponseText);
 
-        console.log("Subtitle Contents:", subtitleContents);
-
         subtitleContents.forEach(async (subtitleContent) => {
           const { index, time, text } = subtitleContent;
-          const translatedText = await getDeeplTranslation(text);
+          console.log("Finnish Text from subtitleContent: ", subtitleContent);
+          const finnishText = text.trim().replace(/\n/g, "");
+          const translatedText = await getDeeplTranslation(finnishText);
 
-          console.log("Get Text: ", text);
-
-          translationMap.set(text.trim(), translatedText);
+          const customEvent = new CustomEvent("myCustomEvent", {
+            bubles: true,
+            cancelable: true,
+            detail: [finnishText, translatedText],
+          });
+          document.dispatchEvent(customEvent);
         });
       }
     });

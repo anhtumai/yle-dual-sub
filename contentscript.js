@@ -1,5 +1,13 @@
 console.log("Content script loaded.");
 
+const sharedTranslationMap = new Map();
+
+document.addEventListener("myCustomEvent", function (e) {
+  console.log("Custom event received in content script:", e.detail);
+  const [finnishText, translatedText] = e.detail;
+  sharedTranslationMap.set(finnishText.trim().toLowerCase(), translatedText);
+});
+
 let addedDisplayedSubtitlesWrapper = false;
 
 function copySubtitlesWrapper(className) {
@@ -11,11 +19,11 @@ function copySubtitlesWrapper(className) {
 }
 
 function createSubtitleSpan(text, className) {
-    const span = document.createElement("span");
-    span.setAttribute("class", className);
-    span.setAttribute("style", "font-size: 3rem");
-    span.textContent = text;
-    return span;
+  const span = document.createElement("span");
+  span.setAttribute("class", className);
+  span.setAttribute("style", "font-size: 3rem");
+  span.textContent = text;
+  return span;
 }
 
 const observer = new MutationObserver((mutations) => {
@@ -23,7 +31,7 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       try {
         if (mutation?.target?.dataset["testid"] === "subtitles-wrapper") {
-          console.log("Subtitle wrapper changed", mutation, mutation.target.innerText);
+          //console.log("Subtitle wrapper changed", mutation, mutation.target.innerText);
 
           const targetElement = mutation.target;
           targetElement.style.display = "none";
@@ -44,8 +52,15 @@ const observer = new MutationObserver((mutations) => {
           if (mutation.addedNodes.length > 0) {
             const spanClassName = mutation.addedNodes[0].className;
             const finnishText = mutation.target.innerText;
+            console.log("original finnishText displayed in content: ", finnishText);
             const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
-            const translatedEnglishSpan = createSubtitleSpan(`Translated: ${finnishText}`, spanClassName);
+            const translatedEnglishText =
+              sharedTranslationMap.get(finnishText.trim().toLowerCase()) || "Translating...";
+            console.log(
+              "Document sharedTranslationMap from content script: ",
+              sharedTranslationMap,
+            );
+            const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
             displayedSubtitlesWrapper.appendChild(finnishSpan);
             displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
