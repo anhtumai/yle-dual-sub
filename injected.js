@@ -60,7 +60,7 @@ function parseVttFile(vttFileContent) {
           const finnishText = text.trim().replace(/\n/g, "");
           const translatedText = await getDeeplTranslation(finnishText);
 
-          const customEvent = new CustomEvent("myCustomEvent", {
+          const customEvent = new CustomEvent("sendTranslationTextEvent", {
             bubles: true,
             cancelable: true,
             detail: [finnishText, translatedText],

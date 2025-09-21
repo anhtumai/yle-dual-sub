@@ -2,8 +2,7 @@ console.log("Content script loaded.");
 
 const sharedTranslationMap = new Map();
 
-document.addEventListener("myCustomEvent", function (e) {
-  console.log("Custom event received in content script:", e.detail);
+document.addEventListener("sendTranslationTextEvent", function (e) {
   const [finnishText, translatedText] = e.detail;
   sharedTranslationMap.set(finnishText.trim().toLowerCase(), translatedText);
 });
