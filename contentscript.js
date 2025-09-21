@@ -10,6 +10,14 @@ function copySubtitlesWrapper(className) {
   return displayedSubtitlesWrapper;
 }
 
+function createSubtitleSpan(text, className) {
+    const span = document.createElement("span");
+    span.setAttribute("class", className);
+    span.setAttribute("style", "font-size: 3rem");
+    span.textContent = text;
+    return span;
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
@@ -34,12 +42,10 @@ const observer = new MutationObserver((mutations) => {
           displayedSubtitlesWrapper.innerHTML = "";
 
           if (mutation.addedNodes.length > 0) {
+            const spanClassName = mutation.addedNodes[0].className;
             const finnishText = mutation.target.innerText;
-            const finnishSpan = document.createElement("span");
-            finnishSpan.textContent = finnishText;
-
-            const translatedEnglishSpan = document.createElement("span");
-            translatedEnglishSpan.textContent = `Translated: ${finnishText}`; // Default to finnish text
+            const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
+            const translatedEnglishSpan = createSubtitleSpan(`Translated: ${finnishText}`, spanClassName);
 
             displayedSubtitlesWrapper.appendChild(finnishSpan);
             displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
