@@ -13,6 +13,7 @@
       "js": ["contentscript.js", "inject.js"]
     }
   ],
+  "host_permissions": ["https://api-free.deepl.com/*"],
   "permissions": ["scripting"],
   "web_accessible_resources": [
     {

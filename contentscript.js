@@ -2,9 +2,33 @@ console.log("Content script loaded.");
 
 const sharedTranslationMap = new Map();
 
-document.addEventListener("sendTranslationTextEvent", function (e) {
-  const [finnishText, translatedText] = e.detail;
-  sharedTranslationMap.set(finnishText.trim().toLowerCase(), translatedText);
+
+async function fetchTranslation(rawSubtitleFinnishText) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { action: 'fetchTranslation', data: { rawSubtitleFinnishText: rawSubtitleFinnishText } },
+      (response) => {
+        console.log("I want to see what is the response", response);
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else if (response.error) {
+          reject(new Error(response.error));
+        } else {
+          resolve(response.englishText);
+        }
+      }
+    )
+  })
+}
+
+document.addEventListener("sendTranslationTextEvent", async function (e) {
+  const rawSubtitleFinnishText = e.detail;
+  const englishText = await fetchTranslation(rawSubtitleFinnishText);
+
+  const toStoredKey = rawSubtitleFinnishText.trim().replace(/\n/g,'').toLowerCase();
+  const toStoredValue = englishText.trim().replace(/\n/g,' ');
+
+  sharedTranslationMap.set(toStoredKey, toStoredValue);
 });
 
 let addedDisplayedSubtitlesWrapper = false;
@@ -53,6 +77,8 @@ const observer = new MutationObserver((mutations) => {
             const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
             const translatedEnglishText =
               sharedTranslationMap.get(finnishText.trim().toLowerCase()) || "Translating...";
+
+            //console.log("Debug everything why nothing works", sharedTranslationMap, finnishText, translatedEnglishText);
             const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
             displayedSubtitlesWrapper.appendChild(finnishSpan);
