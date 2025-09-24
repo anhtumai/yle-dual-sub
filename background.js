@@ -24,7 +24,7 @@ async function translateText(text) {
   const url = 'https://api-free.deepl.com/v2/translate';
 
   try {
-    await sleep(5000);
+    await sleep(500);
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -42,9 +42,6 @@ async function translateText(text) {
     }
 
     const data = await response.json();
-
-    await sleep(5000);
-
     return data["translations"][0]["text"];
 
   } catch (error) {

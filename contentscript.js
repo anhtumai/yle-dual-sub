@@ -2,6 +2,36 @@ console.log("Content script loaded.");
 
 const sharedTranslationMap = new Map();
 
+class TranslationQueue {
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  addToQueue(rawSubtitleFinnishText) {
+    this.queue.push(rawSubtitleFinnishText);
+  }
+
+  async processQueue() {
+    if (this.isProcessing || this.queue.length === 0) return;
+
+    while (this.queue.length > 0) {
+      this.isProcessing = true;
+      const rawSubtitleFinnishText = this.queue.shift();
+      try {
+        const translatedText = await fetchTranslation(rawSubtitleFinnishText);
+        sharedTranslationMap.set(rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase(), translatedText.trim().replace(/\n/g, ' '));
+      } catch (error) {
+        console.log("Error translating text:", error);
+      }
+    }
+
+    this.isProcessing = false;
+  }
+}
+
+const translationQueue = new TranslationQueue();
+
 
 async function fetchTranslation(rawSubtitleFinnishText) {
   return new Promise((resolve, reject) => {
@@ -21,14 +51,18 @@ async function fetchTranslation(rawSubtitleFinnishText) {
   })
 }
 
-document.addEventListener("sendTranslationTextEvent", async function (e) {
+document.addEventListener("sendTranslationTextEvent", function (e) {
   const rawSubtitleFinnishText = e.detail;
-  const englishText = await fetchTranslation(rawSubtitleFinnishText);
 
-  const toStoredKey = rawSubtitleFinnishText.trim().replace(/\n/g,'').toLowerCase();
-  const toStoredValue = englishText.trim().replace(/\n/g,' ');
-
-  sharedTranslationMap.set(toStoredKey, toStoredValue);
+  const toStoredKey = rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
+  if (sharedTranslationMap.has(toStoredKey)) {
+    return;
+  }
+  translationQueue.addToQueue(rawSubtitleFinnishText);
+  translationQueue.processQueue().then(() => {
+  }).catch((error) => {
+    console.error("Error processing translation queue:", error);
+  });
 });
 
 let addedDisplayedSubtitlesWrapper = false;
