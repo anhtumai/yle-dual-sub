@@ -2,6 +2,7 @@ console.log("Content script loaded.");
 
 const sharedTranslationMap = new Map();
 
+// TODO: Consider sending multiple requests in batch to optimize performance
 class TranslationQueue {
   constructor() {
     this.queue = [];
