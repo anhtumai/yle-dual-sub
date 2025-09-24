@@ -18,10 +18,20 @@ class TranslationQueue {
 
     while (this.queue.length > 0) {
       this.isProcessing = true;
-      const rawSubtitleFinnishText = this.queue.shift();
+      const toProcessItems = [];
+      for (let i = 0; i < Math.min(this.queue.length, 7); i++) {
+        toProcessItems.push(this.queue.shift());
+      }
+      const totalRawSubtitleFinnishText = toProcessItems.join(" *!$ ");
       try {
-        const translatedText = await fetchTranslation(rawSubtitleFinnishText);
-        sharedTranslationMap.set(rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase(), translatedText.trim().replace(/\n/g, ' '));
+        const totalTranslatedText = await fetchTranslation(totalRawSubtitleFinnishText);
+        const translatedTexts = totalTranslatedText.split(" *!$ ");
+
+        for (let i = 0; i < translatedTexts.length; i++) {
+          const translatedText = translatedTexts[i];
+          const rawSubtitleFinnishText = toProcessItems[i];
+          sharedTranslationMap.set(rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase(), translatedText.trim().replace(/\n/g, ' '));
+        }
       } catch (error) {
         console.log("Error translating text:", error);
       }
@@ -39,7 +49,6 @@ async function fetchTranslation(rawSubtitleFinnishText) {
     chrome.runtime.sendMessage(
       { action: 'fetchTranslation', data: { rawSubtitleFinnishText: rawSubtitleFinnishText } },
       (response) => {
-        console.log("I want to see what is the response", response);
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else if (response.error) {
@@ -59,6 +68,14 @@ document.addEventListener("sendTranslationTextEvent", function (e) {
   if (sharedTranslationMap.has(toStoredKey)) {
     return;
   }
+  if (toStoredKey.length === 0) {
+    return;
+  }
+  if (toStoredKey.length === 1) {
+    sharedTranslationMap.set(toStoredKey, toStoredKey);
+    return;
+  }
+
   translationQueue.addToQueue(rawSubtitleFinnishText);
   translationQueue.processQueue().then(() => {
   }).catch((error) => {

@@ -1,7 +1,6 @@
 importScripts('./configs.js');
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("I want to see request: ", request);
   if (request.action === 'fetchTranslation') {
     const rawSubtitleFinnishText = request.data.rawSubtitleFinnishText;
     translateText(rawSubtitleFinnishText).then((englishText) => {
