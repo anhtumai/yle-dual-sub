@@ -2,8 +2,15 @@ console.log("Content script loaded.");
 
 const sharedTranslationMap = new Map();
 
-// TODO: Consider sending multiple requests in batch to optimize performance
+
+function toTranslationKey(rawSubtitleFinnishText) {
+  return rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
+}
+
 class TranslationQueue {
+
+  BATCH_MAXIMUM_SIZE = 7;
+  BATCH_DELIMITER = " *!$ ";
   constructor() {
     this.queue = [];
     this.isProcessing = false;
@@ -18,22 +25,24 @@ class TranslationQueue {
 
     while (this.queue.length > 0) {
       this.isProcessing = true;
+
       const toProcessItems = [];
-      for (let i = 0; i < Math.min(this.queue.length, 7); i++) {
+      for (let i = 0; i < Math.min(this.queue.length, this.BATCH_MAXIMUM_SIZE); i++) {
         toProcessItems.push(this.queue.shift());
       }
-      const totalRawSubtitleFinnishText = toProcessItems.join(" *!$ ");
+      const totalRawSubtitleFinnishText = toProcessItems.join(this.BATCH_DELIMITER);
+
       try {
         const totalTranslatedText = await fetchTranslation(totalRawSubtitleFinnishText);
-        const translatedTexts = totalTranslatedText.split(" *!$ ");
+        const translatedTexts = totalTranslatedText.split(this.BATCH_DELIMITER);
 
-        for (let i = 0; i < translatedTexts.length; i++) {
+        for (let i = 0; i < toProcessItems.length; i++) {
           const translatedText = translatedTexts[i];
           const rawSubtitleFinnishText = toProcessItems[i];
-          sharedTranslationMap.set(rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase(), translatedText.trim().replace(/\n/g, ' '));
+          sharedTranslationMap.set(toTranslationKey(rawSubtitleFinnishText), translatedText.trim().replace(/\n/g, ' '));
         }
       } catch (error) {
-        console.log("Error translating text:", error);
+        console.error("Error translating text:", error);
       }
     }
 
@@ -64,15 +73,13 @@ async function fetchTranslation(rawSubtitleFinnishText) {
 document.addEventListener("sendTranslationTextEvent", function (e) {
   const rawSubtitleFinnishText = e.detail;
 
-  const toStoredKey = rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
-  if (sharedTranslationMap.has(toStoredKey)) {
+  const translationKey = rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
+  if (sharedTranslationMap.has(translationKey)) {
     return;
   }
-  if (toStoredKey.length === 0) {
-    return;
-  }
-  if (toStoredKey.length === 1) {
-    sharedTranslationMap.set(toStoredKey, toStoredKey);
+
+  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
+    sharedTranslationMap.set(translationKey, translationKey);
     return;
   }
 
@@ -130,7 +137,6 @@ const observer = new MutationObserver((mutations) => {
             const translatedEnglishText =
               sharedTranslationMap.get(finnishText.trim().toLowerCase()) || "Translating...";
 
-            //console.log("Debug everything why nothing works", sharedTranslationMap, finnishText, translatedEnglishText);
             const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
             displayedSubtitlesWrapper.appendChild(finnishSpan);
@@ -151,6 +157,4 @@ if (document.body instanceof Node) {
     subtree: true,
     characterData: true,
   });
-} else {
-  console.log("What is document body", document.body);
 }
