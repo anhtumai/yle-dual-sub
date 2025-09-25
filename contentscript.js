@@ -10,7 +10,6 @@ class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
 
   BATCH_MAXIMUM_SIZE = 7;
-  BATCH_DELIMITER = " *!$ ";
   constructor() {
     this.queue = [];
     this.isProcessing = false;
@@ -39,16 +38,14 @@ class TranslationQueue {
       for (let i = 0; i < Math.min(this.queue.length, this.BATCH_MAXIMUM_SIZE); i++) {
         toProcessItems.push(this.queue.shift());
       }
-      const totalRawSubtitleFinnishText = toProcessItems.join(this.BATCH_DELIMITER);
 
       try {
-        const totalTranslatedText = await fetchTranslation(totalRawSubtitleFinnishText);
-        const translatedTexts = totalTranslatedText.split(this.BATCH_DELIMITER);
+        const translatedEnglishTexts = await fetchTranslation(toProcessItems);
 
         for (let i = 0; i < toProcessItems.length; i++) {
-          const translatedText = translatedTexts[i];
+          const translatedEnglishText = translatedEnglishTexts[i];
           const rawSubtitleFinnishText = toProcessItems[i];
-          sharedTranslationMap.set(toTranslationKey(rawSubtitleFinnishText), translatedText.trim().replace(/\n/g, ' '));
+          sharedTranslationMap.set(toTranslationKey(rawSubtitleFinnishText), translatedEnglishText.trim().replace(/\n/g, ' '));
         }
       } catch (error) {
         console.error("Error translating text:", error);
@@ -64,21 +61,21 @@ const translationQueue = new TranslationQueue();
 
 /**
  * 
- * @param {string} rawSubtitleFinnishText - Finnish text to translate
- * @returns {Promise<string>} - A promise that resolves to the translated English text
+ * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
+ * @returns {Promise<Array<string>>} - A promise that resolves to the translated English texts
  * @throws {Error} - Throws an error if translation fails
  */
-async function fetchTranslation(rawSubtitleFinnishText) {
+async function fetchTranslation(rawSubtitleFinnishTexts) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      { action: 'fetchTranslation', data: { rawSubtitleFinnishText: rawSubtitleFinnishText } },
+      { action: 'fetchTranslation', data: { rawSubtitleFinnishTexts: rawSubtitleFinnishTexts } },
       (response) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else if (response.error) {
           reject(new Error(response.error));
         } else {
-          resolve(response.englishText);
+          resolve(response);
         }
       }
     )

@@ -2,9 +2,10 @@ importScripts('./configs.js');
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'fetchTranslation') {
-    const rawSubtitleFinnishText = request.data.rawSubtitleFinnishText;
-    translateText(rawSubtitleFinnishText).then((englishText) => {
-      sendResponse({ englishText: englishText });
+    /** @type {string[]} */
+    const rawSubtitleFinnishTexts = request.data.rawSubtitleFinnishTexts;
+    translateText(rawSubtitleFinnishTexts).then((translatedEnglishTexts) => {
+      sendResponse(translatedEnglishTexts);
     }).catch((error) => {
       console.error('Error in translateText:', error);
       sendResponse({ error: error.message });
@@ -22,10 +23,10 @@ async function sleep(ms) {
 // TODO: support translating multiple texts in one request
 /**
  * Translate text using DeepL API 
- * @param {string} text 
- * @returns 
+ * @param {Array<string>} rawSubtitleFinnishTexts - Array of Finnish texts to translate
+ * @returns {Promise<Array<string>>} - A promise that resolves to an array of translated English texts
  */
-async function translateText(text) {
+async function translateText(rawSubtitleFinnishTexts) {
   const apiKey = globalThis.deeplToken;
   const url = 'https://api-free.deepl.com/v2/translate';
 
@@ -37,7 +38,7 @@ async function translateText(text) {
         'Authorization': `DeepL-Auth-Key ${apiKey}`
       },
       body: JSON.stringify({
-        text: [text],
+        text: rawSubtitleFinnishTexts,
         source_lang: "FI",
         target_lang: "EN-US"
       })
@@ -47,7 +48,7 @@ async function translateText(text) {
     }
 
     const data = await response.json();
-    return data["translations"][0]["text"];
+    return data["translations"].map(t => t["text"]);
 
   } catch (error) {
     console.error('Translation failed:', error);
