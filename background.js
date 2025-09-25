@@ -18,6 +18,13 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// TODO: add error handling logics for all error mentioned in: https://developers.deepl.com/docs/best-practices/error-handling
+// TODO: support translating multiple texts in one request
+/**
+ * Translate text using DeepL API 
+ * @param {string} text 
+ * @returns 
+ */
 async function translateText(text) {
   const apiKey = globalThis.deeplToken;
   const url = 'https://api-free.deepl.com/v2/translate';

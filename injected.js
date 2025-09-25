@@ -1,19 +1,12 @@
 const decoder = new TextDecoder("utf-8");
 
-
-
-async function getDeeplTranslation(text) {
-    // TODO: Implement this DeepL api call after getting the API Key
-    return `{Translated: ${text}}`;
-}
-
+/**
+ * Parses a VTT file content and returns an array of subtitle content.
+ * Each subtitle content is an object with 'index', 'time', and 'text' properties.
+ *
+ * @param {string} vttFileContent - Content of VTT file.
+ */
 function parseVttFile(vttFileContent) {
-    /**
-     * Parses a VTT file content and returns an array of subtitle content.
-     * Each subtitle content is an object with 'index', 'time', and 'text' properties.
-     *
-     * @param {string} vttText - The VTT file content.
-     */
     const blocks = vttFileContent.split(/\n(?:\s*\n)+/);
 
     const subtitleContentCues = blocks.filter((block) => {
@@ -35,7 +28,7 @@ function parseVttFile(vttFileContent) {
     });
 }
 
-(function (xhr) {
+(function (_xhr) {
     const XHR = XMLHttpRequest.prototype;
 
     const open = XHR.open;
@@ -48,7 +41,7 @@ function parseVttFile(vttFileContent) {
         return open.apply(this, arguments);
     };
 
-    XHR.send = function (postData) {
+    XHR.send = function (_postData) {
         this.addEventListener("load", function () {
             const requestedUrl = this._url ? this._url.toLowerCase() : this._url;
 
