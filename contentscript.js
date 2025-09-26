@@ -1,5 +1,3 @@
-console.log("Content script loaded.");
-
 // Shared translation map, with key is Finnish text normalized, and value is English text
 const sharedTranslationMap = new Map();
 function toTranslationKey(rawSubtitleFinnishText) {
@@ -198,18 +196,33 @@ function addDisplayedSubtitlesWrapper(mutation) {
   }
 }
 
+/**
+ * Check if video player is removed from DOM 
+ * @param {MutationRecord} mutation 
+ * @returns 
+ */
+function isVideoPlayerRemoved(mutation) {
+  try {
+    return (mutation.removedNodes.length > 0 && mutation.removedNodes[0].className.includes("VideoPlayerWrapper"));
+  } catch (error) {
+    console.warn("Catch error checking video player removed:", error);
+    return false;
+  }
+}
+
 // TODO: reset addedDisplayedSubtitlesWrapper when video player is removed
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
-    console.log("Mutation observed:", mutation, mutation.removedNodes);
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         addDisplayedSubtitlesWrapper(mutation);
+        return;
       }
 
-      // if (mutation.removedNodes.length > 0 && mutation.removedNodes[0].className.includes("VideoPlayerWrapper")) {
-      //   console.log("Video player removed, clearing translation map.");
-      // }
+      if (isVideoPlayerRemoved(mutation)) {
+        addedDisplayedSubtitlesWrapper = false;
+        return;
+      }
     }
   });
 });

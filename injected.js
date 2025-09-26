@@ -50,7 +50,7 @@ function parseVttFile(vttFileContent) {
 
                 const subtitleContents = parseVttFile(fullVttFileResponseText);
 
-                subtitleContents.forEach(async (subtitleContent) => {
+                subtitleContents.forEach((subtitleContent) => {
                     const { index, time, text } = subtitleContent;
                     const rawSubtitleText = text.trim();
                     const customEvent = new CustomEvent("sendTranslationTextEvent", {
