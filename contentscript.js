@@ -1,5 +1,8 @@
 // Shared translation map, with key is Finnish text normalized, and value is English text
+/** @type {Map<string, string>} */
 const sharedTranslationMap = new Map();
+/** @type {Map<string, string>} */
+const sharedTranslationErrorMap = new Map();
 function toTranslationKey(rawSubtitleFinnishText) {
   return rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
 }
@@ -38,15 +41,31 @@ class TranslationQueue {
       }
 
       try {
-        const translatedEnglishTexts = await fetchTranslation(toProcessItems);
+        const translationResult = await fetchTranslation(toProcessItems);
 
-        for (let i = 0; i < toProcessItems.length; i++) {
-          const translatedEnglishText = translatedEnglishTexts[i];
-          const rawSubtitleFinnishText = toProcessItems[i];
-          sharedTranslationMap.set(toTranslationKey(rawSubtitleFinnishText), translatedEnglishText.trim().replace(/\n/g, ' '));
+        if (Array.isArray(translationResult)) {
+          for (let i = 0; i < toProcessItems.length; i++) {
+            const translatedEnglishText = translationResult[i];
+            const rawSubtitleFinnishText = toProcessItems[i];
+            sharedTranslationMap.set(
+              toTranslationKey(rawSubtitleFinnishText),
+              translatedEnglishText.trim().replace(/\n/g, ' ')
+            );
+          }
         }
+        else {
+          for (let i = 0; i < toProcessItems.length; i++) {
+            const rawSubtitleFinnishText = toProcessItems[i];
+            sharedTranslationErrorMap.set(
+              toTranslationKey(rawSubtitleFinnishText),
+              `Error: ${translationResult.message}`
+            );
+          }
+        }
+
+
       } catch (error) {
-        console.error("Error translating text:", error);
+        console.error("System error when translating text:", error);
       }
     }
 
@@ -60,7 +79,8 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<Array<string>>} - A promise that resolves to the translated English texts
+ * @returns {Promise<Array<string>|Error>} - A promise that resolves to the translated English texts
+ * if fails, return an error
  * @throws {Error} - Throws an error if translation fails
  */
 async function fetchTranslation(rawSubtitleFinnishTexts) {
@@ -71,6 +91,11 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else if (response.error) {
+          // Probably never happens
+          console.error(
+            "Fetch Translation with Error Handling throws error: Please fix",
+            response.error
+          );
           reject(new Error(response.error));
         } else {
           resolve(response);
@@ -186,8 +211,11 @@ function addDisplayedSubtitlesWrapper(mutation) {
     const spanClassName = mutation.addedNodes[0].className;
     const finnishText = mutation.target.innerText;
     const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
+    const translationKey = finnishText.trim().toLowerCase();
     const translatedEnglishText =
-      sharedTranslationMap.get(finnishText.trim().toLowerCase()) || "Translating...";
+      sharedTranslationMap.get(translationKey) ||
+      sharedTranslationErrorMap.get(translationKey) ||
+      "Translating...";
 
     const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
@@ -203,14 +231,16 @@ function addDisplayedSubtitlesWrapper(mutation) {
  */
 function isVideoPlayerRemoved(mutation) {
   try {
-    return (mutation.removedNodes.length > 0 && mutation.removedNodes[0].className.includes("VideoPlayerWrapper"));
+    return (
+      mutation.removedNodes.length > 0 && 
+      mutation.removedNodes[0].className.includes("VideoPlayerWrapper")
+    );
   } catch (error) {
     console.warn("Catch error checking video player removed:", error);
     return false;
   }
 }
 
-// TODO: reset addedDisplayedSubtitlesWrapper when video player is removed
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
