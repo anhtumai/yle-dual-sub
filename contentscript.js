@@ -233,6 +233,8 @@ function isVideoPlayerRemoved(mutation) {
   try {
     return (
       mutation.removedNodes.length > 0 && 
+      typeof mutation.removedNodes[0].className === "object" &&
+      typeof mutation.removedNodes[0].className.includes === "function" &&
       mutation.removedNodes[0].className.includes("VideoPlayerWrapper")
     );
   } catch (error) {
