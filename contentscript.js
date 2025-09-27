@@ -131,8 +131,6 @@ document.addEventListener("sendTranslationTextEvent", function (e) {
   });
 });
 
-let addedDisplayedSubtitlesWrapper = false;
-
 /**
  * Create another div for displaying translated subtitles,
  * which inherits class name from original subtitles wrapper.
@@ -194,17 +192,16 @@ function addDisplayedSubtitlesWrapper(mutation) {
   const targetElement = mutation.target;
   targetElement.style.display = "none";
 
-  if (!addedDisplayedSubtitlesWrapper) {
-    const displayedSubtitlesWrapperElement = copySubtitlesWrapper(
+  let displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+  if (!displayedSubtitlesWrapper) {
+    displayedSubtitlesWrapper = copySubtitlesWrapper(
       mutation.target.className,
     );
     targetElement.parentNode.insertBefore(
-      displayedSubtitlesWrapperElement,
+      displayedSubtitlesWrapper,
       targetElement.nextSibling,
     );
-    addedDisplayedSubtitlesWrapper = true;
-  }
-  const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+  };
   displayedSubtitlesWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
@@ -224,35 +221,11 @@ function addDisplayedSubtitlesWrapper(mutation) {
   }
 }
 
-/**
- * Check if video player is removed from DOM 
- * @param {MutationRecord} mutation 
- * @returns 
- */
-function isVideoPlayerRemoved(mutation) {
-  try {
-    return (
-      mutation.removedNodes.length > 0 && 
-      typeof mutation.removedNodes[0].className === "object" &&
-      typeof mutation.removedNodes[0].className.includes === "function" &&
-      mutation.removedNodes[0].className.includes("VideoPlayerWrapper")
-    );
-  } catch (error) {
-    console.warn("Catch error checking video player removed:", error);
-    return false;
-  }
-}
-
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         addDisplayedSubtitlesWrapper(mutation);
-        return;
-      }
-
-      if (isVideoPlayerRemoved(mutation)) {
-        addedDisplayedSubtitlesWrapper = false;
         return;
       }
     }
