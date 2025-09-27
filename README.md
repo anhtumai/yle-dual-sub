@@ -62,3 +62,5 @@ Replace `abcd123456789:fx` with your actual DeepL token value.
 In the end, you should see `YLE Areena Dual Subtitles Extension 1.0` in your extensions.
 
 5. Open any contents (movies, series) on Yle Areena and enjoy.
+
+__NOTE__: This Project contains __ZERO dependencies__ so absolutely no possibilies of being a target of chain attacks. Totally safe to install and setup.
