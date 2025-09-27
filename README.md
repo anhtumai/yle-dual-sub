@@ -27,7 +27,7 @@ In Finland, YLE Areena content is free 🇫🇮✨, DeepL (a top-tier translatio
 ## Set up
 
 Note: This project is still a work in progress, so the setup is a bit manually.
-(It works on my machine already so dont have motivation to give it a proper UI and publish it to Chrome Extensions Store. But if there are enough people interested then I will change my mind)
+(It works on my machine already so I don't have motivation to give it a proper UI and publish it to Chrome Extensions Store. But if there are enough people interested then I will change my mind)
 
 1. Git clone this project
 
