@@ -1,3 +1,9 @@
+
+// TODO: Create a tier caching mechanism (in memory and local storage)
+// to avoid hitting translation limit, using DeepL API.
+// Consider using IndexedDB for persistent caching if needed.
+// If a movie is not watched for a long time, the cache can be cleared.
+
 // Shared translation map, with key is Finnish text normalized, and value is English text
 /** @type {Map<string, string>} */
 const sharedTranslationMap = new Map();
