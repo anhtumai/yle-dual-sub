@@ -227,12 +227,65 @@ function addDisplayedSubtitlesWrapper(mutation) {
   }
 }
 
+/**
+ * Check if a mutation indicates that a video modal has appeared on the page
+ * @param {MutationRecord} mutation
+ */
+function isVideoAppearMutation(mutation) {
+  try {
+    return (mutation?.target?.localName === "body" &&
+      mutation?.addedNodes.length > 0 &&
+      typeof mutation.addedNodes[0]?.className === "string" &&
+      mutation.addedNodes[0]?.className.includes("VideoPlayerWrapper_modalContent")
+    )
+  } catch (error) {
+    console.warn("Catch error checking mutation if video appear:", error);
+    return false;
+  }
+}
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function addDualSubExtensionSection() {
+  let bottomControlBarLeftControls = null;
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    bottomControlBarLeftControls = document.querySelector('[class^="BottomControlBar__LeftControls"]');
+    if (bottomControlBarLeftControls) {
+      break;
+    };
+    await sleep(150);
+  }
+
+  if (!bottomControlBarLeftControls) {
+    console.warn("Cannot find bottom control bar left controls");
+    return;
+  }
+
+  const dualSubExtensionSection = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span>Dual Sub:</span>
+      <input class="dual-sub-switch" type="checkbox" checked="true">
+    </div>
+  `
+
+  bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         addDisplayedSubtitlesWrapper(mutation);
         return;
+      }
+      if (isVideoAppearMutation(mutation)) {
+        console.log("Video appeared, lol", mutation);
+        addDualSubExtensionSection().then(() => { }).catch((error) => {
+          console.error("Error adding dual sub extension section:", error);
+        });
       }
     }
   });
