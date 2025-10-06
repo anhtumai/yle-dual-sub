@@ -1,3 +1,12 @@
+.dual-sub-extension-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 8px;
+  justify-content: space-between;
+}
+
+/* Switch CSS from https://uiverse.io/Yaya12085/curvy-frog-97 */
 .dual-sub-switch {
   position: relative;
   height: 1.5rem;

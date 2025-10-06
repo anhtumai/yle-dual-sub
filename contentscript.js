@@ -265,9 +265,9 @@ async function addDualSubExtensionSection() {
   }
 
   const dualSubExtensionSection = `
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
-      <input class="dual-sub-switch" type="checkbox" checked="true">
+      <input class="dual-sub-switch" type="checkbox" checked="false">
     </div>
   `
 
