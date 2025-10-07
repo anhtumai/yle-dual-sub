@@ -218,7 +218,11 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
  * @param {string} finnishText  - original Finnish subtitle text 
  * @param {string} spanClassName  - class name to set for the span elements
  */
-function addContentToDisplayedSubtitlesWrapper(displayedSubtitlesWrapper, finnishText, spanClassName) {
+function addContentToDisplayedSubtitlesWrapper(
+  displayedSubtitlesWrapper,
+  finnishText,
+  spanClassName
+) {
   const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = finnishText.trim().toLowerCase();
   const translatedEnglishText =
@@ -244,7 +248,9 @@ function handleSubtitlesWrapperMutation(mutation) {
   const originalSubtitlesWrapper = mutation.target;
   originalSubtitlesWrapper.style.display = "none";
 
-  const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper);
+  const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
+    originalSubtitlesWrapper
+  );
   displayedSubtitlesWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
@@ -283,7 +289,9 @@ async function addDualSubExtensionSection() {
   let bottomControlBarLeftControls = null;
 
   for (let attempt = 0; attempt < 5; attempt++) {
-    bottomControlBarLeftControls = document.querySelector('[class^="BottomControlBar__LeftControls"]');
+    bottomControlBarLeftControls = document.querySelector(
+      '[class^="BottomControlBar__LeftControls"]'
+    );
     if (bottomControlBarLeftControls) {
       break;
     };
@@ -337,11 +345,15 @@ document.addEventListener("change", function (e) {
     if (e.target.checked) {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
-        console.warn("This should not happen: When the video is loaded the subtitles wrapper should be there");
+        console.warn("This should not happen: \
+          When the video is loaded the subtitles wrapper should be there"
+        );
         return;
       }
       originalSubtitlesWrapper.style.display = "none";
-      const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper);
+      const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
+        originalSubtitlesWrapper
+      );
       displayedSubtitlesWrapper.innerHTML = "";
       displayedSubtitlesWrapper.style.display = "flex";
 
