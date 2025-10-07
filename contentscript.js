@@ -240,7 +240,7 @@ function addContentToDisplayedSubtitlesWrapper(displayedSubtitlesWrapper, finnis
  * @param {MutationRecord} mutation
  * @returns {void}
  */
-function addDisplayedSubtitlesWrapper(mutation) {
+function handleSubtitlesWrapperMutation(mutation) {
   const originalSubtitlesWrapper = mutation.target;
   originalSubtitlesWrapper.style.display = "none";
 
@@ -309,12 +309,11 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         if (dualSubEnabled) {
-          addDisplayedSubtitlesWrapper(mutation);
+          handleSubtitlesWrapperMutation(mutation);
           return;
         }
       }
       if (isVideoAppearMutation(mutation)) {
-        console.log("Video appeared, lol", mutation);
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
