@@ -13,6 +13,9 @@ function toTranslationKey(rawSubtitleFinnishText) {
   return rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
 }
 
+// to manage whether to add display subtitles wrapper
+let dualSubEnabled = false;
+
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
 
@@ -187,6 +190,49 @@ function isMutationRelatedToSubtitlesWrapper(mutation) {
 }
 
 /**
+ * Create and position the displayed subtitles wrapper next to the original subtitles wrapper
+ * if it does not exist yet
+ *
+ * @param {HTMLElement} originalSubtitlesWrapper 
+ * @returns 
+ */
+function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
+  let displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+  if (!displayedSubtitlesWrapper) {
+    displayedSubtitlesWrapper = copySubtitlesWrapper(
+      originalSubtitlesWrapper.className,
+    );
+    originalSubtitlesWrapper.parentNode.insertBefore(
+      displayedSubtitlesWrapper,
+      originalSubtitlesWrapper.nextSibling,
+    );
+  }
+
+  return displayedSubtitlesWrapper;
+}
+
+/**
+ * Add Finnish and translated English subtitles to the displayed subtitles wrapper
+ *
+ * @param {HTMLElement} displayedSubtitlesWrapper
+ * @param {string} finnishText  - original Finnish subtitle text 
+ * @param {string} spanClassName  - class name to set for the span elements
+ */
+function addContentToDisplayedSubtitlesWrapper(displayedSubtitlesWrapper, finnishText, spanClassName) {
+  const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
+  const translationKey = finnishText.trim().toLowerCase();
+  const translatedEnglishText =
+    sharedTranslationMap.get(translationKey) ||
+    sharedTranslationErrorMap.get(translationKey) ||
+    "Translating...";
+
+  const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
+
+  displayedSubtitlesWrapper.appendChild(finnishSpan);
+  displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
+}
+
+/**
  * Handle mutation related to subtitles wrapper
  * Hide the original subtitles wrapper and create another div for displaying translated subtitles
  * along with original Finnish subtitles.
@@ -195,35 +241,20 @@ function isMutationRelatedToSubtitlesWrapper(mutation) {
  * @returns {void}
  */
 function addDisplayedSubtitlesWrapper(mutation) {
-  const targetElement = mutation.target;
-  targetElement.style.display = "none";
+  const originalSubtitlesWrapper = mutation.target;
+  originalSubtitlesWrapper.style.display = "none";
 
-  let displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
-  if (!displayedSubtitlesWrapper) {
-    displayedSubtitlesWrapper = copySubtitlesWrapper(
-      mutation.target.className,
-    );
-    targetElement.parentNode.insertBefore(
-      displayedSubtitlesWrapper,
-      targetElement.nextSibling,
-    );
-  };
+  const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper);
   displayedSubtitlesWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
     const spanClassName = mutation.addedNodes[0].className;
     const finnishText = mutation.target.innerText;
-    const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
-    const translationKey = finnishText.trim().toLowerCase();
-    const translatedEnglishText =
-      sharedTranslationMap.get(translationKey) ||
-      sharedTranslationErrorMap.get(translationKey) ||
-      "Translating...";
-
-    const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
-
-    displayedSubtitlesWrapper.appendChild(finnishSpan);
-    displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
+    addContentToDisplayedSubtitlesWrapper(
+      displayedSubtitlesWrapper,
+      finnishText,
+      spanClassName
+    )
   }
 }
 
@@ -267,10 +298,9 @@ async function addDualSubExtensionSection() {
   const dualSubExtensionSection = `
     <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
-      <input class="dual-sub-switch" type="checkbox" checked="false">
+      <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox">
     </div>
   `
-
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
 }
 
@@ -278,8 +308,10 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
-        addDisplayedSubtitlesWrapper(mutation);
-        return;
+        if (dualSubEnabled) {
+          addDisplayedSubtitlesWrapper(mutation);
+          return;
+        }
       }
       if (isVideoAppearMutation(mutation)) {
         console.log("Video appeared, lol", mutation);
@@ -299,3 +331,40 @@ if (document.body instanceof Node) {
     characterData: true,
   });
 }
+
+document.addEventListener("change", function (e) {
+  if (e.target.id === "dual-sub-switch") {
+    dualSubEnabled = e.target.checked;
+    if (e.target.checked) {
+      const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
+      if (!originalSubtitlesWrapper) {
+        console.warn("This should not happen: When the video is loaded the subtitles wrapper should be there");
+        return;
+      }
+      originalSubtitlesWrapper.style.display = "none";
+      const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper);
+      displayedSubtitlesWrapper.innerHTML = "";
+      displayedSubtitlesWrapper.style.display = "flex";
+
+      const originalSubtitlesWrapperSpan = originalSubtitlesWrapper.querySelector('span');
+      if (originalSubtitlesWrapperSpan) {
+        addContentToDisplayedSubtitlesWrapper(
+          displayedSubtitlesWrapper,
+          originalSubtitlesWrapper.innerText,
+          originalSubtitlesWrapperSpan.className || ""
+        )
+      }
+    }
+    else {
+      const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+      if (displayedSubtitlesWrapper) {
+        displayedSubtitlesWrapper.innerHTML = "";
+        displayedSubtitlesWrapper.style.display = "none";
+      }
+      const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
+      if (originalSubtitlesWrapper) {
+        originalSubtitlesWrapper.style.display = "flex";
+      }
+    }
+  }
+});
