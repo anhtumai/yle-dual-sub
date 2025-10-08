@@ -3,7 +3,13 @@
   align-items: center;
   gap: 16px;
   padding: 4px 8px;
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+
+.dual-sub-extension-section .svg {
+  display: block;
+  margin: 0 auto;
+  align-self: center; /* Ensure SVG is centered vertically */
 }
 
 /* Switch CSS from https://uiverse.io/Yaya12085/curvy-frog-97 */
@@ -50,4 +56,10 @@
 .dual-sub-switch:checked:before {
   transform: translateX(100%);
   border-color: rgba(236, 72, 153, 1);
+}
+
+.dual-sub-settings {
+  position: relative;
+  cursor: pointer;
+  appearance: none;
 }
