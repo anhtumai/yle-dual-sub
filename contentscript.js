@@ -40,7 +40,7 @@ class TranslationQueue {
   async processQueue() {
     if (this.isProcessing || this.queue.length === 0) return;
 
-    while (this.queue.length > 0) {
+    while (this.queue.length > 0 && dualSubEnabled) {
       this.isProcessing = true;
 
       /** @type {Array<string>} */
@@ -365,6 +365,9 @@ document.addEventListener("change", function (e) {
           originalSubtitlesWrapperSpan.className || ""
         )
       }
+      translationQueue.processQueue().then(() => { }).catch((error) => {
+        console.error("Error processing translation queue after enabling dual subtitles:", error);
+      });
     }
     else {
       const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
