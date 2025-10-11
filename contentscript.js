@@ -318,6 +318,27 @@ async function addDualSubExtensionSection() {
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
 }
 
+function createModal() {
+  if (document.getElementById("dual-sub-extension-modal")) {
+    return;
+  }
+  
+  const dualSubExtensionModalSection = `
+    <div class="dual-sub-modal" id="dual-sub-extension-modal">
+      <div class="dual-sub-modal-content">
+        <div class="dual-sub-modal-header">
+          <h2>Modal Title</h2>
+        </div>
+        <div class="dual-sub-modal-body">
+          <p>Placeholder modal content goes here.</p>
+        </div>
+      </div>
+    </div>
+  `
+
+  document.body.insertAdjacentHTML('beforeend', dualSubExtensionModalSection);
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
