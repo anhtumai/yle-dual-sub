@@ -21,5 +21,9 @@
       "resources": ["injected.js"],
       "matches": ["https://areena.yle.fi/*"]
     }
-  ]
+  ],
+  "action": {
+    "default_title": "YLE Dual Subtitles Extension",
+    "default_popup": "popup.html"
+  }
 }
