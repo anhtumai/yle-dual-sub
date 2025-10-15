@@ -255,7 +255,13 @@ function handleSubtitlesWrapperMutation(mutation) {
 
   if (mutation.addedNodes.length > 0) {
     const spanClassName = mutation.addedNodes[0].className;
-    const finnishText = mutation.target.innerText;
+    const finnishTextSpans = mutation.target.querySelectorAll("span");
+    const finnishText = Array.from(finnishTextSpans).map(
+      span => span.innerText
+    ).join(" ")
+      .replace(/\s+/g, " ")
+      .replace("\n", " ")
+      .trim();
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
       finnishText,
