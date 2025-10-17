@@ -1,24 +1,289 @@
 body {
-  font-family: var(--yds-typography-font-family-yle-next), "Open Sans", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f0f0f;
+  color: #e5e5e5;
 }
 
-.container {
-  width: 700px;
+.extension-body {
+  width: 750px;
   height: 600px;
   padding: 0px;
+  margin: 0px;
   display: flex;
   flex-direction: column;
 }
 
 .header-section {
   width: 100%;
-  background: var(--bs-secondary-color);
-  padding: 20px;
+  background: #1a1a1a;
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0px;
 }
 
 .header-section h1 {
   margin: 0;
-  color: white;
-  font-size: 26px;
-  font-weight: bold;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
 }
+
+.setting-section {
+  background-color: #0f0f0f;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.accordion {
+  background: #1a1a1a;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s;
+}
+
+.accordion:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.accordion-header {
+  padding: 20px 24px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s;
+}
+
+.accordion-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.accordion-icon {
+  transition: transform 0.3s;
+  font-size: 18px;
+  color: #3b82f6;
+}
+
+.accordion.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.accordion-content-inner {
+  padding: 0 24px 24px;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.accordion.active .accordion-content {
+  max-height: 800px;
+}
+
+.setting-group {
+  margin-top: 16px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.setting-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-title {
+  color: #e5e5e5;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.setting-description {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: #374151;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle.active {
+  background: #3b82f6;
+}
+
+.toggle::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s;
+}
+
+.toggle.active::after {
+  left: 22px;
+}
+
+.input-field {
+  background: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #e5e5e5;
+  font-size: 14px;
+  width: 100%;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.button:hover {
+  background: #2563eb;
+}
+
+.section-title {
+  color: #6b7280;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.section-text {
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 8px;
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.section-text a {
+  color: #3b82f6;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.section-text a:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.add-token-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-text {
+  display: block;
+  color: #e5e5e5;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.radio-option:hover {
+  background: #333;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.radio-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  margin: 0;
+}
+
+.radio-option:has(input:checked) {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.radio-content {
+  flex: 1;
+}
+
+.radio-title {
+  color: #e5e5e5;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.radio-description {
+  color: #6b7280;
+  font-size: 12px;
+}
+

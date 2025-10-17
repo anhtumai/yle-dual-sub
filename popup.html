@@ -23,13 +23,76 @@
   <script type="module" src="popup.js"></script>
 
   <body>
-    <div class="container">
+    <div class="extension-body">
       <div class="header-section">
         <div class="text-start">
-          <h1>YLE Dual Sub Settings.</h1>
+          <h1>Settings</h1>
         </div>
       </div>
-      <div class="bg-light" style="width: 100%; flex: 1"></div>
+
+      <div class="container">
+        <div class="accordion">
+          <button class="accordion-header">
+            <span>Tokens Management</span>
+            <span class="accordion-icon">&#9660;</span>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p class="section-title">
+                Manage your DeepL API tokens to enable translation service.
+              </p>
+
+              <p class="section-text">
+                Currently, only
+                <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">
+                  DeepL, the best translation service for Finnish language
+                </a>
+                is supported.
+                <br />
+                You can upload up to 5 tokens. View
+                <a
+                  href="https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >this guide</a
+                >
+                to get an API token.
+              </p>
+
+              <div class="add-token-form">
+                <div style="display: flex; flex-direction: column">
+                  <label class="form-text">New token</label>
+                  <input type="text" class="input-field" placeholder="Add your DeepL token here" />
+                </div>
+
+                <div style="display: flex; flex-direction: column">
+                  <label class="form-text">API Type</label>
+
+                  <div class="radio-group">
+                    <label class="radio-option">
+                      <input type="radio" name="apiType" value="free"/>
+                      <div class="radio-content">
+                        <div class="radio-title">DeepL Free</div>
+                        <div class="radio-description">For personal and non-commercial use</div>
+                      </div>
+                    </label>
+
+                    <label class="radio-option">
+                      <input type="radio" name="apiType" value="pro" />
+                      <div class="radio-content">
+                        <div class="radio-title">DeepL Pro</div>
+                        <div class="radio-description">For subscription use with high limit</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <button class="button" style="margin-top: 8px">Add new token</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
