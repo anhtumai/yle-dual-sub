@@ -4,8 +4,35 @@ import "./App.css";
 const DEEPLAPITOKENREGEX = /^.{20,}:fx$/i;
 
 class DeepLUsageResponse {
+  /**
+   * Init DeepLUsageResponse from DeepL API usage response object
+   * @param {Object} usageResponse - The response object from DeepL API usage endpoint.
+   * @returns
+   */
   constructor(usageResponse) {
+    const errorMessage = `Error when parsing usage response from DeepL: ${usageResponse}`;
+    if (!usageResponse || typeof usageResponse !== "object") {
+      throw new Error(errorMessage);
+    }
+    if (
+      typeof usageResponse.character_count !== "number" ||
+      typeof usageResponse.character_limit !== "number"
+    ) {
+      throw new Error(errorMessage);
+    }
+    if (isNaN(usageResponse.character_count) || isNaN(usageResponse.character_limit)) {
+      throw new Error(errorMessage);
+    }
+
+    /**
+     * @type {number}
+     * @description The number of characters already translated in the month
+     */
     this.characterCount = usageResponse.character_count;
+    /**
+     * @type {number}
+     * @description The character limit for the current month
+     */
     this.characterLimit = usageResponse.character_limit;
   }
 }
@@ -13,10 +40,18 @@ class DeepLUsageResponse {
 /**
  * @typedef DeepLTokenInfoInStorage
  * @type {object}
- * @param {*} ms 
- * @returns 
+ * @property {string} key - The DeepL API token key.
+ * @property {string} type - The DeepL API token type, either free or pro.
+ * @property {string} characterCount - The number of characters translated using this token.
+ * @property {string} characterLimit - The character limit for this token.
+ * @property {string} lastUsageCheckedAt - The timestamp when the token usage was last checked.
  */
 
+/**
+ * Sleep for a specified number of milliseconds.
+ * @param {number} ms
+ * @returns {Promise<void>}
+ */
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -58,6 +93,11 @@ function Header() {
   );
 }
 
+/**
+ *
+ * @param {string} tokenKey - The DeepL API token key to validate.
+ * @returns
+ */
 function validateDeeplApiTokenKey(tokenKey) {
   if (typeof tokenKey !== "string" || tokenKey.length === 0) {
     return false;
@@ -70,6 +110,13 @@ function validateDeeplApiTokenKey(tokenKey) {
   return true;
 }
 
+/**
+ *
+ * @param {string} tokenKey
+ * @param {"free" | "pro"} tokenType
+ * @returns {Promise<[true, DeepLUsageResponse]|[false, string]>} -
+ * Returns a tuple where the first element indicates validity and the second is either usage data or an error message.
+ */
 async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
   const url =
     tokenType === "free" ? "https://api-free.deepl.com/v2/usage" : "https://api.deepl.com/v2/usage";
@@ -86,12 +133,12 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
       const errorMessage = `
         Checking token usage failed with error code ${response.status} and message ${response.statusText}
       `;
-      return new Error(errorMessage);
+      return [false, errorMessage];
     }
 
     const data = await response.json();
     const deepLUsageResponse = new DeepLUsageResponse(data);
-    return deepLUsageResponse;
+    return [true, deepLUsageResponse];
   } catch (error) {
     const errorMessage = `
       Parsing usage response failed with ${error}.
@@ -99,7 +146,7 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
       Please contact extension developers for this issue.
     `;
     console.error(errorMessage);
-    return error;
+    return [false, errorMessage];
   }
 }
 
@@ -130,25 +177,34 @@ function AddNewTokenForm() {
       return;
     }
 
-    const deepLTokenUsageResponse = await checkIfDeepLApiTokenValid(
+    const [validateSuccess, checkTokenUsageResponse] = await checkIfDeepLApiTokenValid(
       deepLApiTokenKey,
       deepLApiTokenType
     );
-    console.log("deepl token usage response", deepLTokenUsageResponse);
-    if (deepLTokenUsageResponse instanceof Error) {
-      alert("The provided DeepL API token is not valid. Please check and try again.");
+    if (!validateSuccess) {
+      const checkTokenUsageErrorMessage = checkTokenUsageResponse;
+      alert(
+        `The provided DeepL API token is not valid.
+        Checking token usage failed with error: ${checkTokenUsageErrorMessage}.
+        Please check and try again.`
+      );
       return;
     }
 
-    console.log("DeepL API Token Key:", deepLApiTokenKey);
-    console.log("DeepL API Token Type:", deepLApiTokenType);
+    const deepLUsageResponse = checkTokenUsageResponse;
 
-    await mockStorageSync.setDeepLToken({
+    /**
+     * @type {DeepLTokenInfoInStorage}
+     */
+    const deeplTokenInfoInStorage = {
       key: deepLApiTokenKey,
       type: deepLApiTokenType,
-    });
+      characterCount: deepLUsageResponse.characterCount,
+      characterLimit: deepLUsageResponse.characterLimit,
+      lastUsageCheckedAt: new Date().toISOString(),
+    }
 
-    console.log("Mock storage type", mockStorageSync.storage);
+    await mockStorageSync.setDeepLToken(deeplTokenInfoInStorage);
 
     formElement.reset();
   }
