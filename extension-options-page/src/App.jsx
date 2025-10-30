@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trash2, RefreshCw, Check } from "lucide-react";
 import "./App.css";
 
 const DEEPLAPITOKENREGEX = /^.{20,}:fx$/i;
@@ -45,6 +46,7 @@ class DeepLUsageResponse {
  * @property {string} characterCount - The number of characters translated using this token.
  * @property {string} characterLimit - The character limit for this token.
  * @property {string} lastUsageCheckedAt - The timestamp when the token usage was last checked.
+ * @property {boolean} selected - Whether this token is selected for use.
  */
 
 /**
@@ -161,6 +163,38 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
 }
 
 /**
+ * 
+ * @param {number} num 
+ * @returns 
+ * @description Format number with commas as thousands separators. Example: 1234567 -> "1,234,567"
+ */
+function formatCharacterUsageNumber(num) {
+  return num.toLocaleString();
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  return `${days} day${days > 1 ? "s" : ""} ago`;
+}
+
+/**
+ *
+ * @param {string} word
+ * @returns {string}
+ */
+function capitalizeFirstLetter(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+/**
  * @typedef {Object} TokenInfoCardProps
  * @property {DeepLTokenInfoInStorage} tokenInfo - The DeepL token information to display.
  */
@@ -172,25 +206,68 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
  */
 function TokenInfoCard(props) {
   const { tokenInfo } = props;
+  const usagePercentage = (tokenInfo.characterCount / tokenInfo.characterLimit * 100).toFixed(1);
   return (
-    <div className="token-card">
-      <div className="token-content">
-        <div className="token-info">
-          <div className="token-header">
-            <div className="token-details">
-              <h3 className="token-type">{tokenInfo.type}</h3>
-              <p className="token-string">{tokenInfo.key}</p>
+    <div
+      key={tokenInfo.key}
+      // onClick={() => handleSelectToken(tokenInfo.key)}
+      className={`token-card ${tokenInfo.selected ? "token-card-selected" : ""}`}
+    >
+      <div className="token-card__content">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="token-card__header">
+            <div className={`token-card__checkbox ${tokenInfo.selected ? "token-card__checkbox-selected" : ""}`}>
+              {tokenInfo.selected && <Check size={14} className="check-icon" />}
             </div>
-
-            <div className="usage-container">
-              <div className="usage-stats">
-                <span className="usage-text">23,456 / 500,000 characters used</span>
-                <span className="usage-percentage">4.69%</span>
-              </div>
-
-              <p className="last-checked-text">Last checked: 2 hours ago</p>
+            <div className="token-card__details">
+              <h3 className="token-card__token-type">DeepL {capitalizeFirstLetter(tokenInfo.type)}</h3>
+              <p className="token-card__token-key">{tokenInfo.token}</p>
             </div>
           </div>
+
+          <div className="token-card__usage-container">
+            <div className="token-card__usage-stats">
+              <span className="token-card__usage-text">
+                {formatCharacterUsageNumber(tokenInfo.characterCount)} / {formatCharacterUsageNumber(tokenInfo.characterLimit)}{" "}
+                characters
+              </span>
+              <span className="token-card__usage-percentage">{usagePercentage}%</span>
+            </div>
+
+            <div className="token-card__progress-bar">
+              <div
+                className={`token-card__progress-fill token-card__progress-green`}
+                style={{ width: `${Math.min(usagePercentage, 100)}%` }}
+              ></div>
+            </div>
+
+            <p className="token-card__last-checked-text">
+              Last checked: {formatDate(tokenInfo.lastUsageCheckedAt)}
+            </p>
+          </div>
+        </div>
+
+        <div className="token-card__action-buttons">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              // handleCheckUsage(token.id);
+            }}
+            className="token-card__button token-card__check-usage-button"
+          >
+            <RefreshCw size={16} />
+            Check Usage
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              // handleRemoveToken(token.id);
+            }}
+            className="token-card__button token-card__remove_button"
+          >
+            <Trash2 size={16} />
+            Remove
+          </button>
         </div>
       </div>
     </div>
@@ -200,7 +277,7 @@ function TokenInfoCard(props) {
 /**
  *
  */
-function TokenInfoList() {
+function TokenInfoCardList() {
   /** @type {DeepLTokenInfoInStorage[]} */
   const tokens = [
     {
@@ -218,7 +295,16 @@ function TokenInfoList() {
       lastUsageCheckedAt: new Date().toISOString(),
     },
   ];
-  return tokens.map((tokenInfo) => <TokenInfoCard tokenInfo={tokenInfo} />);
+  return (
+    <div>
+      <p>Here is your list of tokens:</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
+        {tokens.map((tokenInfo) => (
+          <TokenInfoCard key={tokenInfo.key} tokenInfo={tokenInfo} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -317,7 +403,9 @@ function AddNewTokenForm(props) {
             <input type="radio" name="apiTokenType" value="free" />
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Free</div>
-              <div className="add-token-form__radio-description">For personal and non-commercial use</div>
+              <div className="add-token-form__radio-description">
+                For personal and non-commercial use
+              </div>
             </div>
           </label>
 
@@ -325,7 +413,9 @@ function AddNewTokenForm(props) {
             <input type="radio" name="apiTokenType" value="pro" />
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Pro</div>
-              <div className="add-token-form__radio-description">For subscription use with high limit</div>
+              <div className="add-token-form__radio-description">
+                For subscription use with high limit
+              </div>
             </div>
           </label>
         </div>
@@ -359,8 +449,7 @@ function TokenManagementSection() {
   }, []);
   return (
     <>
-      <div>Here is the list of tokens: {JSON.stringify(Object.fromEntries(tokenInfosMap))}</div>
-      <TokenInfoList />
+      <TokenInfoCardList />
       <AddNewTokenForm tokenInfosMap={tokenInfosMap} setTokenInfosMap={setTokenInfosMap} />
     </>
   );
@@ -372,7 +461,10 @@ function TokenManagementAccordion() {
   return (
     <div className="setting-card">
       <div className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}>
-        <button className="setting-card__accordion-header" onClick={() => setAccordionOpen(!accordionOpen)}>
+        <button
+          className="setting-card__accordion-header"
+          onClick={() => setAccordionOpen(!accordionOpen)}
+        >
           <span>Tokens Management</span>
           <span className="setting-card__accordion-icon">&#9660;</span>
         </button>

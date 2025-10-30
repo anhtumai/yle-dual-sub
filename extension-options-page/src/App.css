@@ -112,8 +112,6 @@
   text-decoration: underline;
 }
 
-/* Token list section */
-
 /* Add token form section*/
 
 .add-token-form {
@@ -151,7 +149,6 @@
 .add-token-form__button:hover {
   background: #2563eb;
 }
-
 
 .add-token-form__input-label {
   display: block;
@@ -211,4 +208,170 @@
 .add-token-form__radio-description {
   color: #6b7280;
   font-size: 14px;
+}
+
+/* Token Cards */
+
+.token-card {
+  background:#2a2a2a;;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.token-card:hover {
+  background: #333;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.token-card-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.token-card__content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.token-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.token-card__checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.token-card__checkbox-selected {
+  border-color: #3b82f6;
+  background: #3b82f6;
+}
+
+.token-card__check-icon {
+  color: white;
+}
+
+.token-card__details {
+  flex: 1;
+  min-width: 0;
+}
+
+.token-card__token-type {
+  color: white;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+  font-size: 16px;
+}
+
+.token-card__token-key {
+  color: #9ca3af;
+  font-size: 14px;
+  font-family: "Courier New", monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.token-card__usage-container {
+  margin-left: 32px;
+}
+
+.token-card__usage-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.token-card__usage-text {
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.token-card__usage-percentage {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.token-card__progress-bar {
+  width: 100%;
+  background: #4b5563;
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.token-card__progress-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.token-card__progress-green {
+  background: #10b981;
+}
+
+.token-card__progress-yellow {
+  background: #eab308;
+}
+
+.token-card__progress-red {
+  background: #ef4444;
+}
+
+.token-card__last-checked-text {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 0;
+}
+
+.token-card__action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.token-card__button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-family: inherit;
+}
+
+.token-card__check-usage-button {
+  background: #2563eb;
+}
+
+.token-card__check-usage-button:hover {
+  background: #1d4ed8;
+}
+
+.token-card__remove_button {
+  background: #dc2626;
+}
+
+.token-card__remove_button:hover {
+  background: #b91c1c;
 }
