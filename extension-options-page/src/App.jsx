@@ -98,9 +98,7 @@ class ChromeStorageSyncHandler {
 function Header() {
   return (
     <div className="header-section">
-      <div className="text-start">
-        <h1>Settings</h1>
-      </div>
+      <h1>Settings</h1>
     </div>
   );
 }
@@ -160,6 +158,67 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
     console.error(errorMessage);
     return [false, errorMessage];
   }
+}
+
+/**
+ * @typedef {Object} TokenInfoCardProps
+ * @property {DeepLTokenInfoInStorage} tokenInfo - The DeepL token information to display.
+ */
+
+/**
+ *
+ * @param {TokenInfoCardProps} props
+ * @returns
+ */
+function TokenInfoCard(props) {
+  const { tokenInfo } = props;
+  return (
+    <div className="token-card">
+      <div className="token-content">
+        <div className="token-info">
+          <div className="token-header">
+            <div className="token-details">
+              <h3 className="token-type">{tokenInfo.type}</h3>
+              <p className="token-string">{tokenInfo.key}</p>
+            </div>
+
+            <div className="usage-container">
+              <div className="usage-stats">
+                <span className="usage-text">23,456 / 500,000 characters used</span>
+                <span className="usage-percentage">4.69%</span>
+              </div>
+
+              <p className="last-checked-text">Last checked: 2 hours ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ *
+ */
+function TokenInfoList() {
+  /** @type {DeepLTokenInfoInStorage[]} */
+  const tokens = [
+    {
+      key: "xxxxxxxxxxxxxxxxxxxx:fx",
+      type: "free",
+      characterCount: 12345,
+      characterLimit: 500000,
+      lastUsageCheckedAt: new Date().toISOString(),
+    },
+    {
+      key: "yyyyyyyyyyyyyyyyyyyy:fx",
+      type: "pro",
+      characterCount: 67890,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+    },
+  ];
+  return tokens.map((tokenInfo) => <TokenInfoCard tokenInfo={tokenInfo} />);
 }
 
 /**
@@ -241,38 +300,38 @@ function AddNewTokenForm(props) {
   return (
     <form className="add-token-form" onSubmit={handleSubmit}>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <label className="form-text">New token</label>
+        <label className="add-token-form__input-label">New token</label>
         <input
           type="text"
           name="apiTokenKey"
-          className="input-field"
+          className="add-token-form__input-field"
           placeholder="Add your DeepL token here"
         />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <label className="form-text">API Type</label>
+        <label className="add-token-form__input-label">API Type</label>
 
-        <div className="radio-group">
-          <label className="radio-option">
+        <div className="add-token-form__radio-group">
+          <label className="add-token-form__radio-option">
             <input type="radio" name="apiTokenType" value="free" />
-            <div className="radio-content">
-              <div className="radio-title">DeepL Free</div>
-              <div className="radio-description">For personal and non-commercial use</div>
+            <div className="add-token-form__radio-content">
+              <div className="add-token-form__radio-title">DeepL Free</div>
+              <div className="add-token-form__radio-description">For personal and non-commercial use</div>
             </div>
           </label>
 
-          <label className="radio-option">
+          <label className="add-token-form__radio-option">
             <input type="radio" name="apiTokenType" value="pro" />
-            <div className="radio-content">
-              <div className="radio-title">DeepL Pro</div>
-              <div className="radio-description">For subscription use with high limit</div>
+            <div className="add-token-form__radio-content">
+              <div className="add-token-form__radio-title">DeepL Pro</div>
+              <div className="add-token-form__radio-description">For subscription use with high limit</div>
             </div>
           </label>
         </div>
       </div>
 
-      <button type="submit" className="button" style={{ margin: "8px 0" }}>
+      <button type="submit" className="add-token-form__button" style={{ margin: "8px 0" }}>
         Add new token
       </button>
     </form>
@@ -301,6 +360,7 @@ function TokenManagementSection() {
   return (
     <>
       <div>Here is the list of tokens: {JSON.stringify(Object.fromEntries(tokenInfosMap))}</div>
+      <TokenInfoList />
       <AddNewTokenForm tokenInfosMap={tokenInfosMap} setTokenInfosMap={setTokenInfosMap} />
     </>
   );
@@ -310,19 +370,19 @@ function TokenManagementAccordion() {
   const [accordionOpen, setAccordionOpen] = useState(false);
 
   return (
-    <div className="container">
-      <div className={`accordion ${accordionOpen ? "active" : ""}`}>
-        <button className="accordion-header" onClick={() => setAccordionOpen(!accordionOpen)}>
+    <div className="setting-card">
+      <div className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}>
+        <button className="setting-card__accordion-header" onClick={() => setAccordionOpen(!accordionOpen)}>
           <span>Tokens Management</span>
-          <span className="accordion-icon">&#9660;</span>
+          <span className="setting-card__accordion-icon">&#9660;</span>
         </button>
-        <div className="accordion-content">
-          <div className="accordion-content-inner">
-            <p className="section-title">
+        <div className="setting-card__accordion-content">
+          <div className="setting-card__accordion-content-inner">
+            <p className="setting-card__title">
               Manage your DeepL API tokens to enable translation service.
             </p>
 
-            <p className="section-text">
+            <p className="setting-card__description">
               Currently, only&nbsp;
               <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">
                 DeepL, the best translation service for Finnish language
@@ -351,7 +411,7 @@ function TokenManagementAccordion() {
 function App() {
   return (
     <>
-      <div className="extension-body">
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <Header />
 
         <TokenManagementAccordion />
