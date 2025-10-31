@@ -163,15 +163,20 @@ async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
 }
 
 /**
- * 
- * @param {number} num 
- * @returns 
+ *
+ * @param {number} num
+ * @returns
  * @description Format number with commas as thousands separators. Example: 1234567 -> "1,234,567"
  */
 function formatCharacterUsageNumber(num) {
   return num.toLocaleString();
 }
 
+/**
+ *
+ * @param {*} date
+ * @returns
+ */
 function formatDate(date) {
   const now = new Date();
   const diff = now - date;
@@ -188,15 +193,32 @@ function formatDate(date) {
 /**
  *
  * @param {string} word
- * @returns {string}
+ * @returns {string} For example: "pro" => "Pro"
  */
 function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
 /**
+ * @param {number} percentage
+ * @returns {string} return either "token-card__progress-green", "token-card__progress-yellow" or "token-card_progress-red" based on percentage level
+ */
+function getProgressBarColorCssClassname(percentage) {
+  if (percentage <= 50) {
+    return "token-card__progress-green";
+  }
+  if (percentage <= 75) {
+    return "token-card__progress-yellow";
+  }
+  return "token-card__progress-red";
+}
+
+/**
  * @typedef {Object} TokenInfoCardProps
  * @property {DeepLTokenInfoInStorage} tokenInfo - The DeepL token information to display.
+ * @property {(tokenKey: string) => void} handleSelectToken - Function to handle token selection.
+ * @property {(tokenKey: string) => void} handleCheckUsage - Function to handle when user wants to check new usage time.
+ * @property {(tokenKey: string) => void} handleRemoveToken - Function to handle remove token.
  */
 
 /**
@@ -205,38 +227,46 @@ function capitalizeFirstLetter(word) {
  * @returns
  */
 function TokenInfoCard(props) {
-  const { tokenInfo } = props;
-  const usagePercentage = (tokenInfo.characterCount / tokenInfo.characterLimit * 100).toFixed(1);
+  const { tokenInfo, handleSelectToken, handleCheckUsage, handleRemoveToken } = props;
+  const usagePercentage = ((tokenInfo.characterCount / tokenInfo.characterLimit) * 100).toFixed(1);
   return (
     <div
       key={tokenInfo.key}
-      // onClick={() => handleSelectToken(tokenInfo.key)}
+      onClick={() => handleSelectToken(tokenInfo.key)}
       className={`token-card ${tokenInfo.selected ? "token-card-selected" : ""}`}
     >
       <div className="token-card__content">
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="token-card__header">
-            <div className={`token-card__checkbox ${tokenInfo.selected ? "token-card__checkbox-selected" : ""}`}>
+            <div
+              className={`token-card__checkbox ${
+                tokenInfo.selected ? "token-card__checkbox-selected" : ""
+              }`}
+            >
               {tokenInfo.selected && <Check size={14} className="check-icon" />}
             </div>
             <div className="token-card__details">
-              <h3 className="token-card__token-type">DeepL {capitalizeFirstLetter(tokenInfo.type)}</h3>
-              <p className="token-card__token-key">{tokenInfo.token}</p>
+              <h3 className="token-card__token-type">
+                DeepL {capitalizeFirstLetter(tokenInfo.type)}
+              </h3>
+              <p className="token-card__token-key">{tokenInfo.key}</p>
             </div>
           </div>
 
           <div className="token-card__usage-container">
             <div className="token-card__usage-stats">
               <span className="token-card__usage-text">
-                {formatCharacterUsageNumber(tokenInfo.characterCount)} / {formatCharacterUsageNumber(tokenInfo.characterLimit)}{" "}
-                characters
+                {formatCharacterUsageNumber(tokenInfo.characterCount)} /{" "}
+                {formatCharacterUsageNumber(tokenInfo.characterLimit)} characters
               </span>
               <span className="token-card__usage-percentage">{usagePercentage}%</span>
             </div>
 
             <div className="token-card__progress-bar">
               <div
-                className={`token-card__progress-fill token-card__progress-green`}
+                className={`token-card__progress-fill ${getProgressBarColorCssClassname(
+                  usagePercentage
+                )}`}
                 style={{ width: `${Math.min(usagePercentage, 100)}%` }}
               ></div>
             </div>
@@ -251,7 +281,7 @@ function TokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              // handleCheckUsage(token.id);
+              handleCheckUsage(tokenInfo.key);
             }}
             className="token-card__button token-card__check-usage-button"
           >
@@ -261,7 +291,9 @@ function TokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              // handleRemoveToken(token.id);
+              if (confirm(`Are you sure you want to remove this token: ${tokenInfo.key}?`)) {
+                handleRemoveToken(tokenInfo.key);
+              }
             }}
             className="token-card__button token-card__remove_button"
           >
@@ -279,13 +311,14 @@ function TokenInfoCard(props) {
  */
 function TokenInfoCardList() {
   /** @type {DeepLTokenInfoInStorage[]} */
-  const tokens = [
+  const givenTokens = [
     {
       key: "xxxxxxxxxxxxxxxxxxxx:fx",
       type: "free",
       characterCount: 12345,
       characterLimit: 500000,
       lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
     },
     {
       key: "yyyyyyyyyyyyyyyyyyyy:fx",
@@ -293,14 +326,73 @@ function TokenInfoCardList() {
       characterCount: 67890,
       characterLimit: 1000000,
       lastUsageCheckedAt: new Date().toISOString(),
+      selected: true,
+    },
+    {
+      key: "zzzzzzzzzzzzzzzzzzzz:fx",
+      type: "pro",
+      characterCount: 999999,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
     },
   ];
+
+  const [tokenInfos, setTokenInfos] = useState(givenTokens);
+
+  /**
+   * Handle select token
+   * @param {string} tokenKey
+   * @return {void}
+   */
+  function handleSelectToken(tokenKey) {
+    const newTokenInfos = structuredClone(tokenInfos);
+
+    for (const tokenInfo of newTokenInfos) {
+      if (tokenInfo.key === tokenKey) {
+        tokenInfo.selected = true;
+      } else {
+        tokenInfo.selected = false;
+      }
+    }
+    setTokenInfos(newTokenInfos);
+  }
+
+  /**
+   * Handle check usage
+   * @param {string} tokenKey
+   * @return {void}
+   */
+  function handleCheckUsage(tokenKey) {
+    setTokenInfos(tokenInfos);
+  }
+
+  /**
+   * Handle remove token
+   * @param {string} tokenKey
+   * @return {void}
+   */
+  function handleRemoveToken(tokenKey) {
+    const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
+    setTokenInfos(newTokenInfos);
+  }
+
+  // const selectedTokenKeyNow = givenTokens.filter((token) => token.selected)[0]?.key;
+
+  // const [selectedTokenKey, setSelectedTokenKey] = useState(selectedTokenKeyNow);
+
   return (
     <div>
       <p>Here is your list of tokens:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
-        {tokens.map((tokenInfo) => (
-          <TokenInfoCard key={tokenInfo.key} tokenInfo={tokenInfo} />
+        {tokenInfos.map((tokenInfo) => (
+          <TokenInfoCard
+            key={tokenInfo.key}
+            tokenInfo={tokenInfo}
+            handleSelectToken={handleSelectToken}
+            handleCheckUsage={handleCheckUsage}
+            handleRemoveToken={handleRemoveToken}
+          />
         ))}
       </div>
     </div>
