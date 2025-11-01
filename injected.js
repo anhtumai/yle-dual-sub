@@ -23,7 +23,7 @@ function parseVttFile(vttFileContent) {
         return {
             index: parseInt(lines[0], 10),
             time: lines[1],
-            text: lines.slice(2).join("\n"),
+            text: lines.slice(2).join(" ").replace(/\s+/g, " ").replace("\n", " ").trim(),
         };
     });
 }

@@ -1,0 +1,380 @@
+/* Header Section */
+.header-section {
+  width: 100%;
+  background: #1a1a1a;
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0px;
+}
+
+.header-section h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Setting Section */
+
+.setting-card {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  flex-direction: column;
+  align-items: center;
+  font-size: 18px;
+}
+
+.setting-card__accordion {
+  background: #1a1a1a;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s;
+}
+
+.setting-card__accordion:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.setting-card__accordion-header {
+  padding: 20px 24px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s;
+}
+
+.setting-card__accordion-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.setting-card__accordion-icon {
+  transition: transform 0.3s;
+  color: #3b82f6;
+}
+
+.setting-card__accordion.active .setting-card__accordion-icon {
+  transform: rotate(180deg);
+}
+
+.setting-card__accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.setting-card__accordion-content-inner {
+  padding: 0 30px 30px;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.setting-card__accordion.active .setting-card__accordion-content {
+  max-height: 800px;
+  overflow-y: scroll;
+}
+
+.setting-card__title {
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 16px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.setting-card__description {
+  color: #9ca3af;
+  line-height: 1.6;
+  margin-top: 12px;
+  margin-bottom: 30px;
+  font-weight: 400;
+}
+
+.setting-card__description a {
+  color: #3b82f6;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.setting-card__description a:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+/* Add token form section*/
+
+.add-token-form {
+  border-top: 2px solid #404040;
+  padding-top: 48px;
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.add-token-form__input-field {
+  background: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #e5e5e5;
+  font-size: 16px;
+}
+
+.add-token-form__input-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.add-token-form__button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-token-form__button:hover {
+  background: #2563eb;
+}
+
+.add-token-form__input-label {
+  display: block;
+  color: #e5e5e5;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.add-token-form__radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-token-form__radio-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.add-token-form__radio-option:hover {
+  background: #333;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.add-token-form__radio-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  margin: 0;
+}
+
+.add-token-form__radio-option:has(input:checked) {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.add-token-form__radio-content {
+  flex: 1;
+}
+
+.add-token-form__radio-title {
+  color: #e5e5e5;
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.add-token-form__radio-description {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Token Cards */
+
+.token-card {
+  background:#2a2a2a;;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.token-card:hover {
+  background: #333;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.token-card-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  color: #e5e5e5;
+}
+
+.token-card__content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.token-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.token-card__checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.token-card__checkbox-selected {
+  border-color: #3b82f6;
+  background: #3b82f6;
+}
+
+.token-card__check-icon {
+  color: white;
+}
+
+.token-card__details {
+  flex: 1;
+  min-width: 0;
+}
+
+.token-card__token-type {
+  color: white;
+  font-weight: 500;
+  margin: 0 0 4px 0;
+  font-size: 16px;
+}
+
+.token-card__token-key {
+  color: #9ca3af;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.token-card__usage-container {
+  margin-left: 32px;
+}
+
+.token-card__usage-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.token-card__usage-text {
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.token-card__usage-percentage {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.token-card__progress-bar {
+  width: 100%;
+  background: #4b5563;
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.token-card__progress-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.token-card__progress-green {
+  background: #10b981;
+}
+
+.token-card__progress-yellow {
+  background: #eab308;
+}
+
+.token-card__progress-red {
+  background: #ef4444;
+}
+
+.token-card__last-checked-text {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 0;
+}
+
+.token-card__action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.token-card__button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-family: inherit;
+}
+
+.token-card__check-usage-button {
+  background: #2563eb;
+}
+
+.token-card__check-usage-button:hover {
+  background: #1d4ed8;
+}
+
+.token-card__remove_button {
+  background: #dc2626;
+}
+
+.token-card__remove_button:hover {
+  background: #b91c1c;
+}

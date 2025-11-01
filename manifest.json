@@ -14,12 +14,17 @@
       "css": ["styles.css"]
     }
   ],
-  "host_permissions": ["https://api-free.deepl.com/*"],
+  "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
   "permissions": ["scripting"],
   "web_accessible_resources": [
     {
       "resources": ["injected.js"],
       "matches": ["https://areena.yle.fi/*"]
     }
-  ]
+  ],
+  "action": {
+    "default_title": "YLE Dual Subtitles Extension",
+    "default_popup": "popup.html"
+  },
+  "options_page": "extension-options-page/dist/index.html"
 }
