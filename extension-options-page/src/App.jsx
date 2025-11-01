@@ -60,67 +60,37 @@ async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * @type {DeepLTokenInfoInStorage[]}
- */
-const chromeStorageSync = {
-  "xxxxxxxxxxxxxxxxxxxx:fx": {
-    key: "xxxxxxxxxxxxxxxxxxxx:fx",
-    type: "free",
-    characterCount: 12345,
-    characterLimit: 500000,
-    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
-    selected: false,
-  },
-  "yyyyyyyyyyyyyyyyyyyy:fx": {
-    key: "yyyyyyyyyyyyyyyyyyyy:fx",
-    type: "pro",
-    characterCount: 67890,
-    characterLimit: 1000000,
-    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
-    selected: true,
-  },
-  "zzzzzzzzzzzzzzzzzzzzz:fx": {
-    key: "zzzzzzzzzzzzzzzzzzzz:fx",
-    type: "pro",
-    characterCount: 999999,
-    characterLimit: 1000000,
-    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
-    selected: false,
-  },
-};
-
 class ChromeStorageSyncHandler {
   /**
-   *
-   * @param {DeepLTokenInfoInStorage} tokenInfo
-   * @returns
+   * @param {DeepLTokenInfoInStorage[]} tokenInfos
+   * @returns {Promise[void]}
    */
-  static async saveDeepLToken(tokenInfo) {
-    const { key: tokenKey } = tokenInfo;
-
-    await sleep(100);
-
-    chromeStorageSync[tokenKey] = tokenInfo;
+  static async setAllDeepLTokens(tokenInfos) {
+    await chrome.storage.sync.set({ deepLToken: tokenInfos });
   }
 
   /**
    * @returns {Promise<DeepLTokenInfoInStorage[]>}
    */
   static async getAllDeepLTokens() {
-    await sleep(100);
+    const result = await chrome.storage.sync.get("deepLToken");
 
-    return Object.values(chromeStorageSync);
-  }
+    // Check if result is an object
+    if (typeof result !== "object" || result === null) {
+      return [];
+    }
 
-  /**
-   * @param {string} tokenKey
-   * @returns {Promise<DeepLTokenInfoInStorage | undefined>}
-   */
-  static async getDeepLToken(tokenKey) {
-    await sleep(100);
+    // Check if result contains the deepLToken field
+    if (Object.prototype.hasOwnProperty.call(result, "deepLToken") === false) {
+      return [];
+    }
 
-    return chromeStorageSync[tokenKey];
+    // Check if result.deepLToken is an array
+    if (!Array.isArray(result.deepLToken)) {
+      return [];
+    }
+    
+    return result.deepLToken;
   }
 }
 
@@ -371,7 +341,10 @@ function TokenInfoCardList(props) {
     for (const tokenInfo of tokenInfos) {
       if (tokenInfo.key === tokenKey) {
         try {
-          const [isSucceeded, newUsageInfo] = await queryTokenUsageInfo(tokenInfo.key, tokenInfo.type);
+          const [isSucceeded, newUsageInfo] = await queryTokenUsageInfo(
+            tokenInfo.key,
+            tokenInfo.type
+          );
 
           if (!isSucceeded) {
             alert(`Error when checking usage for token ${tokenInfo.key}: ${newUsageInfo}`);
@@ -486,8 +459,6 @@ function AddNewTokenForm(props) {
       lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
     };
 
-    await ChromeStorageSyncHandler.saveDeepLToken(deeplTokenInfoInStorage);
-
     const newTokenInfos = [...tokenInfos, deeplTokenInfoInStorage];
 
     setTokenInfos(newTokenInfos);
@@ -549,6 +520,7 @@ function TokenManagementSection() {
   useEffect(() => {
     ChromeStorageSyncHandler.getAllDeepLTokens()
       .then((chromeStorageTokenInfos) => {
+        console.log("Loaded DeepL tokens from Chrome storage:", chromeStorageTokenInfos);
         setTokenInfos(chromeStorageTokenInfos);
       })
       .catch((error) => {
@@ -556,10 +528,18 @@ function TokenManagementSection() {
       });
   }, []);
 
+  function setTokenInfosAndPersist(newTokenInfos) {
+    setTokenInfos(newTokenInfos);
+
+    ChromeStorageSyncHandler.setAllDeepLTokens(newTokenInfos).catch((error) => {
+      console.error("Error when setting all DeepL tokens to Chrome storage:", error);
+    });
+  }
+
   return (
     <>
-      <TokenInfoCardList tokenInfos={tokenInfos} setTokenInfos={setTokenInfos} />
-      <AddNewTokenForm tokenInfos={tokenInfos} setTokenInfos={setTokenInfos} />
+      <TokenInfoCardList tokenInfos={tokenInfos} setTokenInfos={setTokenInfosAndPersist} />
+      <AddNewTokenForm tokenInfos={tokenInfos} setTokenInfos={setTokenInfosAndPersist} />
     </>
   );
 }
