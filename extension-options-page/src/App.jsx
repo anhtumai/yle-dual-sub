@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Trash2, RefreshCw, Check } from "lucide-react";
 import "./App.css";
 
-const DEEPLAPITOKENREGEX = /^.{20,}:fx$/i;
+const DEEPL_API_TOKEN_REGEX = /^.{20,}:fx$/i;
+const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
+const DEEPL_PRO_ENDPOINT =  import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
 
 class DeepLUsageResponse {
   /**
@@ -61,7 +63,32 @@ async function sleep(ms) {
 /**
  * @type {DeepLTokenInfoInStorage[]}
  */
-const chromeStorageSync = {};
+const chromeStorageSync = {
+    "xxxxxxxxxxxxxxxxxxxx:fx": {
+      key: "xxxxxxxxxxxxxxxxxxxx:fx",
+      type: "free",
+      characterCount: 12345,
+      characterLimit: 500000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
+    },
+    "yyyyyyyyyyyyyyyyyyyy:fx": {
+      key: "yyyyyyyyyyyyyyyyyyyy:fx",
+      type: "pro",
+      characterCount: 67890,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: true,
+    },
+    "zzzzzzzzzzzzzzzzzzzzz:fx": {
+      key: "zzzzzzzzzzzzzzzzzzzz:fx",
+      type: "pro",
+      characterCount: 999999,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
+    }
+};
 
 class ChromeStorageSyncHandler {
   /**
@@ -115,7 +142,7 @@ function validateDeeplApiTokenKey(tokenKey) {
     return false;
   }
 
-  if (!DEEPLAPITOKENREGEX.test(tokenKey)) {
+  if (!DEEPL_API_TOKEN_REGEX.test(tokenKey)) {
     return false;
   }
 
@@ -131,7 +158,7 @@ function validateDeeplApiTokenKey(tokenKey) {
  */
 async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
   const url =
-    tokenType === "free" ? "https://api-free.deepl.com/v2/usage" : "https://api.deepl.com/v2/usage";
+    tokenType === "free" ? `${DEEPL_FREE_ENDPOINT}/usage` : `${DEEPL_PRO_ENDPOINT}/usage`;
 
   try {
     const response = await fetch(url, {
@@ -307,38 +334,17 @@ function TokenInfoCard(props) {
 }
 
 /**
- *
+ * @typedef {Object} TokenInfoCardListProps
+ * @property {DeepLTokenInfoInStorage[]} tokenInfos - An array of DeepL token information.
+ * @property {(newTokenInfos: DeepLTokenInfoInStorage[]) => void} setTokenInfos - A function to update the tokenInfos.
  */
-function TokenInfoCardList() {
-  /** @type {DeepLTokenInfoInStorage[]} */
-  const givenTokens = [
-    {
-      key: "xxxxxxxxxxxxxxxxxxxx:fx",
-      type: "free",
-      characterCount: 12345,
-      characterLimit: 500000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    },
-    {
-      key: "yyyyyyyyyyyyyyyyyyyy:fx",
-      type: "pro",
-      characterCount: 67890,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: true,
-    },
-    {
-      key: "zzzzzzzzzzzzzzzzzzzz:fx",
-      type: "pro",
-      characterCount: 999999,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    },
-  ];
 
-  const [tokenInfos, setTokenInfos] = useState(givenTokens);
+/**
+ *
+ * @param {TokenInfoCardListProps} props
+ */
+function TokenInfoCardList(props) {
+  const { tokenInfos, setTokenInfos } = props;
 
   /**
    * Handle select token
@@ -377,10 +383,6 @@ function TokenInfoCardList() {
     setTokenInfos(newTokenInfos);
   }
 
-  // const selectedTokenKeyNow = givenTokens.filter((token) => token.selected)[0]?.key;
-
-  // const [selectedTokenKey, setSelectedTokenKey] = useState(selectedTokenKeyNow);
-
   return (
     <div>
       <p>Here is your list of tokens:</p>
@@ -401,8 +403,8 @@ function TokenInfoCardList() {
 
 /**
  * @typedef {Object} AddNewTokenFormProps
- * @property {Map<string, DeepLTokenInfoInStorage>} tokenInfosMap - A map of DeepL tokens.
- * @property {(newTokenInfos: Map<string, DeepLTokenInfoInStorage> ) => void} setTokenInfosMap - A function to update the tokenInfosMap.
+ * @property {DeepLTokenInfoInStorage[]} tokenInfos - DeepL tokens info.
+ * @property {(newTokenInfos: DeepLTokenInfoInStorage[] ) => void} setTokenInfos - A function to update the tokenInfosMap.
  */
 
 /**
@@ -410,7 +412,8 @@ function TokenInfoCardList() {
  * @returns
  */
 function AddNewTokenForm(props) {
-  const { tokenInfosMap, setTokenInfosMap } = props;
+  const { tokenInfos, setTokenInfos } = props;
+  const tokenKeysSet = new Set(tokenInfos.map((tokenInfo) => tokenInfo.key));
   async function handleSubmit(event) {
     event.preventDefault();
     const formElement = event.target;
@@ -431,9 +434,10 @@ function AddNewTokenForm(props) {
       return;
     }
 
-    const existingTokenInfo = await ChromeStorageSyncHandler.getDeepLToken(deepLApiTokenKey);
-    if (existingTokenInfo) {
-      alert("You have already added this token.");
+    if (tokenKeysSet.has(deepLApiTokenKey)) {
+      alert(
+        "You have already added this token. If the token is not visible, please refresh the page."
+      );
       return;
     }
 
@@ -466,13 +470,11 @@ function AddNewTokenForm(props) {
 
     await ChromeStorageSyncHandler.saveDeepLToken(deeplTokenInfoInStorage);
 
-    const updatedTokenInfosMap = new Map(tokenInfosMap);
-    updatedTokenInfosMap.set(deepLApiTokenKey, deeplTokenInfoInStorage);
-    setTokenInfosMap(updatedTokenInfosMap);
+    const newTokenInfos = [...tokenInfos, deeplTokenInfoInStorage];
+
+    setTokenInfos(newTokenInfos);
 
     formElement.reset();
-
-    tokenInfosMap.clear();
   }
 
   return (
@@ -521,28 +523,64 @@ function AddNewTokenForm(props) {
 }
 
 function TokenManagementSection() {
+  /** @type {DeepLTokenInfoInStorage[]} */
+  const givenTokens = [
+    {
+      key: "xxxxxxxxxxxxxxxxxxxx:fx",
+      type: "free",
+      characterCount: 12345,
+      characterLimit: 500000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
+    },
+    {
+      key: "yyyyyyyyyyyyyyyyyyyy:fx",
+      type: "pro",
+      characterCount: 67890,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: true,
+    },
+    {
+      key: "zzzzzzzzzzzzzzzzzzzz:fx",
+      type: "pro",
+      characterCount: 999999,
+      characterLimit: 1000000,
+      lastUsageCheckedAt: new Date().toISOString(),
+      selected: false,
+    },
+  ];
+
   /**
-   * @type {[Map<string, DeepLTokenInfoInStorage>, Function]}
+   * @type {[DeepLTokenInfoInStorage[], (tokenKey: string) => void]}
    */
-  const [tokenInfosMap, setTokenInfosMap] = useState(new Map());
+  const [tokenInfos, setTokenInfos] = useState(givenTokens);
 
   useEffect(() => {
     ChromeStorageSyncHandler.getAllDeepLTokens()
       .then((chromeStorageTokenInfos) => {
-        const fromChromeStorageTokenInfosMap = new Map();
-        for (const tokenInfo of chromeStorageTokenInfos) {
-          fromChromeStorageTokenInfosMap.set(tokenInfo.key, tokenInfo);
-        }
-        setTokenInfosMap(fromChromeStorageTokenInfosMap);
+        setTokenInfos(chromeStorageTokenInfos);
       })
       .catch((error) => {
         console.error("Error when getting all DeepL tokens from Chrome storage:", error);
       });
   }, []);
+
+  // function handleAddToken(tokenKey) {
+  //   if (tokenInfosMap.has(tokenKey)) {
+  //     alert("You have already added this token.");
+  //     return;
+  //   }
+  //   if (tokenInfos.length >= 5) {
+  //     alert("You can only add up to 5 tokens.");
+  //     return;
+  //   }
+  // }
+
   return (
     <>
-      <TokenInfoCardList />
-      <AddNewTokenForm tokenInfosMap={tokenInfosMap} setTokenInfosMap={setTokenInfosMap} />
+      <TokenInfoCardList tokenInfos={tokenInfos} setTokenInfos={setTokenInfos} />
+      <AddNewTokenForm tokenInfos={tokenInfos} setTokenInfos={setTokenInfos} />
     </>
   );
 }
