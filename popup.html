@@ -120,27 +120,22 @@
         </ul>
       </div>
       <div class="buttons">
-        <a href="guide.html" class="button button-secondary" id="guideLink">
+        <a
+          href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md"
+          class="button button-secondary"
+          target="_blank"
+          id="guideLink"
+        >
           <span>📖</span>
           <span>Guide</span>
         </a>
-        <a href="setup.html" class="button button-primary" id="setupLink">
+        <a class="button button-primary" id="setupLink">
           <span>⚙️</span>
           <span>Settings</span>
         </a>
       </div>
       <div class="note">First time? Check the guide and configure your DeepL API token</div>
     </div>
-    <script>
-      document.getElementById("setupLink").addEventListener("click", function (e) {
-        e.preventDefault();
-        chrome.tabs.create({ url: chrome.runtime.getURL("setup.html") });
-      });
-
-      document.getElementById("guideLink").addEventListener("click", function (e) {
-        e.preventDefault();
-        chrome.tabs.create({ url: chrome.runtime.getURL("guide.html") });
-      });
-    </script>
+    <script src="popup.js"></script>
   </body>
 </html>

@@ -14,7 +14,7 @@
       "css": ["styles.css"]
     }
   ],
-  "host_permissions": ["https://api-free.deepl.com/*"],
+  "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
   "permissions": ["scripting"],
   "web_accessible_resources": [
     {
