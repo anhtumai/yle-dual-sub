@@ -4,7 +4,7 @@ import "./App.css";
 
 const DEEPL_API_TOKEN_REGEX = /^.{20,}:fx$/i;
 const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
-const DEEPL_PRO_ENDPOINT =  import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
+const DEEPL_PRO_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
 
 class DeepLUsageResponse {
   /**
@@ -64,30 +64,30 @@ async function sleep(ms) {
  * @type {DeepLTokenInfoInStorage[]}
  */
 const chromeStorageSync = {
-    "xxxxxxxxxxxxxxxxxxxx:fx": {
-      key: "xxxxxxxxxxxxxxxxxxxx:fx",
-      type: "free",
-      characterCount: 12345,
-      characterLimit: 500000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    },
-    "yyyyyyyyyyyyyyyyyyyy:fx": {
-      key: "yyyyyyyyyyyyyyyyyyyy:fx",
-      type: "pro",
-      characterCount: 67890,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: true,
-    },
-    "zzzzzzzzzzzzzzzzzzzzz:fx": {
-      key: "zzzzzzzzzzzzzzzzzzzz:fx",
-      type: "pro",
-      characterCount: 999999,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    }
+  "xxxxxxxxxxxxxxxxxxxx:fx": {
+    key: "xxxxxxxxxxxxxxxxxxxx:fx",
+    type: "free",
+    characterCount: 12345,
+    characterLimit: 500000,
+    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
+    selected: false,
+  },
+  "yyyyyyyyyyyyyyyyyyyy:fx": {
+    key: "yyyyyyyyyyyyyyyyyyyy:fx",
+    type: "pro",
+    characterCount: 67890,
+    characterLimit: 1000000,
+    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
+    selected: true,
+  },
+  "zzzzzzzzzzzzzzzzzzzzz:fx": {
+    key: "zzzzzzzzzzzzzzzzzzzz:fx",
+    type: "pro",
+    characterCount: 999999,
+    characterLimit: 1000000,
+    lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
+    selected: false,
+  },
 };
 
 class ChromeStorageSyncHandler {
@@ -156,9 +156,8 @@ function validateDeeplApiTokenKey(tokenKey) {
  * @returns {Promise<[true, DeepLUsageResponse]|[false, string]>} -
  * Returns a tuple where the first element indicates validity and the second is either usage data or an error message.
  */
-async function checkIfDeepLApiTokenValid(tokenKey, tokenType) {
-  const url =
-    tokenType === "free" ? `${DEEPL_FREE_ENDPOINT}/usage` : `${DEEPL_PRO_ENDPOINT}/usage`;
+async function queryTokenUsageInfo(tokenKey, tokenType) {
+  const url = tokenType === "free" ? `${DEEPL_FREE_ENDPOINT}/usage` : `${DEEPL_PRO_ENDPOINT}/usage`;
 
   try {
     const response = await fetch(url, {
@@ -201,20 +200,19 @@ function formatCharacterUsageNumber(num) {
 
 /**
  *
- * @param {*} date
- * @returns
+ * @param {Date} date
+ * @returns {string} formatted date in en-GB locale string. For example: '01/11/2025, 16:30:35'
  */
-function formatDate(date) {
-  const now = new Date();
-  const diff = now - date;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes} min ago`;
-  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  return `${days} day${days > 1 ? "s" : ""} ago`;
+function formatDateInEnglishLocale(date) {
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
 }
 
 /**
@@ -299,7 +297,7 @@ function TokenInfoCard(props) {
             </div>
 
             <p className="token-card__last-checked-text">
-              Last checked: {formatDate(tokenInfo.lastUsageCheckedAt)}
+              Last checked: {tokenInfo.lastUsageCheckedAt}
             </p>
           </div>
         </div>
@@ -369,7 +367,24 @@ function TokenInfoCardList(props) {
    * @param {string} tokenKey
    * @return {void}
    */
-  function handleCheckUsage(tokenKey) {
+  async function handleCheckUsage(tokenKey) {
+    for (const tokenInfo of tokenInfos) {
+      if (tokenInfo.key === tokenKey) {
+        try {
+          const newUsageInfo = queryTokenUsageInfo(tokenInfo.key, tokenInfo.type);
+
+          tokenInfo.characterCount = newUsageInfo.characterCount;
+          tokenInfo.characterLimit = newUsageInfo.characterLimit;
+          tokenInfo.lastUsageCheckedAt = formatDateInEnglishLocale(new Date());
+
+          const newTokenInfos = structuredClone(tokenInfos);
+          setTokenInfos(newTokenInfos);
+        } catch (error) {
+          alert(`Error when checking usage for token ${tokenInfo.key}: ${error}`);
+          return;
+        }
+      }
+    }
     setTokenInfos(tokenInfos);
   }
 
@@ -441,7 +456,7 @@ function AddNewTokenForm(props) {
       return;
     }
 
-    const [validateSuccess, checkTokenUsageResponse] = await checkIfDeepLApiTokenValid(
+    const [validateSuccess, checkTokenUsageResponse] = await queryTokenUsageInfo(
       deepLApiTokenKey,
       deepLApiTokenType
     );
@@ -465,7 +480,7 @@ function AddNewTokenForm(props) {
       type: deepLApiTokenType,
       characterCount: deepLUsageResponse.characterCount,
       characterLimit: deepLUsageResponse.characterLimit,
-      lastUsageCheckedAt: new Date().toISOString(),
+      lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
     };
 
     await ChromeStorageSyncHandler.saveDeepLToken(deeplTokenInfoInStorage);
@@ -523,38 +538,10 @@ function AddNewTokenForm(props) {
 }
 
 function TokenManagementSection() {
-  /** @type {DeepLTokenInfoInStorage[]} */
-  const givenTokens = [
-    {
-      key: "xxxxxxxxxxxxxxxxxxxx:fx",
-      type: "free",
-      characterCount: 12345,
-      characterLimit: 500000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    },
-    {
-      key: "yyyyyyyyyyyyyyyyyyyy:fx",
-      type: "pro",
-      characterCount: 67890,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: true,
-    },
-    {
-      key: "zzzzzzzzzzzzzzzzzzzz:fx",
-      type: "pro",
-      characterCount: 999999,
-      characterLimit: 1000000,
-      lastUsageCheckedAt: new Date().toISOString(),
-      selected: false,
-    },
-  ];
-
   /**
    * @type {[DeepLTokenInfoInStorage[], (tokenKey: string) => void]}
    */
-  const [tokenInfos, setTokenInfos] = useState(givenTokens);
+  const [tokenInfos, setTokenInfos] = useState([]);
 
   useEffect(() => {
     ChromeStorageSyncHandler.getAllDeepLTokens()
@@ -565,17 +552,6 @@ function TokenManagementSection() {
         console.error("Error when getting all DeepL tokens from Chrome storage:", error);
       });
   }, []);
-
-  // function handleAddToken(tokenKey) {
-  //   if (tokenInfosMap.has(tokenKey)) {
-  //     alert("You have already added this token.");
-  //     return;
-  //   }
-  //   if (tokenInfos.length >= 5) {
-  //     alert("You can only add up to 5 tokens.");
-  //     return;
-  //   }
-  // }
 
   return (
     <>
