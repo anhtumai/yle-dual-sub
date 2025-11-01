@@ -371,8 +371,12 @@ function TokenInfoCardList(props) {
     for (const tokenInfo of tokenInfos) {
       if (tokenInfo.key === tokenKey) {
         try {
-          const newUsageInfo = queryTokenUsageInfo(tokenInfo.key, tokenInfo.type);
+          const [isSucceeded, newUsageInfo] = await queryTokenUsageInfo(tokenInfo.key, tokenInfo.type);
 
+          if (!isSucceeded) {
+            alert(`Error when checking usage for token ${tokenInfo.key}: ${newUsageInfo}`);
+            return;
+          }
           tokenInfo.characterCount = newUsageInfo.characterCount;
           tokenInfo.characterLimit = newUsageInfo.characterLimit;
           tokenInfo.lastUsageCheckedAt = formatDateInEnglishLocale(new Date());
@@ -385,7 +389,6 @@ function TokenInfoCardList(props) {
         }
       }
     }
-    setTokenInfos(tokenInfos);
   }
 
   /**
