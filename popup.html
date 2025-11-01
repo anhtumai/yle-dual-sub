@@ -1,78 +1,146 @@
+<!DOCTYPE html>
 <html lang="en">
-  <link href="popup.css" rel="stylesheet" type="text/css" />
-  <script type="module" src="popup.js"></script>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YLE Dual Sub</title>
+    <style>
+      body {
+        width: 320px;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+          sans-serif;
+        margin: 0;
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+      .container {
+        background: #2a2a2a;
+        border-radius: 12px;
+        padding: 20px;
+        color: #e0e0e0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+      h1 {
+        margin: 0 0 12px 0;
+        font-size: 22px;
+        color: #ffffff;
+      }
+      .subtitle {
+        font-size: 13px;
+        color: #999999;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+      .description {
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        color: #b0b0b0;
+      }
+      .features {
+        background: #333333;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+      .features ul {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+      }
+      .features li {
+        margin: 6px 0;
+        color: #b0b0b0;
+      }
+      .buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .button {
+        flex: 1;
+        padding: 12px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+      .button-primary {
+        background: #3b82f6;
+      }
+      .button-primary:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+      }
+      .button-secondary {
+        background: #6b7280;
+      }
+      .button-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(107, 114, 128, 0.4);
+      }
+      .emoji {
+        font-size: 16px;
+      }
+      .note {
+        font-size: 12px;
+        color: #888888;
+        text-align: center;
+        font-style: italic;
+      }
+    </style>
+  </head>
   <body>
-    <div class="extension-body">
-      <div class="header-section">
-        <div class="text-start">
-          <h1>Settings</h1>
-        </div>
+    <div class="container">
+      <h1><span class="emoji">🇫🇮</span> YLE Dual Sub <span class="emoji">📺</span></h1>
+      <div class="subtitle">Learn Finnish by watching YLE Areena with dual subtitles</div>
+      <div class="description">
+        Watch Finnish content with both Finnish and English subtitles displayed simultaneously - the
+        perfect tool for immersive language learning!
       </div>
-
-      <div class="container">
-        <div class="accordion">
-          <button class="accordion-header">
-            <span>Tokens Management</span>
-            <span class="accordion-icon">&#9660;</span>
-          </button>
-          <div class="accordion-content">
-            <div class="accordion-content-inner">
-              <p class="section-title">
-                Manage your DeepL API tokens to enable translation service.
-              </p>
-
-              <p class="section-text">
-                Currently, only
-                <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">
-                  DeepL, the best translation service for Finnish language
-                </a>
-                is supported.
-                <br />
-                You can upload up to 5 tokens. View
-                <a
-                  href="https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >this guide</a
-                >
-                to get an API token.
-              </p>
-
-              <div class="add-token-form">
-                <div style="display: flex; flex-direction: column">
-                  <label class="form-text">New token</label>
-                  <input type="text" class="input-field" placeholder="Add your DeepL token here" />
-                </div>
-
-                <div style="display: flex; flex-direction: column">
-                  <label class="form-text">API Type</label>
-
-                  <div class="radio-group">
-                    <label class="radio-option">
-                      <input type="radio" name="apiType" value="free"/>
-                      <div class="radio-content">
-                        <div class="radio-title">DeepL Free</div>
-                        <div class="radio-description">For personal and non-commercial use</div>
-                      </div>
-                    </label>
-
-                    <label class="radio-option">
-                      <input type="radio" name="apiType" value="pro" />
-                      <div class="radio-content">
-                        <div class="radio-title">DeepL Pro</div>
-                        <div class="radio-description">For subscription use with high limit</div>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                <button class="button" style="margin-top: 8px">Add new token</button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="features">
+        <strong>✨ Features:</strong>
+        <ul>
+          <li>Finnish subtitles + English translation</li>
+          <li>Powered by DeepL translation</li>
+          <li>Works on all YLE Areena content</li>
+          <li>100% free and zero dependencies</li>
+        </ul>
       </div>
+      <div class="buttons">
+        <a href="guide.html" class="button button-secondary" id="guideLink">
+          <span>📖</span>
+          <span>Guide</span>
+        </a>
+        <a href="setup.html" class="button button-primary" id="setupLink">
+          <span>⚙️</span>
+          <span>Settings</span>
+        </a>
+      </div>
+      <div class="note">First time? Check the guide and configure your DeepL API token</div>
     </div>
+    <script>
+      document.getElementById("setupLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        chrome.tabs.create({ url: chrome.runtime.getURL("setup.html") });
+      });
+
+      document.getElementById("guideLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        chrome.tabs.create({ url: chrome.runtime.getURL("guide.html") });
+      });
+    </script>
   </body>
 </html>
