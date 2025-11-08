@@ -41,14 +41,7 @@ class DeepLUsageResponse {
 }
 
 /**
- * @typedef DeepLTokenInfoInStorage
- * @type {object}
- * @property {string} key - The DeepL API token key.
- * @property {string} type - The DeepL API token type, either free or pro.
- * @property {string} characterCount - The number of characters translated using this token.
- * @property {string} characterLimit - The character limit for this token.
- * @property {string} lastUsageCheckedAt - The timestamp when the token usage was last checked.
- * @property {boolean} selected - Whether this token is selected for use.
+ * @typedef {import('../../types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
 
 /**
@@ -66,14 +59,14 @@ class ChromeStorageSyncHandler {
    * @returns {Promise[void]}
    */
   static async setAllDeepLTokens(tokenInfos) {
-    await chrome.storage.sync.set({ deepLToken: tokenInfos });
+    await chrome.storage.sync.set({ tokenInfos: tokenInfos });
   }
 
   /**
    * @returns {Promise<DeepLTokenInfoInStorage[]>}
    */
   static async getAllDeepLTokens() {
-    const result = await chrome.storage.sync.get("deepLToken");
+    const result = await chrome.storage.sync.get("tokenInfos");
 
     // Check if result is an object
     if (typeof result !== "object" || result === null) {
@@ -81,16 +74,16 @@ class ChromeStorageSyncHandler {
     }
 
     // Check if result contains the deepLToken field
-    if (Object.prototype.hasOwnProperty.call(result, "deepLToken") === false) {
+    if (Object.prototype.hasOwnProperty.call(result, "tokenInfos") === false) {
       return [];
     }
 
     // Check if result.deepLToken is an array
-    if (!Array.isArray(result.deepLToken)) {
+    if (!Array.isArray(result.tokenInfos)) {
       return [];
     }
     
-    return result.deepLToken;
+    return result.tokenInfos;
   }
 }
 

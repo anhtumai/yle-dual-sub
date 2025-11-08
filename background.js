@@ -1,5 +1,75 @@
 importScripts('./configs.js');
 
+/**
+ * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
+ */
+
+// Load selected DeepL token from Chrome storage sync
+/**
+ * @type {string}
+ */
+let deeplTokenKey = "";
+/**
+ * @type {boolean}
+ */
+let isDeepLPro = false;
+
+
+/**
+ * Load selected DeepL token from Chrome storage sync
+ */
+async function loadSelectedTokenFromChromeStorageSync() {
+  try {
+    const result = await chrome.storage.sync.get("tokenInfos");
+
+    console.log('Loaded token infos from storage:', result);
+
+    if (result && result.tokenInfos && Array.isArray(result.tokenInfos)) {
+      /**
+       * @type {DeepLTokenInfoInStorage[]}
+       */
+      const deeplTokenInfos = result.tokenInfos;
+      const selectedTokenInfo = deeplTokenInfos.find(token => token.selected === true);
+      if (selectedTokenInfo) {
+        deeplTokenKey = selectedTokenInfo.key;
+        isDeepLPro = selectedTokenInfo.type === "pro";
+      } else {
+        console.warn('No selected token found in storage');
+      }
+    } else {
+      console.warn('No tokens found in storage');
+    }
+  } catch (error) {
+    console.error('Error loading token from storage:', error);
+  }
+}
+
+// Load token on extension startup
+loadSelectedTokenFromChromeStorageSync().then(() => {});
+
+// Listen for storage changes to update token when user changes selection
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === "sync") {
+    console.log("Print changes:", changes);
+  }
+  if (namespace === 'sync' && changes.tokenInfos) {
+    console.log('Token configuration changed, reloading...');
+    if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
+      /**
+       * @type {DeepLTokenInfoInStorage[]}
+       */
+      const deeplTokenInfos = changes.tokenInfos.newValue;
+      const selectedTokenInfo = deeplTokenInfos.find(token => token.selected === true);
+      if (selectedTokenInfo) {
+        deeplTokenKey = selectedTokenInfo.key;
+        isDeepLPro = selectedTokenInfo.type === "pro";
+      } else {
+        console.warn('No selected token found in updated storage');
+      }
+    }
+  }
+});
+
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'fetchTranslation') {
     /** @type {string[]} */
@@ -76,8 +146,8 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
  * of translated English texts, if failed, returns error object
  */
 async function translateTexts(rawSubtitleFinnishTexts) {
-  const apiKey = globalThis.deeplToken;
-  const url = 'https://api-free.deepl.com/v2/translate';
+  const apiKey = deeplTokenKey;
+  const url = isDeepLPro ? 'https://api.deepl.com/v2/translate' : 'https://api-free.deepl.com/v2/translate';
 
   try {
     const response = await fetch(url, {
