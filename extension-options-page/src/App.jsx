@@ -363,7 +363,20 @@ function TokenInfoCardList(props) {
    * @return {void}
    */
   function handleRemoveToken(tokenKey) {
+    const removedToken = tokenInfos.find((tokenInfo) => tokenInfo.key === tokenKey);
+    const wasSelected = removedToken ? removedToken.selected : false;
+
     const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
+
+    if (wasSelected && newTokenInfos.length > 0) {
+      const tokenWithMostUsageRemaining = newTokenInfos.reduce((best, current) => {
+        const bestCharacterLeftInUsage = best.characterLimit - best.characterCount;
+        const currentCharacterLeftInUsage = current.characterLimit - current.characterCount;
+        return currentCharacterLeftInUsage > bestCharacterLeftInUsage ? current : best;
+      });
+      tokenWithMostUsageRemaining.selected = true;
+    }
+
     setTokenInfos(newTokenInfos);
   }
 
@@ -450,6 +463,7 @@ function AddNewTokenForm(props) {
       characterCount: deepLUsageResponse.characterCount,
       characterLimit: deepLUsageResponse.characterLimit,
       lastUsageCheckedAt: formatDateInEnglishLocale(new Date()),
+      selected: tokenInfos.length === 0,
     };
 
     const newTokenInfos = [...tokenInfos, deeplTokenInfoInStorage];
