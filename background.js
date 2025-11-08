@@ -1,5 +1,3 @@
-importScripts('./configs.js');
-
 /**
  * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
