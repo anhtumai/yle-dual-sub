@@ -313,6 +313,14 @@ async function addDualSubExtensionSection() {
     <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
       <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox">
+      <span class="dual-sub-warning">
+        <span class="dual-sub-warning__icon">
+          !
+        </span>
+        <span class="dual-sub-warning__popover">
+          No translation token selected! Please select one in extension options.
+        </span>
+      </span>
     </div>
   `
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
@@ -344,6 +352,17 @@ if (document.body instanceof Node) {
     characterData: true,
   });
 }
+
+// Listen for storage changes to update warning icon
+// chrome.storage.onChanged.addListener((changes, namespace) => {
+//   if (namespace === 'sync' && changes.tokenInfos) {
+//     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
+//       const selectedTokenInfo = changes.tokenInfos.newValue.find(token => token.selected === true);
+//       hasSelectedToken = !!selectedTokenInfo;
+//       updateWarningIconVisibility();
+//     }
+//   }
+// });
 
 document.addEventListener("change", function (e) {
   if (e.target.id === "dual-sub-switch") {
