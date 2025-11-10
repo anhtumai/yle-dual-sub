@@ -1,4 +1,3 @@
-
 // TODO: Create a tier caching mechanism (in memory and local storage)
 // to avoid hitting translation limit, using DeepL API.
 // Consider using IndexedDB for persistent caching if needed.
@@ -318,7 +317,8 @@ async function addDualSubExtensionSection() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          No translation token selected! Please select one in <a href="#" id="open-options-link">the option page</a>.
+          No translation token selected!<br>
+          Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md" target="_blank" rel="noopener noreferrer">this guide</a> for more information.
         </span>
       </span>
@@ -326,8 +326,15 @@ async function addDualSubExtensionSection() {
   `
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
 
-  // Dual sub warning logic
+  // Display warning section if no token is selected
+  const warningElement = document.querySelector(".dual-sub-warning");
+  const selectedTokenInfo = await loadSelectedTokenFromChromeStorageSync();
+  const displayWarning = !selectedTokenInfo;
+  if (displayWarning) {
+    warningElement.style.display = "inline-block";
+  }
 
+  // Dual sub warning logic
   const warningIcon = document.querySelector(".dual-sub-warning__icon");
   const warningPopover = document.querySelector(".dual-sub-warning__popover");
   const openOptionsLink = document.getElementById("open-options-link");
@@ -381,15 +388,21 @@ if (document.body instanceof Node) {
 }
 
 // Listen for storage changes to update warning icon
-// chrome.storage.onChanged.addListener((changes, namespace) => {
-//   if (namespace === 'sync' && changes.tokenInfos) {
-//     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
-//       const selectedTokenInfo = changes.tokenInfos.newValue.find(token => token.selected === true);
-//       hasSelectedToken = !!selectedTokenInfo;
-//       updateWarningIconVisibility();
-//     }
-//   }
-// });
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'sync' && changes.tokenInfos) {
+    if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
+      /**
+       * @type {DeepLTokenInfoInStorage[]}
+       */
+      const deepLTokenInfos = changes.tokenInfos.newValue;
+      const selectedTokenInfo = deepLTokenInfos.find(token => token.selected === true);
+      const warningElement = document.querySelector(".dual-sub-warning");
+      if (warningElement) {
+        warningElement.style.display = selectedTokenInfo ? "none" : "inline-block";
+      }
+    }
+  }
+});
 
 document.addEventListener("change", function (e) {
   if (e.target.id === "dual-sub-switch") {

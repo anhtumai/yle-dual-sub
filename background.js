@@ -1,3 +1,5 @@
+importScripts('utils.js');
+
 /**
  * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
@@ -12,38 +14,13 @@ let deeplTokenKey = "";
  */
 let isDeepLPro = false;
 
-
-/**
- * Load selected DeepL token from Chrome storage sync
- */
-async function loadSelectedTokenFromChromeStorageSync() {
-  try {
-    const result = await chrome.storage.sync.get("tokenInfos");
-
-    console.log('Loaded token infos from storage:', result);
-
-    if (result && result.tokenInfos && Array.isArray(result.tokenInfos)) {
-      /**
-       * @type {DeepLTokenInfoInStorage[]}
-       */
-      const deeplTokenInfos = result.tokenInfos;
-      const selectedTokenInfo = deeplTokenInfos.find(token => token.selected === true);
-      if (selectedTokenInfo) {
-        deeplTokenKey = selectedTokenInfo.key;
-        isDeepLPro = selectedTokenInfo.type === "pro";
-      } else {
-        console.warn('No selected token found in storage');
-      }
-    } else {
-      console.warn('No tokens found in storage');
-    }
-  } catch (error) {
-    console.error('Error loading token from storage:', error);
-  }
-}
-
 // Load token on extension startup
-loadSelectedTokenFromChromeStorageSync().then(() => {});
+loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
+  if (tokenInfo) {
+    deeplTokenKey = tokenInfo.key;
+    isDeepLPro = tokenInfo.isPro;
+  }
+});
 
 // Listen for storage changes to update token when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
