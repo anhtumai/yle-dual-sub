@@ -25,6 +25,12 @@
   transition: all 0.3s ease;
 }
 
+.dual-sub-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .dual-sub-switch:checked {
   background-color: rgba(236, 72, 153, 1);
 }

@@ -290,6 +290,35 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Handle dual sub behaviour based on whether the system has valid token selected.
+ * If no token is selected, display warning icon and disable dual sub switch.
+ * @param {boolean} hasSelectedToken
+ */
+function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
+  const warningSection = document.querySelector(".dual-sub-warning");
+  const dualSubSwitch = document.getElementById("dual-sub-switch");
+  if (hasSelectedToken) {
+    if (warningSection) {
+      warningSection.style.display = "none";
+    }
+    if (dualSubSwitch) {
+      dualSubSwitch.disabled = false;
+    }
+  } else {
+    if (warningSection) {
+      warningSection.style.display = "inline-block";
+    }
+    if (dualSubSwitch) {
+      dualSubSwitch.disabled = true;
+    }
+  }
+  const warningPopover = document.querySelector(".dual-sub-warning__popover");
+  if (warningPopover) {
+    warningPopover.classList.remove("active");
+  }
+}
+
 async function addDualSubExtensionSection() {
   let bottomControlBarLeftControls = null;
 
@@ -327,12 +356,9 @@ async function addDualSubExtensionSection() {
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
 
   // Display warning section if no token is selected
-  const warningElement = document.querySelector(".dual-sub-warning");
   const selectedTokenInfo = await loadSelectedTokenFromChromeStorageSync();
-  const displayWarning = !selectedTokenInfo;
-  if (displayWarning) {
-    warningElement.style.display = "inline-block";
-  }
+  const hasSelectedToken = selectedTokenInfo !== null;
+  _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
 
   // Dual sub warning logic
   const warningIcon = document.querySelector(".dual-sub-warning__icon");
@@ -396,10 +422,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
        */
       const deepLTokenInfos = changes.tokenInfos.newValue;
       const selectedTokenInfo = deepLTokenInfos.find(token => token.selected === true);
-      const warningElement = document.querySelector(".dual-sub-warning");
-      if (warningElement) {
-        warningElement.style.display = selectedTokenInfo ? "none" : "inline-block";
-      }
+      const hasSelectedToken = !!selectedTokenInfo;
+      _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
     }
   }
 });
@@ -447,6 +471,3 @@ document.addEventListener("change", function (e) {
     }
   }
 });
-
-
-
