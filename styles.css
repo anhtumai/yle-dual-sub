@@ -114,3 +114,13 @@
   opacity: 1;
   visibility: visible;
 }
+
+.dual-sub-warning__popover a {
+  color: #60a5fa;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dual-sub-warning__popover a:hover {
+  color: #3b82f6;
+}

@@ -313,12 +313,12 @@ async function addDualSubExtensionSection() {
     <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
       <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox">
-      <span class="dual-sub-warning">
+      <span class="dual-sub-warning" style="display: none;">
         <span class="dual-sub-warning__icon">
           !
         </span>
         <span class="dual-sub-warning__popover">
-          No translation token selected! Please select one in extension options.
+          No translation token selected! Please select one in <a href="#" id="open-options-link">the option page</a>.
           Follow <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md" target="_blank" rel="noopener noreferrer">this guide</a> for more information.
         </span>
       </span>
@@ -330,6 +330,7 @@ async function addDualSubExtensionSection() {
 
   const warningIcon = document.querySelector(".dual-sub-warning__icon");
   const warningPopover = document.querySelector(".dual-sub-warning__popover");
+  const openOptionsLink = document.getElementById("open-options-link");
 
   warningIcon.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -344,6 +345,11 @@ async function addDualSubExtensionSection() {
 
   warningPopover.addEventListener("click", (e) => {
     e.stopPropagation();
+  })
+
+  openOptionsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.runtime.sendMessage({ action: 'openOptionsPage' });
   })
 }
 
