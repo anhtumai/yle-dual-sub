@@ -310,6 +310,9 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
       warningSection.style.display = "inline-block";
     }
     if (dualSubSwitch) {
+      if (dualSubSwitch.checked) {
+        dualSubSwitch.click();
+      }
       dualSubSwitch.disabled = true;
     }
   }
