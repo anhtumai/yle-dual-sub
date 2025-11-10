@@ -319,11 +319,32 @@ async function addDualSubExtensionSection() {
         </span>
         <span class="dual-sub-warning__popover">
           No translation token selected! Please select one in extension options.
+          Follow <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md" target="_blank" rel="noopener noreferrer">this guide</a> for more information.
         </span>
       </span>
     </div>
   `
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
+
+  // Dual sub warning logic
+
+  const warningIcon = document.querySelector(".dual-sub-warning__icon");
+  const warningPopover = document.querySelector(".dual-sub-warning__popover");
+
+  warningIcon.addEventListener("click", (e) => {
+    e.stopPropagation();
+    warningPopover.classList.toggle("active");
+  })
+
+  document.addEventListener("click", (e) => {
+    if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
+      warningPopover.classList.remove("active");
+    }
+  })
+
+  warningPopover.addEventListener("click", (e) => {
+    e.stopPropagation();
+  })
 }
 
 const observer = new MutationObserver((mutations) => {
@@ -407,3 +428,6 @@ document.addEventListener("change", function (e) {
     }
   }
 });
+
+
+

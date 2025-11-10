@@ -47,9 +47,6 @@ loadSelectedTokenFromChromeStorageSync().then(() => {});
 
 // Listen for storage changes to update token when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === "sync") {
-    console.log("Print changes:", changes);
-  }
   if (namespace === 'sync' && changes.tokenInfos) {
     console.log('Token configuration changed, reloading...');
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
@@ -172,6 +169,4 @@ async function translateTexts(rawSubtitleFinnishTexts) {
     return error;
   }
 };
-
-
 
