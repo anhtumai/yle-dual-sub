@@ -34,6 +34,7 @@ class TranslationQueue {
 
   /**
    * Process the translation queue in batches
+   * By sending to background.js to handle translation and store results in sharedTranslationMap or sharedTranslationErrorMap
    * @returns {Promise<void>}
    */
   async processQueue() {
@@ -115,6 +116,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 
 document.addEventListener("sendTranslationTextEvent", function (e) {
   /**
+   * Listening for incoming subtitle texts loaded into video player from injected.js
    * Send raw Finnish text from subtitle to a translation queue
    * @param {Event} e
    */
@@ -229,6 +231,8 @@ function addContentToDisplayedSubtitlesWrapper(
     sharedTranslationErrorMap.get(translationKey) ||
     "Translating...";
 
+  // TODO: Add retry mechanism if Translation is not found
+
   const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
 
   displayedSubtitlesWrapper.appendChild(finnishSpan);
@@ -322,6 +326,11 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
   }
 }
 
+/**
+ * Add Dual Sub extension section to the video player's bottom control bar
+ * next to the volume control.
+ * @returns {Promise<void>}
+ */
 async function addDualSubExtensionSection() {
   let bottomControlBarLeftControls = null;
 
@@ -416,7 +425,7 @@ if (document.body instanceof Node) {
   });
 }
 
-// Listen for storage changes to update warning icon
+// Listen for user setting changes for token selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.tokenInfos) {
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
