@@ -3,6 +3,14 @@
 // Consider using IndexedDB for persistent caching if needed.
 // If a movie is not watched for a long time, the cache can be cleared.
 
+/**
+ * @type {IDBDatabase | null}
+ */
+let db = null;
+openDatabase().then(openingDatabase => {
+  db = openingDatabase;
+});
+
 // Shared translation map, with key is Finnish text normalized, and value is English text
 /** @type {Map<string, string>} */
 const sharedTranslationMap = new Map();
@@ -398,6 +406,48 @@ async function addDualSubExtensionSection() {
   })
 }
 
+/**
+ * Get video title once the video player is loaded
+ * @returns {Promise<string | null>}
+ */
+async function getVideoTitle() {
+
+  let titleElement = null;
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    titleElement = document.querySelector('[class*="VideoTitle__Titles"]');
+    if (titleElement) {
+      break;
+    };
+    await sleep(150);
+  }
+
+  if (!titleElement) {
+    console.warn("Cannot find movie name");
+    return null;
+  }
+
+  const texts = Array.from(titleElement.querySelectorAll('span'))
+    .map(span => span.textContent.trim())
+    .filter(text => text.length > 0);
+  return texts.join(" | ")
+}
+
+async function populateSharedTranslationMapFromCache() {
+
+  if (!db) {
+    //
+  }
+
+  const videoTitle = await getVideoTitle();
+  if (!videoTitle) {
+    return;
+  }
+
+
+
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
@@ -408,9 +458,13 @@ const observer = new MutationObserver((mutations) => {
         }
       }
       if (isVideoAppearMutation(mutation)) {
+        // TODO: add logic to confirm the video has been loaded completely
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
+        const videoTitle = getVideoTitle();
+
+
       }
     }
   });
