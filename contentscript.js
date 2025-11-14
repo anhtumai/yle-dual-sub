@@ -3,13 +3,6 @@
 // Consider using IndexedDB for persistent caching if needed.
 // If a movie is not watched for a long time, the cache can be cleared.
 
-/**
- * @type {IDBDatabase | null}
- */
-let db = null;
-openDatabase().then(openingDatabase => {
-  db = openingDatabase;
-});
 
 // Shared translation map, with key is Finnish text normalized, and value is English text
 /** @type {Map<string, string>} */
@@ -435,6 +428,24 @@ async function getVideoTitle() {
 
 async function populateSharedTranslationMapFromCache() {
 
+  const db = await openDatabase();
+
+  const videoTitle = await getVideoTitle();
+  if (!videoTitle) {
+    return;
+  }
+
+  const subtitleRecords = await loadSubtitlesByMovieName(db, videoTitle);
+  for (const subtitleRecord of subtitleRecords) {
+    sharedTranslationMap.set(
+      subtitleRecord.finnishText,
+      subtitleRecord.translatedText
+    );
+  }
+}
+
+async function populateSharedTranslationMapFromCache() {
+
   if (!db) {
     //
   }
@@ -462,9 +473,9 @@ const observer = new MutationObserver((mutations) => {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
-        const videoTitle = getVideoTitle();
-
-
+        populateSharedTranslationMapFromCache(() => { }).catch((error) => {
+          console.warning("Error populating shared translation map from cache:", error);
+        });
       }
     }
   });
