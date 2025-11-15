@@ -1,4 +1,11 @@
 /**
+ * @typedef {Object} SubtitleRecord
+ * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
+ * @property {string} finnishText - The Finnish subtitle text (normalized)
+ * @property {string} translatedText - The English (or other language) translation
+ */
+
+/**
  * Open or create the IndexedDB database for subtitle caching
  * @returns {Promise<IDBDatabase>} The opened database instance
  */
@@ -38,7 +45,7 @@ async function openDatabase() {
  * Load all subtitles for a given movie from IndexedDB
  * @param {IDBDatabase} db - Openning database instance
  * @param {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @returns {Promise<Map<string, string>>}
+ * @returns {Promise<Array<SubtitleRecord>>}
  */
 async function loadSubtitlesByMovieName(db, movieName) {
     return new Promise(async (resolve, reject) => {
@@ -51,20 +58,10 @@ async function loadSubtitlesByMovieName(db, movieName) {
 
             request.onsuccess = (event) => {
                 /**
-                 * @type {movieName: string, finnishText: string, translatedText: string}
+                 * @type {Array<SubtitleRecord>}
                  */
                 const subtitleRecords = event.target.result;
-                /**
-                 * @type {Map<string, string>}
-                 */
-                const subtitleMap = new Map();
-                for (const subtitleRecord of subtitleRecords) {
-                    subtitleMap.set(
-                        subtitleRecord.finnishText,
-                        subtitleRecord.translatedText
-                    );
-                }
-                resolve(subtitleMap);
+                resolve(subtitleRecords);
             };
 
             request.onerror = (event) => {
@@ -112,6 +109,56 @@ async function saveSubtitle(db, movieName, finnishText, translatedText) {
 
         } catch (error) {
             console.error("Error opening database:", error);
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Save multiple subtitle translations to IndexedDB in a single transaction
+ * @param {IDBDatabase} db - Opening database instance
+ * @param {Array<SubtitleRecord>} subtitles - Array of subtitle objects to save
+ * @returns {Promise<number>} Number of subtitles saved
+ */
+async function saveSubtitlesBatch(db, subtitles) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transaction = db.transaction(['subtitles'], 'readwrite');
+            const objectStore = transaction.objectStore('subtitles');
+
+            let savedCount = 0;
+            let errorOccurred = false;
+
+            // Handle transaction completion
+            transaction.oncomplete = () => {
+                if (!errorOccurred) {
+                    console.log(`Successfully saved ${savedCount} subtitles in batch`);
+                    resolve(savedCount);
+                }
+            };
+
+            transaction.onerror = (event) => {
+                console.error("Transaction error:", event.target.error);
+                errorOccurred = true;
+                reject(event.target.error);
+            };
+
+            // Add all subtitles to the transaction
+            for (const subtitle of subtitles) {
+                const request = objectStore.put(subtitle);
+
+                request.onsuccess = () => {
+                    savedCount++;
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error saving subtitle:", event.target.error);
+                    errorOccurred = true;
+                };
+            }
+
+        } catch (error) {
+            console.error("Error in batch save:", error);
             reject(error);
         }
     });

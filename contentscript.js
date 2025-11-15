@@ -16,6 +16,24 @@ function toTranslationKey(rawSubtitleFinnishText) {
 // to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
 
+// Memory cached current movie name
+/**
+ * @type {string | null}
+ */
+let currentMovieName = null;
+
+// Memory cached current database connection to write data to Index DB
+/**
+ * @ype {IDBDatabase | null}
+ */
+let database = null;
+openDatabase().then(db => {
+  database = db;
+}).
+  catch((error) => {
+    console.warning("Failed to established connection to indexDB: ", error);
+  })
+
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
 
@@ -54,14 +72,23 @@ class TranslationQueue {
         const translationResult = await fetchTranslation(toProcessItems);
 
         if (Array.isArray(translationResult)) {
+          const x = [];
           for (let i = 0; i < toProcessItems.length; i++) {
             const translatedEnglishText = translationResult[i];
             const rawSubtitleFinnishText = toProcessItems[i];
+            const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
+            const sharedTranaslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
             sharedTranslationMap.set(
-              toTranslationKey(rawSubtitleFinnishText),
-              translatedEnglishText.trim().replace(/\n/g, ' ')
+              sharedTranslationMapKey,
+              sharedTranaslationMapValue,
             );
+            x.push({
+              "movieName": currentMovieName,
+              "finnishText": sharedTranslationMapKey,
+              "translatedText": sharedTranaslationMapValue,
+            })
           }
+          await saveSubtitlesBatch(database, x);
         }
         else {
           for (let i = 0; i < toProcessItems.length; i++) {
@@ -446,7 +473,7 @@ async function populateSharedTranslationMapFromCache() {
 
 async function populateSharedTranslationMapFromCache() {
 
-  if (!db) {
+  if (!database) {
     //
   }
 
