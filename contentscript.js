@@ -26,13 +26,21 @@ let currentMovieName = null;
 /**
  * @ype {IDBDatabase | null}
  */
-let database = null;
+let globalDatabaseInstance = null;
 openDatabase().then(db => {
-  database = db;
+  globalDatabaseInstance = db;
 }).
   catch((error) => {
     console.warning("Failed to established connection to indexDB: ", error);
   })
+
+// async function getDatabaseInstance() {
+//   if (globalDatabaseInstance) {
+//     return globalDatabaseInstance;
+//   }
+//   const db = await openDatabase();
+//   globalDatabaseInstance
+// }
 
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
@@ -72,7 +80,10 @@ class TranslationQueue {
         const translationResult = await fetchTranslation(toProcessItems);
 
         if (Array.isArray(translationResult)) {
-          const x = [];
+          /**
+           * @type {Array<SubtitleRecord>}
+           */
+          const databaseSubtitleRecords = [];
           for (let i = 0; i < toProcessItems.length; i++) {
             const translatedEnglishText = translationResult[i];
             const rawSubtitleFinnishText = toProcessItems[i];
@@ -82,13 +93,15 @@ class TranslationQueue {
               sharedTranslationMapKey,
               sharedTranaslationMapValue,
             );
-            x.push({
+            databaseSubtitleRecords.push({
               "movieName": currentMovieName,
               "finnishText": sharedTranslationMapKey,
               "translatedText": sharedTranaslationMapValue,
             })
           }
-          await saveSubtitlesBatch(database, x);
+          if (globalDatabaseInstance) {
+            await saveSubtitlesBatch(globalDatabaseInstance, databaseSubtitleRecords);
+          }
         }
         else {
           for (let i = 0; i < toProcessItems.length; i++) {
