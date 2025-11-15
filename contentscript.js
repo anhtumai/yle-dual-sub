@@ -34,14 +34,6 @@ openDatabase().then(db => {
     console.warning("Failed to established connection to indexDB: ", error);
   })
 
-// async function getDatabaseInstance() {
-//   if (globalDatabaseInstance) {
-//     return globalDatabaseInstance;
-//   }
-//   const db = await openDatabase();
-//   globalDatabaseInstance
-// }
-
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
 
@@ -482,21 +474,6 @@ async function populateSharedTranslationMapFromCache() {
       subtitleRecord.translatedText
     );
   }
-}
-
-async function populateSharedTranslationMapFromCache() {
-
-  if (!database) {
-    //
-  }
-
-  const videoTitle = await getVideoTitle();
-  if (!videoTitle) {
-    return;
-  }
-
-
-
 }
 
 const observer = new MutationObserver((mutations) => {
