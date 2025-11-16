@@ -32,7 +32,7 @@ openDatabase().then(db => {
 
   cleanupOldMovieData().then((cleanCount) => {
     console.log(`Clean ${cleanCount} movies data`);
-  }).catch(error => { })
+  }).catch(error => { console.warn("Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
     console.warn("Failed to established connection to indexDB: ", error);
