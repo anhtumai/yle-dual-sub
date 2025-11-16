@@ -8,7 +8,7 @@
 /**
  * @typedef {Object} MovieMetadata
  * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @property {number} lastAccessedTimeStampMs - Last accessed timestamp in milliseconds
+ * @property {number} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
  */
 
 /**
@@ -255,10 +255,10 @@ async function getMovieMetadata(db, movieName) {
  * Save or update movie metadata to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
- * @param {string} lastAccessedTimeStampMs - Last accessed timestamp in milliseconds
+ * @param {string} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
  * @returns {Promise<void>}
  */
-async function upsertMovieMetadata(db, movieName, lastAccessedTimeStampMs) {
+async function upsertMovieMetadata(db, movieName, lastAccessedTimestampMs) {
     return new Promise(async (resolve, reject) => {
         try {
             const transaction = db.transaction(['movieMetadata'], 'readwrite');
@@ -266,7 +266,7 @@ async function upsertMovieMetadata(db, movieName, lastAccessedTimeStampMs) {
 
             const metadata = {
                 movieName: movieName,
-                lastAccessedTimeStampMs: lastAccessedTimeStampMs
+                lastAccessedTimestampMs: lastAccessedTimestampMs
             };
 
             const request = objectStore.put(metadata);
@@ -370,7 +370,7 @@ async function cleanupOldMovieData(db, maxAgeMs = 864000000) {
 
         // Filter for old movies
         const oldMovieMetadatas = allMetadata.filter(metadata =>
-            metadata.lastAccessedTimeStampMs < cutoffTime
+            metadata.lastAccessedTimestampMs < cutoffTime
         );
 
         console.log(`Found ${oldMovieMetadatas.length} movies to clean up`);

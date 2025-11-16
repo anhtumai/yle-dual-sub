@@ -30,7 +30,7 @@ let globalDatabaseInstance = null;
 openDatabase().then(db => {
   globalDatabaseInstance = db;
 
-  cleanupOldMovieData().then((cleanCount) => {
+  cleanupOldMovieData(db).then((cleanCount) => {
     console.log(`Clean ${cleanCount} movies data`);
   }).catch(error => { console.warn("Error when cleaning old movie data: ", error) });
 }).
@@ -80,7 +80,7 @@ class TranslationQueue {
           /**
            * @type {Array<SubtitleRecord>}
            */
-          const databaseSubtitleRecords = [];
+          const toCacheSubtitleRecords = [];
           for (let i = 0; i < toProcessItems.length; i++) {
             const translatedEnglishText = translationResult[i];
             const rawSubtitleFinnishText = toProcessItems[i];
@@ -90,14 +90,14 @@ class TranslationQueue {
               sharedTranslationMapKey,
               sharedTranaslationMapValue,
             );
-            databaseSubtitleRecords.push({
+            toCacheSubtitleRecords.push({
               "movieName": currentMovieName,
               "finnishText": sharedTranslationMapKey,
               "translatedText": sharedTranaslationMapValue,
             })
           }
           if (globalDatabaseInstance) {
-            await saveSubtitlesBatch(globalDatabaseInstance, databaseSubtitleRecords);
+            await saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords);
           }
         }
         else {
@@ -469,7 +469,12 @@ async function getVideoTitle() {
   return texts.join(" | ")
 }
 
-async function populateSharedTranslationMapFromCacheAndWriteMovieMetadata() {
+/**
+ * This function acts as a handler when new movie is played.
+ * It will load that movie's subtitle from database and update metadata.
+ * @returns 
+ */
+async function loadMovieCacheAndUpdateMetadata() {
 
   const db = await openDatabase();
 
@@ -486,9 +491,9 @@ async function populateSharedTranslationMapFromCacheAndWriteMovieMetadata() {
     );
   }
 
-  const lastAccessedTimeStampMs = Date.now();
+  const lastAccessedTimestampMs = Date.now();
 
-  await upsertMovieMetadata(db, videoTitle, lastAccessedTimeStampMs);
+  await upsertMovieMetadata(db, videoTitle, lastAccessedTimestampMs);
 }
 
 const observer = new MutationObserver((mutations) => {
@@ -505,7 +510,7 @@ const observer = new MutationObserver((mutations) => {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
-        populateSharedTranslationMapFromCacheAndWriteMovieMetadata(() => { }).catch((error) => {
+        loadMovieCacheAndUpdateMetadata(() => { }).catch((error) => {
           console.warn("Error populating shared translation map from cache:", error);
         });
       }
