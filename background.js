@@ -95,7 +95,7 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
 
     if (translationResult instanceof HTTPError) {
       const httpTranslationError = translationResult;
-      if (httpTranslationError.statusCode in [429, 503, 413]) {
+      if ([429, 503, 413].includes(httpTranslationError.statusCode)) {
         await sleep(400);
         continue;
       }
@@ -115,6 +115,8 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
       return translationError;
     }
   }
+
+  return new Error("Translation fails after 5 retry attempts.");
 }
 
 /**

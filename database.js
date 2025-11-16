@@ -53,7 +53,7 @@ async function openDatabase() {
 
 /**
  * Load all subtitles for a given movie from IndexedDB
- * @param {IDBDatabase} db - Openning database instance
+ * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name (e.g., "Series Title | Episode Name")
  * @returns {Promise<Array<SubtitleRecord>>}
  */
@@ -176,7 +176,7 @@ async function saveSubtitlesBatch(db, subtitles) {
 
 /**
  * Delete all subtitles for a given movie from IndexedDB
- * @param {string} db - Opening database instance
+ * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
  * @returns {Promise<number>} Number of subtitles deleted
  */
@@ -362,7 +362,7 @@ async function cleanupOldMovieData(db, maxAgeMs = 864000000) {
         const now = Date.now();
         const cutoffTime = now - maxAgeMs;
 
-        console.log(`Starting cleanup of movies not accessed \ 
+        console.log(`Starting cleanup of movies not accessed
                     since ${new Date(cutoffTime).toISOString()}`);
 
         // Get all movie metadata
