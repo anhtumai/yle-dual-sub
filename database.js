@@ -6,6 +6,12 @@
  */
 
 /**
+ * @typedef {Object} MovieMetadata
+ * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
+ * @property {number} lastAccessedTimeStampMs - Last accessed timestamp in milliseconds
+ */
+
+/**
  * Open or create the IndexedDB database for subtitle caching
  * @returns {Promise<IDBDatabase>} The opened database instance
  */
@@ -33,10 +39,14 @@ async function openDatabase() {
             console.log('Upgrading database...');
 
             // Create object stores here
-            const objectStore = db.createObjectStore('subtitles', {
+            const subtitlesObjectStore = db.createObjectStore('subtitles', {
                 keyPath: ['movieName', 'finnishText'],
             });
-            objectStore.createIndex('movieName', 'movieName', { unique: false });
+            subtitlesObjectStore.createIndex('movieName', 'movieName', { unique: false });
+
+            const movieMetadataObjectStore = db.createObjectStore('movieMetadata', {
+                keyPath: 'movieName',
+            });
         };
     })
 }
@@ -203,3 +213,188 @@ async function clearSubtitlesByMovieName(db, movieName) {
         }
     });
 }
+
+/**
+ * Get movie metadata from IndexedDB
+ * @param {IDBDatabase} db - Opening database instance
+ * @param {string} movieName - The movie name
+ * @returns {Promise<MovieMetadata|null>} The movie metadata or null if not found
+ */
+async function getMovieMetadata(db, movieName) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transaction = db.transaction(['movieMetadata'], 'readonly');
+            const objectStore = transaction.objectStore('movieMetadata');
+
+            const request = objectStore.get(movieName);
+
+            request.onsuccess = (event) => {
+                const metadata = event.target.result;
+                if (metadata) {
+                    console.log(`Retrieved metadata for movie: ${movieName}`);
+                    resolve(metadata);
+                } else {
+                    console.log(`No metadata found for movie: ${movieName}`);
+                    resolve(null);
+                }
+            };
+
+            request.onerror = (event) => {
+                console.error("Error getting movie metadata:", event.target.error);
+                reject(event.target.error);
+            };
+
+        } catch (error) {
+            console.error("Error retrieving movie metadata:", error);
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Save or update movie metadata to IndexedDB
+ * @param {IDBDatabase} db - Opening database instance
+ * @param {string} movieName - The movie name
+ * @param {string} lastAccessedTimeStampMs - Last accessed timestamp in milliseconds
+ * @returns {Promise<void>}
+ */
+async function upsertMovieMetadata(db, movieName, lastAccessedTimeStampMs) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transaction = db.transaction(['movieMetadata'], 'readwrite');
+            const objectStore = transaction.objectStore('movieMetadata');
+
+            const metadata = {
+                movieName: movieName,
+                lastAccessedTimeStampMs: lastAccessedTimeStampMs
+            };
+
+            const request = objectStore.put(metadata);
+
+            request.onsuccess = () => {
+                console.log(`Saved metadata for movie: ${movieName}`);
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                console.error("Error saving movie metadata:", event.target.error);
+                reject(event.target.error);
+            };
+
+        } catch (error) {
+            console.error("Error saving movie metadata:", error);
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Get all movie metadata records from IndexedDB
+ * @param {IDBDatabase} db - Opening database instance
+ * @returns {Promise<Array<MovieMetadata>>} Array of all movie metadata records
+ */
+async function getAllMovieMetadata(db) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transaction = db.transaction(['movieMetadata'], 'readonly');
+            const objectStore = transaction.objectStore('movieMetadata');
+
+            const request = objectStore.getAll();
+
+            request.onsuccess = (event) => {
+                const metadataRecords = event.target.result;
+                console.log(`Retrieved ${metadataRecords.length} movie metadata records`);
+                resolve(metadataRecords);
+            };
+
+            request.onerror = (event) => {
+                console.error("Error getting all movie metadata:", event.target.error);
+                reject(event.target.error);
+            };
+
+        } catch (error) {
+            console.error("Error retrieving all movie metadata:", error);
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Delete movie metadata from IndexedDB
+ * @param {IDBDatabase} db - Opening database instance
+ * @param {string} movieName - The movie name
+ * @returns {Promise<void>}
+ */
+async function deleteMovieMetadata(db, movieName) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const transaction = db.transaction(['movieMetadata'], 'readwrite');
+            const objectStore = transaction.objectStore('movieMetadata');
+
+            const request = objectStore.delete(movieName);
+
+            request.onsuccess = () => {
+                console.log(`Deleted metadata for movie: ${movieName}`);
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                console.error("Error deleting movie metadata:", event.target.error);
+                reject(event.target.error);
+            };
+
+        } catch (error) {
+            console.error("Error deleting movie metadata:", error);
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Clean up old movie data that hasn't been accessed recently
+ * @param {IDBDatabase} db - Opening database instance
+ * @param {number} maxAgeMs - Maximum age in milliseconds (movies older than this will be deleted)
+ * @returns {Promise<number>} Number of movies cleaned up
+ */
+// async function cleanupOldMovieData(db, maxAgeMs) {
+//     try {
+//         const now = Date.now();
+//         const cutoffTime = now - maxAgeMs;
+
+//         console.log(`Starting cleanup of movies not accessed since ${new Date(cutoffTime).toISOString()}`);
+
+//         // Get all movie metadata
+//         const allMetadata = await getAllMovieMetadata(db);
+
+//         // Filter for old movies
+//         const oldMovies = allMetadata.filter(metadata =>
+//             metadata.lastAccessedTimeStampMs < cutoffTime
+//         );
+
+//         console.log(`Found ${oldMovies.length} movies to clean up`);
+
+//         // Delete each old movie's data
+//         let cleanedCount = 0;
+//         for (const metadata of oldMovies) {
+//             try {
+//                 // Delete all subtitles for this movie
+//                 await clearSubtitlesByMovieName(db, metadata.movieName);
+
+//                 // Delete the metadata record
+//                 await deleteMovieMetadata(db, metadata.movieName);
+
+//                 cleanedCount++;
+//                 console.log(`Cleaned up movie: ${metadata.movieName}`);
+//             } catch (error) {
+//                 console.error(`Failed to clean up movie ${metadata.movieName}:`, error);
+//             }
+//         }
+
+//         console.log(`Cleanup completed: ${cleanedCount} movies removed`);
+//         return cleanedCount;
+
+//     } catch (error) {
+//         console.error("Error during cleanup:", error);
+//         throw error;
+//     }
+// }

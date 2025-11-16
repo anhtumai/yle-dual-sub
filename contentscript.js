@@ -31,7 +31,7 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 }).
   catch((error) => {
-    console.warning("Failed to established connection to indexDB: ", error);
+    console.warn("Failed to established connection to indexDB: ", error);
   })
 
 class TranslationQueue {
@@ -458,7 +458,7 @@ async function getVideoTitle() {
   return texts.join(" | ")
 }
 
-async function populateSharedTranslationMapFromCache() {
+async function populateSharedTranslationMapFromCacheAndWriteMovieMetadata() {
 
   const db = await openDatabase();
 
@@ -474,6 +474,10 @@ async function populateSharedTranslationMapFromCache() {
       subtitleRecord.translatedText
     );
   }
+
+  const lastAccessedTimeStampMs = Date.now();
+
+  await upsertMovieMetadata(db, videoTitle, lastAccessedTimeStampMs);
 }
 
 const observer = new MutationObserver((mutations) => {
@@ -490,8 +494,8 @@ const observer = new MutationObserver((mutations) => {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
-        populateSharedTranslationMapFromCache(() => { }).catch((error) => {
-          console.warning("Error populating shared translation map from cache:", error);
+        populateSharedTranslationMapFromCacheAndWriteMovieMetadata(() => { }).catch((error) => {
+          console.warn("Error populating shared translation map from cache:", error);
         });
       }
     }
