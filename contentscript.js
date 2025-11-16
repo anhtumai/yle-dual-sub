@@ -57,7 +57,8 @@ class TranslationQueue {
 
   /**
    * Process the translation queue in batches
-   * By sending to background.js to handle translation and store results in sharedTranslationMap or sharedTranslationErrorMap
+   * By sending to background.js to handle translation and store results in
+   * sharedTranslationMap or sharedTranslationErrorMap
    * @returns {Promise<void>}
    */
   async processQueue() {
@@ -125,8 +126,8 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<Array<string>|Error>} - A promise that resolves to the translated English texts
- * if fails, return an error
+ * @returns {Promise<Array<string>|Error>} - A promise that resolves to the
+ * translated English texts. If it fails, return an error.
  * @throws {Error} - Throws an error if translation fails
  */
 async function fetchTranslation(rawSubtitleFinnishTexts) {
@@ -397,7 +398,13 @@ async function addDualSubExtensionSection() {
         <span class="dual-sub-warning__popover">
           No translation token selected!<br>
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
-          Follow <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md" target="_blank" rel="noopener noreferrer">this guide</a> for more information.
+          Follow
+          <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md"
+             target="_blank"
+             rel="noopener noreferrer">
+            this guide
+          </a>
+          for more information.
         </span>
       </span>
     </div>

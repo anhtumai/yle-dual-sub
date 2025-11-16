@@ -125,7 +125,9 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
  */
 async function translateTexts(rawSubtitleFinnishTexts) {
   const apiKey = deeplTokenKey;
-  const url = isDeepLPro ? 'https://api.deepl.com/v2/translate' : 'https://api-free.deepl.com/v2/translate';
+  const url = isDeepLPro ?
+    'https://api.deepl.com/v2/translate' :
+    'https://api-free.deepl.com/v2/translate';
 
   try {
     const response = await fetch(url, {
@@ -152,6 +154,3 @@ async function translateTexts(rawSubtitleFinnishTexts) {
     return error;
   }
 };
-
-
-
