@@ -353,48 +353,49 @@ async function deleteMovieMetadata(db, movieName) {
 /**
  * Clean up old movie data that hasn't been accessed recently
  * @param {IDBDatabase} db - Opening database instance
- * @param {number} maxAgeMs - Maximum age in milliseconds (movies older than this will be deleted)
+ * @param {number} maxAgeMs - Maximum age in milliseconds (movies older than this will be deleted).
+ * Default is 864,000,000 ms (10 days)
  * @returns {Promise<number>} Number of movies cleaned up
  */
-// async function cleanupOldMovieData(db, maxAgeMs) {
-//     try {
-//         const now = Date.now();
-//         const cutoffTime = now - maxAgeMs;
+async function cleanupOldMovieData(db, maxAgeMs = 864000000) {
+    try {
+        const now = Date.now();
+        const cutoffTime = now - maxAgeMs;
 
-//         console.log(`Starting cleanup of movies not accessed since ${new Date(cutoffTime).toISOString()}`);
+        console.log(`Starting cleanup of movies not accessed since ${new Date(cutoffTime).toISOString()}`);
 
-//         // Get all movie metadata
-//         const allMetadata = await getAllMovieMetadata(db);
+        // Get all movie metadata
+        const allMetadata = await getAllMovieMetadata(db);
 
-//         // Filter for old movies
-//         const oldMovies = allMetadata.filter(metadata =>
-//             metadata.lastAccessedTimeStampMs < cutoffTime
-//         );
+        // Filter for old movies
+        const oldMovieMetadatas = allMetadata.filter(metadata =>
+            metadata.lastAccessedTimeStampMs < cutoffTime
+        );
 
-//         console.log(`Found ${oldMovies.length} movies to clean up`);
+        console.log(`Found ${oldMovieMetadatas.length} movies to clean up`);
 
-//         // Delete each old movie's data
-//         let cleanedCount = 0;
-//         for (const metadata of oldMovies) {
-//             try {
-//                 // Delete all subtitles for this movie
-//                 await clearSubtitlesByMovieName(db, metadata.movieName);
+        // Delete each old movie's data
+        let cleanedCount = 0;
+        for (const metadata of oldMovieMetadatas) {
+            try {
+                // Delete all subtitles for this movie
+                await clearSubtitlesByMovieName(db, metadata.movieName);
 
-//                 // Delete the metadata record
-//                 await deleteMovieMetadata(db, metadata.movieName);
+                // Delete the metadata record
+                await deleteMovieMetadata(db, metadata.movieName);
 
-//                 cleanedCount++;
-//                 console.log(`Cleaned up movie: ${metadata.movieName}`);
-//             } catch (error) {
-//                 console.error(`Failed to clean up movie ${metadata.movieName}:`, error);
-//             }
-//         }
+                cleanedCount++;
+                console.log(`Cleaned up movie: ${metadata.movieName}`);
+            } catch (error) {
+                console.warn(`Failed to clean up movie ${metadata.movieName}:`, error);
+            }
+        }
 
-//         console.log(`Cleanup completed: ${cleanedCount} movies removed`);
-//         return cleanedCount;
+        console.log(`Cleanup completed: ${cleanedCount} movies removed`);
+        return cleanedCount;
 
-//     } catch (error) {
-//         console.error("Error during cleanup:", error);
-//         throw error;
-//     }
-// }
+    } catch (error) {
+        console.warn("Error during cleanup:", error);
+        throw error;
+    }
+}

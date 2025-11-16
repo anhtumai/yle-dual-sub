@@ -29,6 +29,10 @@ let currentMovieName = null;
 let globalDatabaseInstance = null;
 openDatabase().then(db => {
   globalDatabaseInstance = db;
+
+  cleanupOldMovieData().then((cleanCount) => {
+    console.log(`Clean ${cleanCount} movies data`);
+  }).catch(error => { })
 }).
   catch((error) => {
     console.warn("Failed to established connection to indexDB: ", error);
