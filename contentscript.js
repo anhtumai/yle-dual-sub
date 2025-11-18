@@ -3,6 +3,7 @@
 // Consider using IndexedDB for persistent caching if needed.
 // If a movie is not watched for a long time, the cache can be cleared.
 
+
 // Shared translation map, with key is Finnish text normalized, and value is English text
 /** @type {Map<string, string>} */
 const sharedTranslationMap = new Map();
@@ -14,6 +15,28 @@ function toTranslationKey(rawSubtitleFinnishText) {
 
 // to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
+
+// Memory cached current movie name
+/**
+ * @type {string | null}
+ */
+let currentMovieName = null;
+
+// Memory cached current database connection to write data to Index DB
+/**
+ * @ype {IDBDatabase | null}
+ */
+let globalDatabaseInstance = null;
+openDatabase().then(db => {
+  globalDatabaseInstance = db;
+
+  cleanupOldMovieData(db).then((cleanCount) => {
+    console.log(`Clean ${cleanCount} movies data`);
+  }).catch(error => { console.warn("Error when cleaning old movie data: ", error) });
+}).
+  catch((error) => {
+    console.warn("Failed to established connection to indexDB: ", error);
+  })
 
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
@@ -34,7 +57,8 @@ class TranslationQueue {
 
   /**
    * Process the translation queue in batches
-   * By sending to background.js to handle translation and store results in sharedTranslationMap or sharedTranslationErrorMap
+   * By sending to background.js to handle translation and store results in
+   * sharedTranslationMap or sharedTranslationErrorMap
    * @returns {Promise<void>}
    */
   async processQueue() {
@@ -53,13 +77,33 @@ class TranslationQueue {
         const translationResult = await fetchTranslation(toProcessItems);
 
         if (Array.isArray(translationResult)) {
+          /**
+           * @type {Array<SubtitleRecord>}
+           */
+          const toCacheSubtitleRecords = [];
           for (let i = 0; i < toProcessItems.length; i++) {
             const translatedEnglishText = translationResult[i];
             const rawSubtitleFinnishText = toProcessItems[i];
+            const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
+            const sharedTranaslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
             sharedTranslationMap.set(
-              toTranslationKey(rawSubtitleFinnishText),
-              translatedEnglishText.trim().replace(/\n/g, ' ')
+              sharedTranslationMapKey,
+              sharedTranaslationMapValue,
             );
+            if (currentMovieName) {
+              toCacheSubtitleRecords.push({
+                "movieName": currentMovieName,
+                "finnishText": sharedTranslationMapKey,
+                "translatedText": sharedTranaslationMapValue,
+              })
+            }
+          }
+          if (globalDatabaseInstance) {
+            saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
+              .then(() => {})
+              .catch((error) => {
+                console.warn("Error saving subtitles batch to cache:", error);
+              });
           }
         }
         else {
@@ -88,8 +132,8 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<Array<string>|Error>} - A promise that resolves to the translated English texts
- * if fails, return an error
+ * @returns {Promise<Array<string>|Error>} - A promise that resolves to the
+ * translated English texts. If it fails, return an error.
  * @throws {Error} - Throws an error if translation fails
  */
 async function fetchTranslation(rawSubtitleFinnishTexts) {
@@ -360,7 +404,13 @@ async function addDualSubExtensionSection() {
         <span class="dual-sub-warning__popover">
           No translation token selected!<br>
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
-          Follow <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md" target="_blank" rel="noopener noreferrer">this guide</a> for more information.
+          Follow
+          <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md"
+             target="_blank"
+             rel="noopener noreferrer">
+            this guide
+          </a>
+          for more information.
         </span>
       </span>
     </div>
@@ -398,6 +448,60 @@ async function addDualSubExtensionSection() {
   })
 }
 
+/**
+ * Get video title once the video player is loaded
+ * @returns {Promise<string | null>}
+ */
+async function getVideoTitle() {
+
+  let titleElement = null;
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    titleElement = document.querySelector('[class*="VideoTitle__Titles"]');
+    if (titleElement) {
+      break;
+    };
+    await sleep(150);
+  }
+
+  if (!titleElement) {
+    console.warn("Cannot find movie name");
+    return null;
+  }
+
+  const texts = Array.from(titleElement.querySelectorAll('span'))
+    .map(span => span.textContent.trim())
+    .filter(text => text.length > 0);
+  return texts.join(" | ")
+}
+
+/**
+ * This function acts as a handler when new movie is played.
+ * It will load that movie's subtitle from database and update metadata.
+ * @returns 
+ */
+async function loadMovieCacheAndUpdateMetadata() {
+
+  const db = await openDatabase();
+
+  currentMovieName = await getVideoTitle();
+  if (!currentMovieName) {
+    return;
+  }
+
+  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName);
+  for (const subtitleRecord of subtitleRecords) {
+    sharedTranslationMap.set(
+      subtitleRecord.finnishText,
+      subtitleRecord.translatedText
+    );
+  }
+
+  const lastAccessedTimestampMs = Date.now();
+
+  await upsertMovieMetadata(db, currentMovieName, lastAccessedTimestampMs);
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
@@ -408,8 +512,12 @@ const observer = new MutationObserver((mutations) => {
         }
       }
       if (isVideoAppearMutation(mutation)) {
+        // TODO: add logic to confirm the video has been loaded completely
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
+        });
+        loadMovieCacheAndUpdateMetadata(() => { }).catch((error) => {
+          console.warn("Error populating shared translation map from cache:", error);
         });
       }
     }
