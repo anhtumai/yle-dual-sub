@@ -90,14 +90,20 @@ class TranslationQueue {
               sharedTranslationMapKey,
               sharedTranaslationMapValue,
             );
-            toCacheSubtitleRecords.push({
-              "movieName": currentMovieName,
-              "finnishText": sharedTranslationMapKey,
-              "translatedText": sharedTranaslationMapValue,
-            })
+            if (currentMovieName) {
+              toCacheSubtitleRecords.push({
+                "movieName": currentMovieName,
+                "finnishText": sharedTranslationMapKey,
+                "translatedText": sharedTranaslationMapValue,
+              })
+            }
           }
           if (globalDatabaseInstance) {
-            await saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords);
+            saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
+              .then(() => {})
+              .catch((error) => {
+                console.warn("Error saving subtitles batch to cache:", error);
+              });
           }
         }
         else {
@@ -478,12 +484,12 @@ async function loadMovieCacheAndUpdateMetadata() {
 
   const db = await openDatabase();
 
-  const videoTitle = await getVideoTitle();
-  if (!videoTitle) {
+  currentMovieName = await getVideoTitle();
+  if (!currentMovieName) {
     return;
   }
 
-  const subtitleRecords = await loadSubtitlesByMovieName(db, videoTitle);
+  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName);
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
       subtitleRecord.finnishText,
@@ -493,7 +499,7 @@ async function loadMovieCacheAndUpdateMetadata() {
 
   const lastAccessedTimestampMs = Date.now();
 
-  await upsertMovieMetadata(db, videoTitle, lastAccessedTimestampMs);
+  await upsertMovieMetadata(db, currentMovieName, lastAccessedTimestampMs);
 }
 
 const observer = new MutationObserver((mutations) => {

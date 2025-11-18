@@ -11,6 +11,11 @@
  * @property {number} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
  */
 
+const DATABASE = "YleDualSubCache"
+const ENGLISH_SUBTITLE_CACHE_OBJECT_STORE = "EnglishSubtitlesCache"
+const VIETNAMESE_SUBTITLE_CACHE_OBJECT_STORE = "VietnameseSubtitleCache"
+const MOVIE_METADATA_OBJECT_STORE = "MovieMetadata"
+
 /**
  * Open or create the IndexedDB database for subtitle caching
  * @returns {Promise<IDBDatabase>} The opened database instance
@@ -18,7 +23,7 @@
 async function openDatabase() {
     return new Promise((resolve, reject) => {
 
-        const request = indexedDB.open('EnglishSubtitlesCache', 1);
+        const request = indexedDB.open(DATABASE, 1);
 
         // Handle errors
         request.onerror = (event) => {
@@ -39,12 +44,12 @@ async function openDatabase() {
             console.log('Upgrading database...');
 
             // Create object stores here
-            const subtitlesObjectStore = db.createObjectStore('subtitles', {
+            const subtitlesObjectStore = db.createObjectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE, {
                 keyPath: ['movieName', 'finnishText'],
             });
             subtitlesObjectStore.createIndex('movieName', 'movieName', { unique: false });
 
-            const movieMetadataObjectStore = db.createObjectStore('movieMetadata', {
+            const movieMetadataObjectStore = db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
                 keyPath: 'movieName',
             });
         };
@@ -58,10 +63,10 @@ async function openDatabase() {
  * @returns {Promise<Array<SubtitleRecord>>}
  */
 async function loadSubtitlesByMovieName(db, movieName) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['subtitles'], 'readonly');
-            const objectStore = transaction.objectStore('subtitles');
+            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readonly');
+            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
             const index = objectStore.index('movieName');
 
             const request = index.getAll(movieName);
@@ -95,10 +100,10 @@ async function loadSubtitlesByMovieName(db, movieName) {
  * @returns {Promise<void>}
  */
 async function saveSubtitle(db, movieName, finnishText, translatedText) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['subtitles'], 'readwrite');
-            const objectStore = transaction.objectStore('subtitles');
+            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
 
             const subtitle = {
                 movieName: movieName,
@@ -131,10 +136,10 @@ async function saveSubtitle(db, movieName, finnishText, translatedText) {
  * @returns {Promise<number>} Number of subtitles saved
  */
 async function saveSubtitlesBatch(db, subtitles) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['subtitles'], 'readwrite');
-            const objectStore = transaction.objectStore('subtitles');
+            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
 
             let savedCount = 0;
             let errorOccurred = false;
@@ -181,10 +186,10 @@ async function saveSubtitlesBatch(db, subtitles) {
  * @returns {Promise<number>} Number of subtitles deleted
  */
 async function clearSubtitlesByMovieName(db, movieName) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['subtitles'], 'readwrite');
-            const objectStore = transaction.objectStore('subtitles');
+            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
             const index = objectStore.index('movieName');
 
             let deletedCount = 0;
@@ -221,20 +226,18 @@ async function clearSubtitlesByMovieName(db, movieName) {
  * @returns {Promise<MovieMetadata|null>} The movie metadata or null if not found
  */
 async function getMovieMetadata(db, movieName) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['movieMetadata'], 'readonly');
-            const objectStore = transaction.objectStore('movieMetadata');
+            const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readonly');
+            const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const request = objectStore.get(movieName);
 
             request.onsuccess = (event) => {
                 const metadata = event.target.result;
                 if (metadata) {
-                    console.log(`Retrieved metadata for movie: ${movieName}`);
                     resolve(metadata);
                 } else {
-                    console.log(`No metadata found for movie: ${movieName}`);
                     resolve(null);
                 }
             };
@@ -255,14 +258,14 @@ async function getMovieMetadata(db, movieName) {
  * Save or update movie metadata to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
- * @param {string} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
+ * @param {number} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
  * @returns {Promise<void>}
  */
 async function upsertMovieMetadata(db, movieName, lastAccessedTimestampMs) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['movieMetadata'], 'readwrite');
-            const objectStore = transaction.objectStore('movieMetadata');
+            const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const metadata = {
                 movieName: movieName,
@@ -294,10 +297,10 @@ async function upsertMovieMetadata(db, movieName, lastAccessedTimestampMs) {
  * @returns {Promise<Array<MovieMetadata>>} Array of all movie metadata records
  */
 async function getAllMovieMetadata(db) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['movieMetadata'], 'readonly');
-            const objectStore = transaction.objectStore('movieMetadata');
+            const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readonly');
+            const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const request = objectStore.getAll();
 
@@ -326,15 +329,14 @@ async function getAllMovieMetadata(db) {
  * @returns {Promise<void>}
  */
 async function deleteMovieMetadata(db, movieName) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction(['movieMetadata'], 'readwrite');
-            const objectStore = transaction.objectStore('movieMetadata');
+            const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const request = objectStore.delete(movieName);
 
             request.onsuccess = () => {
-                console.log(`Deleted metadata for movie: ${movieName}`);
                 resolve();
             };
 
