@@ -76,6 +76,7 @@ async function loadSubtitlesByMovieName(db, movieName) {
                  * @type {Array<SubtitleRecord>}
                  */
                 const subtitleRecords = event.target.result;
+                console.log(`Loaded ${subtitleRecords.length} subtitles for movie: ${movieName}`);
                 resolve(subtitleRecords);
             };
 
