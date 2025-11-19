@@ -365,8 +365,7 @@ async function cleanupOldMovieData(db, maxAgeMs = 864000000) {
         const now = Date.now();
         const cutoffTime = now - maxAgeMs;
 
-        console.log(`Starting cleanup of movies not accessed
-                    since ${new Date(cutoffTime).toISOString()}`);
+        console.log(`Starting cleanup of movies not accessed since ${new Date(cutoffTime).toISOString()}`);
 
         // Get all movie metadata
         const allMetadata = await getAllMovieMetadata(db);

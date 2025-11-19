@@ -24,7 +24,7 @@ let currentMovieName = null;
 
 // Memory cached current database connection to write data to Index DB
 /**
- * @ype {IDBDatabase | null}
+ * @type {IDBDatabase | null}
  */
 let globalDatabaseInstance = null;
 openDatabase().then(db => {
@@ -520,7 +520,7 @@ const observer = new MutationObserver((mutations) => {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("Error adding dual sub extension section:", error);
         });
-        loadMovieCacheAndUpdateMetadata(() => { }).catch((error) => {
+        loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
           console.warn("Error populating shared translation map from cache:", error);
         });
       }
