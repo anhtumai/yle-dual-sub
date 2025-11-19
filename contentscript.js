@@ -287,13 +287,6 @@ function addContentToDisplayedSubtitlesWrapper(
     sharedTranslationMap.get(translationKey) ||
     sharedTranslationErrorMap.get(translationKey) ||
     "Translating...";
-
-  if (translatedEnglishText === "Translating...") {
-    console.log("Translation Key", translationKey);
-    console.log("Shared Translation Map", sharedTranslationMap);
-    console.log("Finnish Text", finnishText);
-  }
-
   // TODO: Add retry mechanism if Translation is not found
 
   const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
