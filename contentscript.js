@@ -100,7 +100,7 @@ class TranslationQueue {
           }
           if (globalDatabaseInstance) {
             saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
-              .then(() => {})
+              .then(() => { })
               .catch((error) => {
                 console.warn("Error saving subtitles batch to cache:", error);
               });
@@ -215,7 +215,6 @@ function copySubtitlesWrapper(className) {
 function createSubtitleSpan(text, className) {
   const span = document.createElement("span");
   span.setAttribute("class", className);
-  span.setAttribute("style", "font-size: 3rem");
   span.textContent = text;
   return span;
 }
@@ -260,20 +259,40 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
  * Add Finnish and translated English subtitles to the displayed subtitles wrapper
  *
  * @param {HTMLElement} displayedSubtitlesWrapper
- * @param {string} finnishText  - original Finnish subtitle text 
- * @param {string} spanClassName  - class name to set for the span elements
+ * @param {NodeListOf<HTMLSpanElement>} originalSubtitlesWrapperSpans - original Finnish Subtitles Wrapper Spans
  */
 function addContentToDisplayedSubtitlesWrapper(
   displayedSubtitlesWrapper,
-  finnishText,
-  spanClassName
+  originalSubtitlesWrapperSpans,
 ) {
+  if (!originalSubtitlesWrapperSpans || originalSubtitlesWrapperSpans.length === 0) {
+    return;
+  }
+  const spanClassName = originalSubtitlesWrapperSpans[0].className;
+
+  const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
+    span => span.innerText
+  ).join(" ")
+    .replace(/\s+/g, " ")
+    .replace("\n", " ")
+    .trim();
+
+  if (!finnishText || finnishText.length === 0) {
+    return;
+  }
+
   const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = finnishText.trim().toLowerCase();
   const translatedEnglishText =
     sharedTranslationMap.get(translationKey) ||
     sharedTranslationErrorMap.get(translationKey) ||
     "Translating...";
+
+  if (translatedEnglishText === "Translating...") {
+    console.log("Translation Key", translationKey);
+    console.log("Shared Translation Map", sharedTranslationMap);
+    console.log("Finnish Text", finnishText);
+  }
 
   // TODO: Add retry mechanism if Translation is not found
 
@@ -301,18 +320,10 @@ function handleSubtitlesWrapperMutation(mutation) {
   displayedSubtitlesWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
-    const spanClassName = mutation.addedNodes[0].className;
     const finnishTextSpans = mutation.target.querySelectorAll("span");
-    const finnishText = Array.from(finnishTextSpans).map(
-      span => span.innerText
-    ).join(" ")
-      .replace(/\s+/g, " ")
-      .replace("\n", " ")
-      .trim();
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
-      finnishText,
-      spanClassName
+      finnishTextSpans,
     )
   }
 }
@@ -566,12 +577,11 @@ document.addEventListener("change", function (e) {
       displayedSubtitlesWrapper.innerHTML = "";
       displayedSubtitlesWrapper.style.display = "flex";
 
-      const originalSubtitlesWrapperSpan = originalSubtitlesWrapper.querySelector('span');
-      if (originalSubtitlesWrapperSpan) {
+      const originalSubtitlesWrapperSpans = originalSubtitlesWrapper.querySelectorAll('span');
+      if (originalSubtitlesWrapperSpans) {
         addContentToDisplayedSubtitlesWrapper(
           displayedSubtitlesWrapper,
-          originalSubtitlesWrapper.innerText,
-          originalSubtitlesWrapperSpan.className || ""
+          originalSubtitlesWrapperSpans,
         )
       }
       translationQueue.processQueue().then(() => { }).catch((error) => {
