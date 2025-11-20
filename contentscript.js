@@ -211,7 +211,7 @@ function createSubtitleSpan(text, className) {
 }
 
 /**
- * Chekc if a mutation is related to subtitles wrapper 
+ * Check if a mutation is related to subtitles wrapper 
  * @param {MutationRecord} mutation
  * @returns {boolean} - true if the mutation is related to subtitles wrapper
  */
