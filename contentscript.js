@@ -265,8 +265,8 @@ function addContentToDisplayedSubtitlesWrapper(
   const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
     span => span.innerText
   ).join(" ")
+    .replace("/\n/g", " ")
     .replace(/\s+/g, " ")
-    .replace("\n", " ")
     .trim();
 
   if (!finnishText || finnishText.length === 0) {
@@ -274,7 +274,7 @@ function addContentToDisplayedSubtitlesWrapper(
   }
 
   const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
-  const translationKey = finnishText.trim().toLowerCase();
+  const translationKey = toTranslationKey(finnishText);
   const translatedEnglishText =
     sharedTranslationMap.get(translationKey) ||
     sharedTranslationErrorMap.get(translationKey) ||
@@ -597,6 +597,8 @@ document.addEventListener("change", function (e) {
         console.warn("This should not happen: \
           When the video is loaded the subtitles wrapper should be there"
         );
+        e.target.checked = false;
+        dualSubEnabled = false;
         return;
       }
       originalSubtitlesWrapper.style.display = "none";
