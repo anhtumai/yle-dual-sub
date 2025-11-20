@@ -265,7 +265,7 @@ function addContentToDisplayedSubtitlesWrapper(
   const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
     span => span.innerText
   ).join(" ")
-    .replace("/\n/g", " ")
+    .replace(/\n/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
