@@ -1,30 +1,36 @@
-// TODO: Create a tier caching mechanism (in memory and local storage)
-// to avoid hitting translation limit, using DeepL API.
-// Consider using IndexedDB for persistent caching if needed.
-// If a movie is not watched for a long time, the cache can be cleared.
+// ==================================
+// SECTION 1: STATE & INITIALIZATION
+// ==================================
 
 
-// Shared translation map, with key is Finnish text normalized, and value is English text
-/** @type {Map<string, string>} */
+/** @type {Map<string, string>}
+ * Shared translation map, with key is normalized Finnish text, and value is English text
+ */
 const sharedTranslationMap = new Map();
 /** @type {Map<string, string>} */
 const sharedTranslationErrorMap = new Map();
+
+/**
+ *
+ * @param {string} rawSubtitleFinnishText
+ * @returns
+ */
 function toTranslationKey(rawSubtitleFinnishText) {
-  return rawSubtitleFinnishText.trim().replace(/\n/g, '').toLowerCase();
+  return rawSubtitleFinnishText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-// to manage whether to add display subtitles wrapper
+// State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
 
-// Memory cached current movie name
 /**
  * @type {string | null}
+ * Memory cached current movie name
  */
 let currentMovieName = null;
 
-// Memory cached current database connection to write data to Index DB
 /**
  * @type {IDBDatabase | null}
+ * Memory cached current database connection to write data to Index DB
  */
 let globalDatabaseInstance = null;
 openDatabase().then(db => {
@@ -37,6 +43,14 @@ openDatabase().then(db => {
   catch((error) => {
     console.warn("Failed to established connection to indexDB: ", error);
   })
+
+// ==================================
+// END SECTION
+// ==================================
+
+// ==================================
+// SECTION 2: TRANSLATION QUEUE
+// ==================================
 
 class TranslationQueue {
   /* Queue to manage translation requests to avoid hitting rate limits */
@@ -158,32 +172,15 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
   })
 }
 
-document.addEventListener("sendTranslationTextEvent", function (e) {
-  /**
-   * Listening for incoming subtitle texts loaded into video player from injected.js
-   * Send raw Finnish text from subtitle to a translation queue
-   * @param {Event} e
-   */
+// ==================================
+// END SECTION
+// ==================================
 
-  /** @type {string} */
-  const rawSubtitleFinnishText = e.detail;
 
-  const translationKey = toTranslationKey(rawSubtitleFinnishText);
-  if (sharedTranslationMap.has(translationKey)) {
-    return;
-  }
+// ==================================
+// SECTION 3: UI MANIPULATION UTILS
+// ==================================
 
-  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
-    sharedTranslationMap.set(translationKey, translationKey);
-    return;
-  }
-
-  translationQueue.addToQueue(rawSubtitleFinnishText);
-  translationQueue.processQueue().then(() => {
-  }).catch((error) => {
-    console.error("Error processing translation queue:", error);
-  });
-});
 
 /**
  * Create another div for displaying translated subtitles,
@@ -220,7 +217,7 @@ function createSubtitleSpan(text, className) {
 }
 
 /**
- * Chekc if a mutation is related to subtitles wrapper 
+ * Check if a mutation is related to subtitles wrapper 
  * @param {MutationRecord} mutation
  * @returns {boolean} - true if the mutation is related to subtitles wrapper
  */
@@ -259,7 +256,8 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
  * Add Finnish and translated English subtitles to the displayed subtitles wrapper
  *
  * @param {HTMLElement} displayedSubtitlesWrapper
- * @param {NodeListOf<HTMLSpanElement>} originalSubtitlesWrapperSpans - original Finnish Subtitles Wrapper Spans
+ * @param {NodeListOf<HTMLSpanElement>} originalSubtitlesWrapperSpans
+ * original Finnish Subtitles Wrapper Spans
  */
 function addContentToDisplayedSubtitlesWrapper(
   displayedSubtitlesWrapper,
@@ -273,8 +271,8 @@ function addContentToDisplayedSubtitlesWrapper(
   const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
     span => span.innerText
   ).join(" ")
+    .replace(/\n/g, " ")
     .replace(/\s+/g, " ")
-    .replace("\n", " ")
     .trim();
 
   if (!finnishText || finnishText.length === 0) {
@@ -282,7 +280,7 @@ function addContentToDisplayedSubtitlesWrapper(
   }
 
   const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
-  const translationKey = finnishText.trim().toLowerCase();
+  const translationKey = toTranslationKey(finnishText);
   const translatedEnglishText =
     sharedTranslationMap.get(translationKey) ||
     sharedTranslationErrorMap.get(translationKey) ||
@@ -479,6 +477,14 @@ async function getVideoTitle() {
   return texts.join(" | ")
 }
 
+// ==================================
+// END SECTION
+// ==================================
+
+// =========================================
+// MAIN SECTION: OBSERVERS & EVENT LISTENERS
+// =========================================
+
 /**
  * This function acts as a handler when new movie is played.
  * It will load that movie's subtitle from database and update metadata.
@@ -537,8 +543,39 @@ if (document.body instanceof Node) {
   });
 }
 
-// Listen for user setting changes for token selection
+document.addEventListener("sendTranslationTextEvent", function (e) {
+  /**
+   * Listening for incoming subtitle texts loaded into video player from injected.js
+   * Send raw Finnish text from subtitle to a translation queue
+   * @param {Event} e
+   */
+
+  /** @type {string} */
+  const rawSubtitleFinnishText = e.detail;
+
+  const translationKey = toTranslationKey(rawSubtitleFinnishText);
+  if (sharedTranslationMap.has(translationKey)) {
+    return;
+  }
+
+  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
+    sharedTranslationMap.set(translationKey, translationKey);
+    return;
+  }
+
+  translationQueue.addToQueue(rawSubtitleFinnishText);
+  translationQueue.processQueue().then(() => {
+  }).catch((error) => {
+    console.error("Error processing translation queue:", error);
+  });
+});
+
 chrome.storage.onChanged.addListener((changes, namespace) => {
+  /**
+   * Listen for user setting changes for token selection in Options page
+   * @param {Object} changes
+   * @param {string} namespace
+   */
   if (namespace === 'sync' && changes.tokenInfos) {
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
       /**
@@ -553,6 +590,11 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 document.addEventListener("change", function (e) {
+  /**
+   * Listen for user interaction events in YLE Areena page,
+   * for example: dual sub switch change event
+   * @param {Event} e
+   */
   if (e.target.id === "dual-sub-switch") {
     dualSubEnabled = e.target.checked;
     if (e.target.checked) {
@@ -561,6 +603,8 @@ document.addEventListener("change", function (e) {
         console.warn("This should not happen: \
           When the video is loaded the subtitles wrapper should be there"
         );
+        e.target.checked = false;
+        dualSubEnabled = false;
         return;
       }
       originalSubtitlesWrapper.style.display = "none";
