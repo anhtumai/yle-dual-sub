@@ -9,8 +9,14 @@
 const sharedTranslationMap = new Map();
 /** @type {Map<string, string>} */
 const sharedTranslationErrorMap = new Map();
+
+/**
+ *
+ * @param {string} rawSubtitleFinnishText
+ * @returns
+ */
 function toTranslationKey(rawSubtitleFinnishText) {
-  return rawSubtitleFinnishText.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ').toLowerCase();
+  return rawSubtitleFinnishText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
