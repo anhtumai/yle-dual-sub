@@ -380,7 +380,7 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
 async function addDualSubExtensionSection() {
   let bottomControlBarLeftControls = null;
 
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     bottomControlBarLeftControls = document.querySelector(
       '[class^="BottomControlBar__LeftControls"]'
     );
@@ -458,7 +458,7 @@ async function getVideoTitle() {
 
   let titleElement = null;
 
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     titleElement = document.querySelector('[class*="VideoTitle__Titles"]');
     if (titleElement) {
       break;
