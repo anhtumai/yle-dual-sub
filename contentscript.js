@@ -99,16 +99,16 @@ class TranslationQueue {
             const translatedEnglishText = translationResult[i];
             const rawSubtitleFinnishText = toProcessItems[i];
             const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
-            const sharedTranaslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
+            const sharedTranslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
             sharedTranslationMap.set(
               sharedTranslationMapKey,
-              sharedTranaslationMapValue,
+              sharedTranslationMapValue,
             );
             if (currentMovieName) {
               toCacheSubtitleRecords.push({
                 "movieName": currentMovieName,
                 "finnishText": sharedTranslationMapKey,
-                "translatedText": sharedTranaslationMapValue,
+                "translatedText": sharedTranslationMapValue,
               })
             }
           }
@@ -600,8 +600,9 @@ document.addEventListener("change", function (e) {
     if (e.target.checked) {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
-        console.warn("This should not happen: \
-          When the video is loaded the subtitles wrapper should be there"
+        console.warn(
+          "This should not happen: " +
+          "When the video is loaded the subtitles wrapper should be there"
         );
         e.target.checked = false;
         dualSubEnabled = false;
