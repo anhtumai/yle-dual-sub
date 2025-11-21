@@ -398,7 +398,7 @@ async function addDualSubExtensionSection() {
   const dualSubExtensionSection = `
     <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
-      <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox">
+      <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox" ${dualSubEnabled ? 'checked' : ''}>
       <span class="dual-sub-warning" style="display: none;">
         <span class="dual-sub-warning__icon">
           !
