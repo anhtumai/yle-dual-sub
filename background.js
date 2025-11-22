@@ -25,7 +25,7 @@ loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
 // Listen for storage changes to update token when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.tokenInfos) {
-    console.log('Token configuration changed, reloading...');
+    console.log('YleDualSubExtension: Token configuration changed, reloading...');
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
       /**
        * @type {DeepLTokenInfoInStorage[]}
@@ -36,7 +36,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         deeplTokenKey = selectedTokenInfo.key;
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
-        console.warn('No selected token found in updated storage');
+        console.warn('YleDualSubExtension: No selected token found in updated storage');
       }
     }
   }
@@ -152,7 +152,7 @@ async function translateTexts(rawSubtitleFinnishTexts) {
     return data["translations"].map(t => t["text"]);
 
   } catch (error) {
-    console.error('Translation failed:', error);
+    console.error('YleDualSubExtension: Translation failed:', error);
     return error;
   }
 };

@@ -6,6 +6,24 @@ const DEEPL_API_TOKEN_REGEX = /^.{20,}:fx$/i;
 const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
 const DEEPL_PRO_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
 
+
+/**
+ * 
+ * @param {string} str  - confidential DeepL token that we want to mask for display
+ * @param {number} visibleStart - number of characters to show at the start
+ * @param {number} visibleEnd - number of characters to show at the end
+ * @returns 
+ */
+function maskString(str, visibleStart = 3, visibleEnd = 6) {
+  if (str.length <= visibleStart + visibleEnd) {
+    return str; // don't mask if string is too short
+  }
+  
+  return str.slice(0, visibleStart) + 
+         '*'.repeat(str.length - visibleStart - visibleEnd) + 
+         str.slice(-visibleEnd);
+}
+
 class DeepLUsageResponse {
   /**
    * Init DeepLUsageResponse from DeepL API usage response object
@@ -146,7 +164,7 @@ async function queryTokenUsageInfo(tokenKey, tokenType) {
       Probably network error or DeepL has changed response format.
       Please contact extension developers for this issue.
     `;
-    console.error(errorMessage);
+    console.error("YleDualSubExtension: " + errorMessage);
     return [false, errorMessage];
   }
 }
@@ -237,7 +255,7 @@ function TokenInfoCard(props) {
               <h3 className="token-card__token-type">
                 DeepL {capitalizeFirstLetter(tokenInfo.type)}
               </h3>
-              <p className="token-card__token-key">{tokenInfo.key}</p>
+              <p className="token-card__token-key">{maskString(tokenInfo.key)}</p>
             </div>
           </div>
 
@@ -527,11 +545,10 @@ function TokenManagementSection() {
   useEffect(() => {
     ChromeStorageSyncHandler.getAllDeepLTokens()
       .then((chromeStorageTokenInfos) => {
-        console.log("Loaded DeepL tokens from Chrome storage:", chromeStorageTokenInfos);
         setTokenInfos(chromeStorageTokenInfos);
       })
       .catch((error) => {
-        console.error("Error when getting all DeepL tokens from Chrome storage:", error);
+        console.error("YleDualSubExtension: Error when getting all DeepL tokens from Chrome storage:", error);
       });
   }, []);
 
@@ -539,7 +556,7 @@ function TokenManagementSection() {
     setTokenInfos(newTokenInfos);
 
     ChromeStorageSyncHandler.setAllDeepLTokens(newTokenInfos).catch((error) => {
-      console.error("Error when setting all DeepL tokens to Chrome storage:", error);
+      console.error("YleDualSubExtension: Error when setting all DeepL tokens to Chrome storage:", error);
     });
   }
 

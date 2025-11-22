@@ -10,8 +10,6 @@ async function loadSelectedTokenFromChromeStorageSync() {
   try {
     const result = await chrome.storage.sync.get("tokenInfos");
 
-    console.log('Loaded token infos from storage:', result);
-
     if (result && result.tokenInfos && Array.isArray(result.tokenInfos)) {
       /**
        * @type {DeepLTokenInfoInStorage[]}

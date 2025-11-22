@@ -37,11 +37,11 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 
   cleanupOldMovieData(db).then((cleanCount) => {
-    console.log(`Clean ${cleanCount} movies data`);
-  }).catch(error => { console.warn("Error when cleaning old movie data: ", error) });
+    console.log(`YleDualSubExtension: Clean ${cleanCount} movies data`);
+  }).catch(error => { console.error("YleDualSubExtension: Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
-    console.warn("Failed to established connection to indexDB: ", error);
+    console.error("YleDualSubExtension: Failed to established connection to indexDB: ", error);
   })
 
 // ==================================
@@ -116,7 +116,7 @@ class TranslationQueue {
             saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
               .then(() => { })
               .catch((error) => {
-                console.warn("Error saving subtitles batch to cache:", error);
+                console.error("YleDualSubExtension: Error saving subtitles batch to cache:", error);
               });
           }
         }
@@ -132,7 +132,7 @@ class TranslationQueue {
 
 
       } catch (error) {
-        console.error("System error when translating text:", error);
+        console.error("YleDualSubExtension: System error when translating text:", error);
       }
     }
 
@@ -225,7 +225,7 @@ function isMutationRelatedToSubtitlesWrapper(mutation) {
   try {
     return (mutation?.target?.dataset["testid"] === "subtitles-wrapper");
   } catch (error) {
-    console.warn("Catch error checking mutation related to subtitles wrapper:", error);
+    console.warn("YleDualSubExtension: Catch error checking mutation related to subtitles wrapper:", error);
     return false;
   }
 }
@@ -331,7 +331,7 @@ function isVideoAppearMutation(mutation) {
       mutation.addedNodes[0]?.className.includes("VideoPlayerWrapper_modalContent")
     )
   } catch (error) {
-    console.warn("Catch error checking mutation if video appear:", error);
+    console.warn("YleDualSubExtension: Catch error checking mutation if video appear:", error);
     return false;
   }
 }
@@ -391,7 +391,7 @@ async function addDualSubExtensionSection() {
   }
 
   if (!bottomControlBarLeftControls) {
-    console.warn("Cannot find bottom control bar left controls");
+    console.error("YleDualSubExtension: Cannot find bottom control bar left controls");
     return;
   }
 
@@ -467,7 +467,7 @@ async function getVideoTitle() {
   }
 
   if (!titleElement) {
-    console.warn("Cannot find movie name");
+    console.error("YleDualSubExtension: Cannot get movie name. Title Element is null.");
     return null;
   }
 
@@ -524,10 +524,10 @@ const observer = new MutationObserver((mutations) => {
       if (isVideoAppearMutation(mutation)) {
         // TODO: add logic to confirm the video has been loaded completely
         addDualSubExtensionSection().then(() => { }).catch((error) => {
-          console.error("Error adding dual sub extension section:", error);
+          console.error("YleDualSubExtension: Error adding dual sub extension section:", error);
         });
         loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
-          console.warn("Error populating shared translation map from cache:", error);
+          console.error("YleDualSubExtension: Error populating shared translation map from cache:", error);
         });
       }
     }
@@ -566,7 +566,7 @@ document.addEventListener("sendTranslationTextEvent", function (e) {
   translationQueue.addToQueue(rawSubtitleFinnishText);
   translationQueue.processQueue().then(() => {
   }).catch((error) => {
-    console.error("Error processing translation queue:", error);
+    console.error("YleDualSubExtension: Error processing translation queue:", error);
   });
 });
 
@@ -600,8 +600,8 @@ document.addEventListener("change", function (e) {
     if (e.target.checked) {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
-        console.warn(
-          "This should not happen: " +
+        console.error(
+          "YleDualSubExtension: This should not happen: " +
           "When the video is loaded the subtitles wrapper should be there"
         );
         e.target.checked = false;
@@ -623,7 +623,7 @@ document.addEventListener("change", function (e) {
         )
       }
       translationQueue.processQueue().then(() => { }).catch((error) => {
-        console.error("Error processing translation queue after enabling dual subtitles:", error);
+        console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
     }
     else {
