@@ -407,7 +407,7 @@ async function addDualSubExtensionSection() {
           No translation token selected!<br>
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
-          <a href="https://github.com/anhtumai/yle-dual-sub/blob/master/README.md"
+          <a href="https://anhtumai.github.io/yle-dual-sub"
              target="_blank"
              rel="noopener noreferrer">
             this guide
