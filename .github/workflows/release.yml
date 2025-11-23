@@ -1,0 +1,50 @@
+name: Build and Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 0.8.1)'
+        required: true
+        type: string
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extension-options-page/package-lock.json
+
+      - name: Install dependencies
+        working-directory: extension-options-page
+        run: npm ci
+
+      - name: Build options page
+        working-directory: extension-options-page
+        run: npm run build
+
+      - name: Package extension
+        run: |
+          chmod +x package_project.sh
+          ./package_project.sh
+          mv yle-dual-sub-extension.zip yle-dual-sub-extension_${{ inputs.version }}.zip
+
+      - name: Create release and upload zip
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: Release ${{ inputs.version }}
+          files: yle-dual-sub-extension_${{ inputs.version }}.zip
