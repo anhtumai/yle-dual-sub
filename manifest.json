@@ -20,7 +20,7 @@
     }
   ],
   "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
-  "permissions": ["scripting", "storage"],
+  "permissions": ["storage"],
   "web_accessible_resources": [
     {
       "resources": ["injected.js"],
