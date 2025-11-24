@@ -420,13 +420,19 @@ async function addDualSubExtensionSection() {
         <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
           <path fill="currentColor" fill-rule="evenodd" d="M16.377 1.375A10.8 10.8 0 0 0 9.579.107 10.87 10.87 0 0 0 3.75 2.876V1.125a.875.875 0 1 0-1.75 0v4c0 .483.392.875.875.875h4a.875.875 0 1 0 0-1.75H5.213a8.86 8.86 0 0 1 4.649-2.162A8.8 8.8 0 0 1 15.4 3.12a8.96 8.96 0 0 1 3.82 4.197A9.1 9.1 0 0 1 19.778 13a9 9 0 0 1-2.933 4.875 8.85 8.85 0 0 1-5.235 2.111 8.83 8.83 0 0 1-5.439-1.49c-1.655-1.113-3.728-3.014-4.179-6.619a1 1 0 1 0-1.984.248c.55 4.395 3.129 6.74 5.047 8.03a10.83 10.83 0 0 0 6.671 1.828 10.85 10.85 0 0 0 6.419-2.588 11 11 0 0 0 3.584-5.955 11.1 11.1 0 0 0-.68-6.931 10.96 10.96 0 0 0-4.672-5.133M11.85 13.957a.456.456 0 0 1-.457.456h-.672a.456.456 0 0 1-.457-.456v-4.21l-.41.325a.456.456 0 0 1-.64-.074l-.366-.461a.457.457 0 0 1 .083-.649L10.538 7.68a.46.46 0 0 1 .275-.092h.581c.252 0 .457.205.457.457z" clip-rule="evenodd"/>
         </svg>
-        <div aria-hidden="true" class="dual-sub-extension-section_rewind_tooltip" style="left: -48px;">Kelaa 1 sekuntia taaksepäin</div>
+        <div aria-hidden="true" class="dual-sub-extension-section_rewind_tooltip">
+          Rewind 1 second.<br />
+          Tip: Click "," (comma) on keyboard can also rewind 1 second.
+        </div>
       </button>
       <button aria-label="Kelaa 1 sekuntia taaksepäin" type="button" id="yle-dual-sub-forward-button">
         <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
           <path fill="currentColor" fill-rule="evenodd" d="M12.42.107a10.8 10.8 0 0 0-6.797 1.268A10.96 10.96 0 0 0 .95 6.508a11.1 11.1 0 0 0-.679 6.93 11 11 0 0 0 3.585 5.956 10.85 10.85 0 0 0 6.418 2.588 10.83 10.83 0 0 0 6.67-1.828c1.92-1.29 4.499-3.635 5.048-8.03a1 1 0 1 0-1.984-.248c-.45 3.605-2.524 5.506-4.18 6.619a8.83 8.83 0 0 1-5.438 1.49 8.85 8.85 0 0 1-5.235-2.111 9 9 0 0 1-2.933-4.875 9.1 9.1 0 0 1 .557-5.68 8.96 8.96 0 0 1 3.82-4.198 8.8 8.8 0 0 1 5.54-1.033 8.85 8.85 0 0 1 4.649 2.162h-1.663a.875.875 0 1 0 0 1.75h4A.875.875 0 0 0 20 5.125v-4a.875.875 0 0 0-1.75 0v1.751A10.86 10.86 0 0 0 12.42.107M11.85 13.963a.456.456 0 0 1-.456.456h-.672a.456.456 0 0 1-.457-.457V9.754l-.41.325a.457.457 0 0 1-.641-.074l-.365-.462a.457.457 0 0 1 .083-.648l1.606-1.21a.46.46 0 0 1 .275-.091h.581c.252 0 .456.204.456.457z" clip-rule="evenodd"/>
         </svg>
-        <div aria-hidden="true" class="dual-sub-extension-section_forward_tooltip" style="left: -48px;">Kelaa 1 sekuntia eteenpäin</div>
+        <div aria-hidden="true" class="dual-sub-extension-section_forward_tooltip">
+          Forward 1 second.<br />
+          Tip: Click "." (dot) on keyboard can also forward 1 second.
+        </div>
       </button>
 
     </div>
@@ -465,31 +471,55 @@ async function addDualSubExtensionSection() {
 
 
   // Rewind and forward button logic
-  const rewindButton = document.getElementById('yle-dual-sub-rewind-button');
-  const forwardButton = document.getElementById('yle-dual-sub-forward-button');
-  const videoElement = document.querySelector('video.simple-video-element');
+  function rewindForwardLogicHandle() {
+    const videoElement = document.querySelector('video.simple-video-element');
+    if (!videoElement) {
+      console.error("YleDualSubExtension: Cannot find video element");
+      return;
+    }
 
-  if (!videoElement) {
-    console.error("YleDualSubExtension: Cannot find video element");
-  }
-
-  if (rewindButton && videoElement) {
-    rewindButton.addEventListener('click', () => {
-      videoElement.currentTime = Math.max(0, videoElement.currentTime - 1);
-    });
-  }
-  else if (!rewindButton) {
-    console.error("YleDualSubExtension: Cannot find rewind button");
-  }
-
-  if (forwardButton && videoElement) {
-    forwardButton.addEventListener('click', () => {
+    function videoForward() {
       videoElement.currentTime = videoElement.currentTime + 1;
+    }
+
+    function videoRewind() {
+      videoElement.currentTime = Math.max(0, videoElement.currentTime - 1);
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (!videoElement) return;
+
+      if (event.key === ',') {
+        event.preventDefault();
+        videoRewind();
+      } else if (event.key === '.') {
+        event.preventDefault();
+        videoForward();
+      }
     });
+
+    const rewindButton = document.getElementById('yle-dual-sub-rewind-button');
+    const forwardButton = document.getElementById('yle-dual-sub-forward-button');
+
+    if (rewindButton) {
+      rewindButton.addEventListener('click', () => {
+        videoRewind();
+      });
+    }
+    else {
+      console.error("YleDualSubExtension: Cannot find rewind button");
+    }
+
+    if (forwardButton) {
+      forwardButton.addEventListener('click', () => {
+        videoForward();
+      });
+    }
+    else {
+      console.error("YleDualSubExtension: Cannot find forward button");
+    }
   }
-  else if (!forwardButton) {
-    console.error("YleDualSubExtension: Cannot find forward button");
-  }
+  rewindForwardLogicHandle();
 }
 
 /**
