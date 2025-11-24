@@ -133,3 +133,43 @@
 .dual-sub-warning__popover a:hover {
   color: #3b82f6;
 }
+
+/* Rewind button styling */
+.dual-sub-extension-section button {
+  position: relative;
+  background: transparent;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dual-sub-extension-section_rewind_tooltip,
+.dual-sub-extension-section_forward_tooltip {
+  position: absolute;
+  padding: 0 8px;
+  background-color: rgba(0, 0, 0, 0.79);
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: Arial;
+  font-size: 13.3333px;
+  line-height: 28px;
+  height: 28px;
+  color: rgb(248, 249, 250);
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s, visibility 1s;
+  transition-timing-function: ease;
+  z-index: 99;
+  pointer-events: auto;
+  top: -68px;
+  left: -48px;
+  transform: matrix(1, 0, 0, 1, 0, 6);
+  cursor: pointer;
+}
+
+.dual-sub-extension-section button:hover .dual-sub-extension-section_rewind_tooltip,
+.dual-sub-extension-section button:hover .dual-sub-extension-section_forward_tooltip {
+  opacity: 1;
+  visibility: visible;
+}
