@@ -2,26 +2,26 @@ import { useEffect, useState } from "react";
 import { Trash2, RefreshCw, Check } from "lucide-react";
 import "./App.css";
 
-const DEEPL_API_TOKEN_REGEX = /^.{20,}:fx$/i;
 const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
 const DEEPL_PRO_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
 
-
 /**
- * 
+ *
  * @param {string} str  - confidential DeepL token that we want to mask for display
  * @param {number} visibleStart - number of characters to show at the start
  * @param {number} visibleEnd - number of characters to show at the end
- * @returns 
+ * @returns
  */
 function maskString(str, visibleStart = 3, visibleEnd = 6) {
   if (str.length <= visibleStart + visibleEnd) {
     return str; // don't mask if string is too short
   }
-  
-  return str.slice(0, visibleStart) + 
-         '*'.repeat(str.length - visibleStart - visibleEnd) + 
-         str.slice(-visibleEnd);
+
+  return (
+    str.slice(0, visibleStart) +
+    "*".repeat(str.length - visibleStart - visibleEnd) +
+    str.slice(-visibleEnd)
+  );
 }
 
 class DeepLUsageResponse {
@@ -55,6 +55,59 @@ class DeepLUsageResponse {
      * @description The character limit for the current month
      */
     this.characterLimit = usageResponse.character_limit;
+  }
+}
+
+class DeepLUsageError {
+  /**
+   * Init DeepLUsageError for DeepL API usage request failures
+   * @param {number} status - The HTTP status code from the failed request
+   */
+  constructor(status) {
+    if (typeof status !== "number" || isNaN(status)) {
+      throw new Error("Status must be a valid number");
+    }
+    /**
+     * @type {number}
+     * @description The HTTP status code from the failed request
+     */
+    this.status = status;
+    /**
+     * @type {string}
+     * @description The error message describing what went wrong
+     */
+    this.errorMessage = this._getErrorMessageFromStatus(status);
+  }
+
+  /**
+   * Get a user-friendly error message based on the HTTP status code
+   * @param {number} status - The HTTP status code
+   * @returns {string} A descriptive error message
+   * @private
+   */
+  _getErrorMessageFromStatus(status) {
+    switch (status) {
+      case 400:
+        return "Bad request. Please check your API token format and try again.";
+      case 403:
+        return "Authorization failed. The API key is invalid or missing. Please verify your DeepL API token.";
+      case 404:
+        return "The requested resource could not be found. Please check your API endpoint configuration.";
+      case 413:
+        return "The request size exceeds the limit.";
+      case 429:
+        return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
+      case 456:
+        return "Quota exceeded. You've reached your monthly character limit for this token. Please use a different token or upgrade your DeepL plan.";
+      case 500:
+        return "Internal server error. DeepL is experiencing technical issues. Please try again later.";
+      case 504:
+        return "Service unavailable. DeepL service is temporarily down. Please try again later.";
+      case 529:
+        return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
+      default:
+        return `Checking token usage failed with error code ${status}. Please try again or contact support.`;
+    }
   }
 }
 
@@ -100,7 +153,7 @@ class ChromeStorageSyncHandler {
     if (!Array.isArray(result.tokenInfos)) {
       return [];
     }
-    
+
     return result.tokenInfos;
   }
 }
@@ -122,11 +175,6 @@ function validateDeeplApiTokenKey(tokenKey) {
   if (typeof tokenKey !== "string" || tokenKey.length === 0) {
     return false;
   }
-
-  if (!DEEPL_API_TOKEN_REGEX.test(tokenKey)) {
-    return false;
-  }
-
   return true;
 }
 
@@ -134,8 +182,8 @@ function validateDeeplApiTokenKey(tokenKey) {
  *
  * @param {string} tokenKey
  * @param {"free" | "pro"} tokenType
- * @returns {Promise<[true, DeepLUsageResponse]|[false, string]>} -
- * Returns a tuple where the first element indicates validity and the second is either usage data or an error message.
+ * @returns {Promise<[true, DeepLUsageResponse]|[false, DeepLUsageError]|[false, string]>} -
+ * Returns a tuple where the first element indicates validity and the second is either usage data, usage error or an error message.
  */
 async function queryTokenUsageInfo(tokenKey, tokenType) {
   const url = tokenType === "free" ? `${DEEPL_FREE_ENDPOINT}/usage` : `${DEEPL_PRO_ENDPOINT}/usage`;
@@ -149,10 +197,8 @@ async function queryTokenUsageInfo(tokenKey, tokenType) {
       },
     });
     if (!response.ok) {
-      const errorMessage = `
-        Checking token usage failed with error code ${response.status} and message ${response.statusText}
-      `;
-      return [false, errorMessage];
+      const deepLUsageError = new DeepLUsageError(response.status);
+      return [false, deepLUsageError];
     }
 
     const data = await response.json();
@@ -352,17 +398,25 @@ function TokenInfoCardList(props) {
     for (const tokenInfo of tokenInfos) {
       if (tokenInfo.key === tokenKey) {
         try {
-          const [isSucceeded, newUsageInfo] = await queryTokenUsageInfo(
+          const [isSucceeded, queryResponse] = await queryTokenUsageInfo(
             tokenInfo.key,
             tokenInfo.type
           );
 
           if (!isSucceeded) {
-            alert(`Error when checking usage for token ${tokenInfo.key}: ${newUsageInfo}`);
+            if (queryResponse instanceof DeepLUsageError) {
+              const deeplUsageError = queryResponse;
+              alert(deeplUsageError.errorMessage);
+            }
+            else {
+              const errorMessage = queryResponse;
+              alert(errorMessage);
+            }
             return;
           }
-          tokenInfo.characterCount = newUsageInfo.characterCount;
-          tokenInfo.characterLimit = newUsageInfo.characterLimit;
+          const deeplUsageResponse = queryResponse;
+          tokenInfo.characterCount = deeplUsageResponse.characterCount;
+          tokenInfo.characterLimit = deeplUsageResponse.characterLimit;
           tokenInfo.lastUsageCheckedAt = formatDateInEnglishLocale(new Date());
 
           const newTokenInfos = structuredClone(tokenInfos);
@@ -439,7 +493,9 @@ function AddNewTokenForm(props) {
 
     if (!validateDeeplApiTokenKey(deepLApiTokenKey)) {
       alert(
-        "Please enter a valid DeepL API token. Sample DeepL Token format: xxxxxxxxxxxxxxxxxxxx:fx"
+        "Please enter a valid DeepL API token.\n" +
+          "Sample DeepL Token format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
+          "Note: DeepL Free token may have ':fx' suffix."
       );
       return;
     }
@@ -451,7 +507,8 @@ function AddNewTokenForm(props) {
 
     if (tokenKeysSet.has(deepLApiTokenKey)) {
       alert(
-        "You have already added this token. If the token is not visible, please refresh the page."
+        "You have already added this token.\n" +
+          "If the token is not visible, please refresh the page."
       );
       return;
     }
@@ -548,7 +605,10 @@ function TokenManagementSection() {
         setTokenInfos(chromeStorageTokenInfos);
       })
       .catch((error) => {
-        console.error("YleDualSubExtension: Error when getting all DeepL tokens from Chrome storage:", error);
+        console.error(
+          "YleDualSubExtension: Error when getting all DeepL tokens from Chrome storage:",
+          error
+        );
       });
   }, []);
 
@@ -556,7 +616,10 @@ function TokenManagementSection() {
     setTokenInfos(newTokenInfos);
 
     ChromeStorageSyncHandler.setAllDeepLTokens(newTokenInfos).catch((error) => {
-      console.error("YleDualSubExtension: Error when setting all DeepL tokens to Chrome storage:", error);
+      console.error(
+        "YleDualSubExtension: Error when setting all DeepL tokens to Chrome storage:",
+        error
+      );
     });
   }
 
