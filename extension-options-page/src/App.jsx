@@ -518,12 +518,14 @@ function AddNewTokenForm(props) {
       deepLApiTokenType
     );
     if (!validateSuccess) {
-      const checkTokenUsageErrorMessage = checkTokenUsageResponse;
-      alert(
-        `The provided DeepL API token is not valid.
-        Checking token usage failed with error: ${checkTokenUsageErrorMessage}.
-        Please check and try again.`
-      );
+      if (checkTokenUsageResponse instanceof DeepLUsageError) {
+        const deepLUsageError = checkTokenUsageResponse;
+        alert(deepLUsageError.errorMessage);
+      }
+      else {
+        const errorMessage = checkTokenUsageResponse;
+        alert(errorMessage);
+      }
       return;
     }
 

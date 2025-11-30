@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     translateTextsWithErrorHandling(rawSubtitleFinnishTexts).then((translationResult) => {
       sendResponse(translationResult);
     }).catch((error) => {
-      sendResponse(error);
+      sendResponse([false, error.message || String(error)]);
     });
     return true;
   }
@@ -66,64 +66,96 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-class HTTPError extends Error {
+class DeepLTranslationError {
   /**
-  * @param {string} message - HTTP Error message
-  * @param {number} statusCode
-  */
-  constructor(message, statusCode) {
-    super(message);
-    this.name = "HTTPError";
-    this.statusCode = statusCode;
+   * Init DeepLTranslationError for DeepL API translation request failures
+   * @param {number} status - The HTTP status code from the failed request
+   */
+  constructor(status) {
+    if (typeof status !== "number" || isNaN(status)) {
+      throw new Error("Status must be a valid number");
+    }
+    /**
+     * @type {number}
+     * @description The HTTP status code from the failed request
+     */
+    this.status = status;
+  }
+
+
+}
+
+/**
+   * Get a user-friendly error message based on the HTTP status code
+   * @param {number} status - The HTTP status code
+   * @returns {string} A descriptive error message
+   * @private
+   */
+function getErrorMessageFromStatus(status) {
+  switch (status) {
+    case 400:
+      return "Translation request is invalid. Please try again.";
+    case 403:
+      return "This API token is invalid. Please check your DeepL token in settings.";
+    case 404:
+      return "Cannot connect to DeepL. Please contact the extension developer.";
+    case 413:
+      return "Subtitle text is too large. Please contact the extension developer.";
+    case 414:
+      return "Request URL is too long. Please contact the extension developer.";
+    case 429:
+      return "You're translating too quickly. Please wait a moment and try again.";
+    case 456:
+      return "Monthly character limit reached. Please use a different token or upgrade your plan.";
+    case 500:
+      return "DeepL is having technical problems. Please try again in a few minutes.";
+    case 504:
+      return "DeepL is temporarily unavailable. Please try again in a few minutes.";
+    case 529:
+      return "You're translating too quickly. Please wait a moment and try again.";
+    default:
+      return `Translation failed (error ${status}). Please try again later.`;
   }
 }
 
 /**
  * Translate DeepL text with proper error handling
- * 
- * @param {string[]} rawSubtitleFinnishTexts 
- * @returns {Promise<Array<string>|Error>} - A promise that resolves to an array of
- * translated English texts, if failed it returns error during translation
+ *
+ * @param {string[]} rawSubtitleFinnishTexts
+ * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
+ * indicates success and the second is either translated texts or an error message.
  */
 async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
   for (let i = 0; i < 5; i++) {
-    const translationResult = await translateTexts(rawSubtitleFinnishTexts);
+    const [isSucceeded, translationResponse] = await translateTexts(rawSubtitleFinnishTexts);
 
-    if (Array.isArray(translationResult)) {
-      return translationResult;
+    if (isSucceeded) {
+      return [true, translationResponse];
     }
 
-    if (translationResult instanceof HTTPError) {
-      const httpTranslationError = translationResult;
-      if ([429, 503, 413].includes(httpTranslationError.statusCode)) {
+    if (translationResponse instanceof DeepLTranslationError) {
+      const deepLTranslationError = translationResponse;
+      const errorStatusCode = deepLTranslationError.status;
+      if ([413, 429, 503, 504, 529].includes(errorStatusCode)) {
         await sleep(400);
         continue;
+      } else {
+        return [false, getErrorMessageFromStatus(errorStatusCode)];
       }
-      else if (httpTranslationError.statusCode === 456) {
-        return new Error(
-          "DeepL quota has exceeded"
-        )
-      }
-      else {
-        return new Error(
-          `DeepL Error: ${httpTranslationError.message}, code: ${httpTranslationError.statusCode}`
-        )
-      }
-    }
-    else {
-      const translationError = translationResult;
-      return translationError;
+    } else {
+      const errorMessage = translationResponse;
+      return [false, errorMessage];
     }
   }
 
-  return new Error("Translation fails after 5 retry attempts.");
+  return [false, "Translation fails after 5 retry attempts."];
 }
 
 /**
- * Translate text using DeepL API 
+ * Translate text using DeepL API
  * @param {Array<string>} rawSubtitleFinnishTexts - Array of Finnish texts to translate
- * @returns {Promise<Array<string>|HTTPError|Error>} - A promise that resolves to an array
- * of translated English texts, if failed, returns error object
+ * @returns {Promise<[true, Array<string>]|[false, DeepLTranslationError]|[false, string]>} -
+ * Returns a tuple where the first element indicates success and the second is either translated texts, translation error or an error message.
  */
 async function translateTexts(rawSubtitleFinnishTexts) {
   const apiKey = deeplTokenKey;
@@ -145,14 +177,21 @@ async function translateTexts(rawSubtitleFinnishTexts) {
       })
     });
     if (!response.ok) {
-      return new HTTPError('Failed to fetch translation', response.status);
+      const deepLTranslationError = new DeepLTranslationError(response.status);
+      return [false, deepLTranslationError];
     }
 
     const data = await response.json();
-    return data["translations"].map(t => t["text"]);
+    const translatedTexts = data["translations"].map(t => t["text"]);
+    return [true, translatedTexts];
 
   } catch (error) {
     console.error('YleDualSubExtension: Translation failed:', error);
-    return error;
+    const errorMessage = `
+      Parsing translation response failed with ${error}.
+      Probably network error or DeepL has changed response format.
+      Please contact extension developers for this issue.
+    `;
+    return [false, errorMessage];
   }
 };
