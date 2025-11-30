@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, RefreshCw, Check } from "lucide-react";
+import { Trash2, RefreshCw, Check, TriangleAlert } from "lucide-react";
 import "./App.css";
 
 const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
@@ -359,6 +359,75 @@ function TokenInfoCard(props) {
 }
 
 /**
+ *
+ * @param {any} props
+ * @returns
+ */
+function DeactivatedTokenInfoCard(props) {
+  const { tokenInfo, handleRemoveToken } = props;
+  return (
+    <div
+      key={tokenInfo.key}
+      className="token-card token-card-deactivated"
+    >
+      <div className="token-card__content">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="token-card__header">
+            <TriangleAlert size={24} className="token-card__warning-icon" />
+            <div className="token-card__details">
+              <h3 className="token-card__token-type">
+                DeepL {capitalizeFirstLetter(tokenInfo.type)}
+              </h3>
+              <p className="token-card__token-key">{maskString(tokenInfo.key)}</p>
+            </div>
+          </div>
+
+          <div className="token-card__error-message">
+            <span className="token-card__error-icon">⛔</span>
+            <span className="token-card__error-text">
+              This token has been deactivated or is invalid. Please remove it and add a new token.
+            </span>
+          </div>
+
+          <div className="token-card__usage-container">
+            <div className="token-card__usage-stats">
+              <span className="token-card__usage-text">-- / -- characters</span>
+              <span className="token-card__usage-percentage">--</span>
+            </div>
+
+            <p className="token-card__last-checked-text">
+              Last checked: {tokenInfo.lastUsageCheckedAt}
+            </p>
+          </div>
+        </div>
+
+        <div className="token-card__action-buttons">
+          <button
+            disabled
+            className="token-card__button token-card__check-usage-button token-card__button-disabled"
+          >
+            <RefreshCw size={16} />
+            Check Usage
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm(`Are you sure you want to remove this token: ${tokenInfo.key}?`)) {
+                handleRemoveToken(tokenInfo.key);
+              }
+            }}
+            className="token-card__button token-card__remove_button"
+          >
+            <Trash2 size={16} />
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * @typedef {Object} TokenInfoCardListProps
  * @property {DeepLTokenInfoInStorage[]} tokenInfos - An array of DeepL token information.
  * @property {(newTokenInfos: DeepLTokenInfoInStorage[]) => void} setTokenInfos - A function to update the tokenInfos.
@@ -407,6 +476,13 @@ function TokenInfoCardList(props) {
             if (queryResponse instanceof DeepLUsageError) {
               const deeplUsageError = queryResponse;
               alert(deeplUsageError.errorMessage);
+              if (deeplUsageError.status === 403) {
+                tokenInfo.isDeactivated = true;
+                tokenInfo.selected = false;
+                tokenInfo.lastUsageCheckedAt = formatDateInEnglishLocale(new Date());
+                const newTokenInfos = structuredClone(tokenInfos);
+                setTokenInfos(newTokenInfos);
+              }
             }
             else {
               const errorMessage = queryResponse;
@@ -456,15 +532,26 @@ function TokenInfoCardList(props) {
     <div>
       <p>Here is your list of tokens:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
-        {tokenInfos.map((tokenInfo) => (
-          <TokenInfoCard
-            key={tokenInfo.key}
-            tokenInfo={tokenInfo}
-            handleSelectToken={handleSelectToken}
-            handleCheckUsage={handleCheckUsage}
-            handleRemoveToken={handleRemoveToken}
-          />
-        ))}
+        {tokenInfos.map((tokenInfo) => {
+          if (tokenInfo.isDeactivated === true) {
+            return (
+              <DeactivatedTokenInfoCard
+                key={tokenInfo.key}
+                tokenInfo={tokenInfo}
+                handleRemoveToken={handleRemoveToken}
+              />
+            );
+          }
+          return (
+            <TokenInfoCard
+              key={tokenInfo.key}
+              tokenInfo={tokenInfo}
+              handleSelectToken={handleSelectToken}
+              handleCheckUsage={handleCheckUsage}
+              handleRemoveToken={handleRemoveToken}
+            />
+          );
+        })}
       </div>
     </div>
   );
