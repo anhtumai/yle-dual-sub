@@ -7,6 +7,7 @@
  * @property {string} characterLimit - The character limit for this token.
  * @property {string} lastUsageCheckedAt - The timestamp when the token usage was last checked.
  * @property {boolean} selected - Whether this token is selected for use.
+ * @property {boolean|undefined} isDeactivated - Whether this token has been deactivated.
  */
 
-export {};
+export { };
