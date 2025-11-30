@@ -13,7 +13,7 @@ const sharedTranslationErrorMap = new Map();
 /**
  *
  * @param {string} rawSubtitleFinnishText
- * @returns
+ * @returns {string}
  */
 function toTranslationKey(rawSubtitleFinnishText) {
   return rawSubtitleFinnishText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -88,15 +88,16 @@ class TranslationQueue {
       }
 
       try {
-        const translationResult = await fetchTranslation(toProcessItems);
+        const [isSucceeded, translationResponse] = await fetchTranslation(toProcessItems);
 
-        if (Array.isArray(translationResult)) {
+        if (isSucceeded) {
+          const translatedEnglishTexts = translationResponse;
           /**
            * @type {Array<SubtitleRecord>}
            */
           const toCacheSubtitleRecords = [];
           for (let i = 0; i < toProcessItems.length; i++) {
-            const translatedEnglishText = translationResult[i];
+            const translatedEnglishText = translatedEnglishTexts[i];
             const rawSubtitleFinnishText = toProcessItems[i];
             const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
             const sharedTranslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
@@ -121,15 +122,15 @@ class TranslationQueue {
           }
         }
         else {
+          const translationErrorMessage = translationResponse;
           for (let i = 0; i < toProcessItems.length; i++) {
             const rawSubtitleFinnishText = toProcessItems[i];
             sharedTranslationErrorMap.set(
               toTranslationKey(rawSubtitleFinnishText),
-              `Error: ${translationResult.message}`
+              `Error: ${translationErrorMessage}`
             );
           }
         }
-
 
       } catch (error) {
         console.error("YleDualSubExtension: System error when translating text:", error);
@@ -146,30 +147,25 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<Array<string>|Error>} - A promise that resolves to the
- * translated English texts. If it fails, return an error.
- * @throws {Error} - Throws an error if translation fails
+ * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
+ * indicates success and the second is either translated texts or an error message.
+
  */
 async function fetchTranslation(rawSubtitleFinnishTexts) {
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(
-      { action: 'fetchTranslation', data: { rawSubtitleFinnishTexts: rawSubtitleFinnishTexts } },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
-        } else if (response.error) {
-          // Probably never happens
-          console.error(
-            "Fetch Translation with Error Handling throws error: Please fix",
-            response.error
-          );
-          reject(new Error(response.error));
-        } else {
-          resolve(response);
-        }
-      }
-    )
-  })
+  try {
+    /**
+     * @type {[true, Array<string>] | [false, string]}
+     */
+    const response = await chrome.runtime.sendMessage(
+      {
+        action: 'fetchTranslation',
+        data: { rawSubtitleFinnishTexts: rawSubtitleFinnishTexts }
+      });
+    return response;
+  } catch (error) {
+    console.error("YleDualSubExtension: Error sending message to background for translation:", error);
+    return [false, error.message || String(error)];
+  }
 }
 
 // ==================================
@@ -234,8 +230,8 @@ function isMutationRelatedToSubtitlesWrapper(mutation) {
  * Create and position the displayed subtitles wrapper next to the original subtitles wrapper
  * if it does not exist yet
  *
- * @param {HTMLElement} originalSubtitlesWrapper 
- * @returns 
+ * @param {HTMLElement} originalSubtitlesWrapper
+ * @returns {HTMLElement}
  */
 function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
   let displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
@@ -322,6 +318,7 @@ function handleSubtitlesWrapperMutation(mutation) {
 /**
  * Check if a mutation indicates that a video modal has appeared on the page
  * @param {MutationRecord} mutation
+ * @returns {boolean}
  */
 function isVideoAppearMutation(mutation) {
   try {
@@ -560,7 +557,7 @@ async function getVideoTitle() {
 /**
  * This function acts as a handler when new movie is played.
  * It will load that movie's subtitle from database and update metadata.
- * @returns 
+ * @returns {Promise<void>}
  */
 async function loadMovieCacheAndUpdateMetadata() {
 
