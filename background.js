@@ -187,11 +187,7 @@ async function translateTexts(rawSubtitleFinnishTexts) {
 
   } catch (error) {
     console.error('YleDualSubExtension: Translation failed:', error);
-    const errorMessage = `
-      Parsing translation response failed with ${error}.
-      Probably network error or DeepL has changed response format.
-      Please contact extension developers for this issue.
-    `;
+    const errorMessage = 'Translation failed. Please check network or contact developers.';
     return [false, errorMessage];
   }
 };
