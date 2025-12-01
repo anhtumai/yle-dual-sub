@@ -333,6 +333,55 @@ function isVideoAppearMutation(mutation) {
   }
 }
 
+
+// Debounce flag to prevent duplicate initialization during rapid DOM mutations.
+// Set to true when video detection starts, prevents re-triggering for 1.5 seconds.
+// This handles the case where video player construction fires multiple sequential mutations.
+let checkVideoAppearMutationDebounceFlag = false;
+/**
+ * Generic video element detection - detects when any <video> element appears in the DOM
+ * Works for both:
+ * - Initial load: when video container is added with video already inside
+ * - Episode transitions: when video element is added to existing container
+ *
+ * Future-proof: doesn't rely on YLE Areena's specific class names
+ * @param {MutationRecord} mutation
+ * @returns {boolean}
+ */
+function isVideoElementAppearMutation(mutation) {
+  if (checkVideoAppearMutationDebounceFlag) {
+    return false;
+  }
+  try {
+    // Must be a childList mutation with added nodes
+    if (mutation.type !== "childList" || mutation.addedNodes.length === 0) {
+      return false;
+    }
+
+    // Check each added node
+    for (const node of Array.from(mutation.addedNodes)) {
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        continue;
+      }
+
+      const element = /** @type {HTMLElement} */ (node);
+
+      // Case 1: The added node IS a video element
+      // Case 2: The added node CONTAINS a video element (initial load scenario)
+      if (element.tagName === "VIDEO" || element.querySelector?.('video')) {
+        checkVideoAppearMutationDebounceFlag = true;
+        setTimeout(() => { checkVideoAppearMutationDebounceFlag = false; }, 1500);
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.warn("YleDualSubExtension: Error checking video element mutation:", error);
+    return false;
+  }
+}
+
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -390,6 +439,23 @@ async function addDualSubExtensionSection() {
   if (!bottomControlBarLeftControls) {
     console.error("YleDualSubExtension: Cannot find bottom control bar left controls");
     return;
+  }
+
+  const existingSection = document.querySelector(".dual-sub-extension-section");
+  if (existingSection) {
+    try {
+      existingSection.remove();
+    } catch (err) {
+      // Probably never happens, but just in case
+      console.error("YleDualSubExtension: Error removing existing dual sub extension section:", err);
+      if (existingSection.parentNode) {
+        try {
+          existingSection.parentNode.removeChild(existingSection);
+        } catch (error) {
+          console.error("YleDualSubExtension: Error removing existing dual sub extension section via parentNode:", error);
+        }
+      }
+    }
   }
 
   const dualSubExtensionSection = `
@@ -609,8 +675,7 @@ const observer = new MutationObserver((mutations) => {
           return;
         }
       }
-      if (isVideoAppearMutation(mutation)) {
-        // TODO: add logic to confirm the video has been loaded completely
+      if (isVideoElementAppearMutation(mutation)) {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
           console.error("YleDualSubExtension: Error adding dual sub extension section:", error);
         });
@@ -627,7 +692,6 @@ if (document.body instanceof Node) {
   observer.observe(document.body, {
     childList: true,
     subtree: true,
-    characterData: true,
   });
 }
 

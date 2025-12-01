@@ -22,15 +22,15 @@ async function loadSelectedTokenFromChromeStorageSync() {
           isPro: selectedTokenInfo.type === "pro"
         };
       } else {
-        console.warn('No selected token found in storage');
+        console.warn('YleDualSubExtension: No selected token found in storage');
         return null;
       }
     } else {
-      console.warn('No tokens found in storage');
+      console.warn('YleDualSubExtension: No tokens found in storage');
       return null;
     }
   } catch (error) {
-    console.error('Error loading token from storage:', error);
+    console.error('YleDualSubExtension: Error loading token from storage:', error);
     return null;
   }
 }
