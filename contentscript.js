@@ -315,24 +315,6 @@ function handleSubtitlesWrapperMutation(mutation) {
   }
 }
 
-/**
- * Check if a mutation indicates that a video modal has appeared on the page
- * @param {MutationRecord} mutation
- * @returns {boolean}
- */
-function isVideoAppearMutation(mutation) {
-  try {
-    return (mutation?.target?.localName === "body" &&
-      mutation?.addedNodes.length > 0 &&
-      typeof mutation.addedNodes[0]?.className === "string" &&
-      mutation.addedNodes[0]?.className.includes("VideoPlayerWrapper_modalContent")
-    )
-  } catch (error) {
-    console.warn("YleDualSubExtension: Catch error checking mutation if video appear:", error);
-    return false;
-  }
-}
-
 
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations.
 // Set to true when video detection starts, prevents re-triggering for 1.5 seconds.
