@@ -536,7 +536,7 @@ async function addDualSubExtensionSection() {
 
   // Rewind and forward button logic
   function rewindForwardLogicHandle() {
-    const videoElement = document.querySelector('video.simple-video-element');
+    const videoElement = document.querySelector('video');
     if (!videoElement) {
       console.error("YleDualSubExtension: Cannot find video element");
       return;
