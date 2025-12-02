@@ -327,6 +327,8 @@ let checkVideoAppearMutationDebounceFlag = false;
  * - Episode transitions: when video element is added to existing container
  *
  * Future-proof: doesn't rely on YLE Areena's specific class names
+ * NOTE: This function relies on an assumption that there is only one video element in the page at any time.
+ * If YLE Areena changes to have multiple video elements, this logic may need to be revised.
  * @param {MutationRecord} mutation
  * @returns {boolean}
  */
