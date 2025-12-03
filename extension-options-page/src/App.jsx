@@ -343,7 +343,7 @@ function TokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Are you sure you want to remove this token: ${tokenInfo.key}?`)) {
+              if (confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)) {
                 handleRemoveToken(tokenInfo.key);
               }
             }}
@@ -412,7 +412,7 @@ function DeactivatedTokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Are you sure you want to remove this token: ${tokenInfo.key}?`)) {
+              if (confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)) {
                 handleRemoveToken(tokenInfo.key);
               }
             }}
@@ -498,7 +498,7 @@ function TokenInfoCardList(props) {
           const newTokenInfos = structuredClone(tokenInfos);
           setTokenInfos(newTokenInfos);
         } catch (error) {
-          alert(`Error when checking usage for token ${tokenInfo.key}: ${error}`);
+          alert(`Error when checking usage: ${error}`);
           return;
         }
       }
