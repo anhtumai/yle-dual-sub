@@ -645,9 +645,9 @@ async function loadMovieCacheAndUpdateMetadata() {
     );
   }
 
-  const lastAccessedTimestampMs = Date.now();
+  const lastAccessedDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
 
-  await upsertMovieMetadata(db, currentMovieName, lastAccessedTimestampMs);
+  await upsertMovieMetadata(db, currentMovieName, lastAccessedDays);
 }
 
 const observer = new MutationObserver((mutations) => {

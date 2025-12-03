@@ -8,7 +8,7 @@
 /**
  * @typedef {Object} MovieMetadata
  * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @property {number} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
+ * @property {number} lastAccessedDays - Last accessed time in days since Unix epoch
  */
 
 const DATABASE = "YleDualSubCache"
@@ -255,10 +255,10 @@ async function getMovieMetadata(db, movieName) {
  * Save or update movie metadata to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
- * @param {number} lastAccessedTimestampMs - Last accessed timestamp in milliseconds
+ * @param {number} lastAccessedDays - Last accessed time in days since Unix epoch
  * @returns {Promise<void>}
  */
-async function upsertMovieMetadata(db, movieName, lastAccessedTimestampMs) {
+async function upsertMovieMetadata(db, movieName, lastAccessedDays) {
     return new Promise((resolve, reject) => {
         try {
             const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readwrite');
@@ -266,7 +266,7 @@ async function upsertMovieMetadata(db, movieName, lastAccessedTimestampMs) {
 
             const metadata = {
                 movieName: movieName,
-                lastAccessedTimestampMs: lastAccessedTimestampMs
+                lastAccessedDays: lastAccessedDays
             };
 
             const request = objectStore.put(metadata);
@@ -350,23 +350,23 @@ async function deleteMovieMetadata(db, movieName) {
 /**
  * Clean up old movie data that hasn't been accessed recently
  * @param {IDBDatabase} db - Opening database instance
- * @param {number} maxAgeMs - Maximum age in milliseconds (movies older than this will be deleted).
- * Default is 864,000,000 ms (10 days)
+ * @param {number} maxAgeDays - Maximum age in days (movies older than this will be deleted).
+ * Default is 30 days
  * @returns {Promise<number>} Number of movies cleaned up
  */
-async function cleanupOldMovieData(db, maxAgeMs = 864000000) {
+async function cleanupOldMovieData(db, maxAgeDays = 30) {
     try {
-        const now = Date.now();
-        const cutoffTime = now - maxAgeMs;
+        const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+        const cutoffDays = nowDays - maxAgeDays;
 
-        console.log(`YleDualSubExtension: Starting cleanup of movies not accessed since ${new Date(cutoffTime).toISOString()}`);
+        console.log(`YleDualSubExtension: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
 
         // Get all movie metadata
         const allMetadata = await getAllMovieMetadata(db);
 
         // Filter for old movies
         const oldMovieMetadatas = allMetadata.filter(metadata =>
-            metadata.lastAccessedTimestampMs < cutoffTime
+            metadata.lastAccessedDays < cutoffDays
         );
 
         console.log(`YleDualSubExtension: Found ${oldMovieMetadatas.length} movies to clean up`);
