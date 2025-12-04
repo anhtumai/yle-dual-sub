@@ -432,3 +432,78 @@
   font-family: 'Courier New', Courier, monospace;
   letter-spacing: 0.5px;
 }
+
+/* Help Section */
+
+.token-management-setting-card__help-section {
+  margin: 20px 0;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #2a2a2a;
+  max-width: 750px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.token-management-setting-card__help-section-button {
+  width: 100%;
+  padding: 12px 16px;
+  background: #333333;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.token-management-setting-card__help-section-arrow {
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.token-management-setting-card__help-section-arrow--open {
+  transform: rotate(180deg);
+}
+
+.token-management-setting-card__help-section-content {
+  padding: 16px;
+  background: #2a2a2a;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #b0b0b0;
+  border-top: 1px solid #404040;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.token-management-setting-card__help-section-paragraph {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.token-management-setting-card__help-section-strong {
+  color: #e0e0e0;
+}
+
+.token-management-setting-card__help-section-list {
+  padding-left: 24px;
+}
+
+.token-management-setting-card__help-section-link {
+  color: #3b82f6;
+}
+
+.token-management-setting-card__help-section-small {
+  color: #888888;
+}
+
+.token-management-setting-card__help-section-footer {
+  font-size: 14px;
+}

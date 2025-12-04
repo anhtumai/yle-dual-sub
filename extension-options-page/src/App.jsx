@@ -343,7 +343,9 @@ function TokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)) {
+              if (
+                confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)
+              ) {
                 handleRemoveToken(tokenInfo.key);
               }
             }}
@@ -366,10 +368,7 @@ function TokenInfoCard(props) {
 function DeactivatedTokenInfoCard(props) {
   const { tokenInfo, handleRemoveToken } = props;
   return (
-    <div
-      key={tokenInfo.key}
-      className="token-card token-card-deactivated"
-    >
+    <div key={tokenInfo.key} className="token-card token-card-deactivated">
       <div className="token-card__content">
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="token-card__header">
@@ -412,7 +411,9 @@ function DeactivatedTokenInfoCard(props) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)) {
+              if (
+                confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)
+              ) {
                 handleRemoveToken(tokenInfo.key);
               }
             }}
@@ -483,8 +484,7 @@ function TokenInfoCardList(props) {
                 const newTokenInfos = structuredClone(tokenInfos);
                 setTokenInfos(newTokenInfos);
               }
-            }
-            else {
+            } else {
               const errorMessage = queryResponse;
               alert(errorMessage);
             }
@@ -530,7 +530,7 @@ function TokenInfoCardList(props) {
 
   return (
     <div>
-      <p>Here is your list of tokens:</p>
+      <p>Here is your list of translation keys:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
         {tokenInfos.map((tokenInfo) => {
           if (tokenInfo.isDeactivated === true) {
@@ -608,8 +608,7 @@ function AddNewTokenForm(props) {
       if (checkTokenUsageResponse instanceof DeepLUsageError) {
         const deepLUsageError = checkTokenUsageResponse;
         alert(deepLUsageError.errorMessage);
-      }
-      else {
+      } else {
         const errorMessage = checkTokenUsageResponse;
         alert(errorMessage);
       }
@@ -640,7 +639,7 @@ function AddNewTokenForm(props) {
   return (
     <form className="add-token-form" onSubmit={handleSubmit}>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <label className="add-token-form__input-label">New token</label>
+        <label className="add-token-form__input-label">New translation key</label>
         <input
           type="text"
           name="apiTokenKey"
@@ -650,7 +649,7 @@ function AddNewTokenForm(props) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <label className="add-token-form__input-label">API Type</label>
+        <label className="add-token-form__input-label">Account Type</label>
 
         <div className="add-token-form__radio-group">
           <label className="add-token-form__radio-option">
@@ -676,7 +675,7 @@ function AddNewTokenForm(props) {
       </div>
 
       <button type="submit" className="add-token-form__button" style={{ margin: "8px 0" }}>
-        Add new token
+        Add new translation key
       </button>
     </form>
   );
@@ -720,6 +719,223 @@ function TokenManagementSection() {
   );
 }
 
+function TokenManagementHelpSection() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="token-management-setting-card__help-section">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="token-management-setting-card__help-section-button"
+      >
+        <span>🔍 What is a translation key? How do I get one?</span>
+        <span
+          className={`token-management-setting-card__help-section-arrow ${
+            isOpen ? "token-management-setting-card__help-section-arrow--open" : ""
+          }`}
+        >
+          ▼
+        </span>
+      </button>
+      {isOpen && (
+        <div className="token-management-setting-card__help-section-content">
+          <p className="token-management-setting-card__help-section-paragraph">
+            <strong className="token-management-setting-card__help-section-strong">
+              📖 What is a translation key (API key)?
+            </strong>
+            <br />A translation key is like a password that allows this extension to use DeepL's
+            translation service. It's completely free for basic usage!
+          </p>
+
+          <p className="token-management-setting-card__help-section-paragraph">
+            <strong className="token-management-setting-card__help-section-strong">
+              🤔 Why do I need to set this up?
+            </strong>
+            <br />
+            <br />
+            You might wonder: "Other dual-sub extensions like Language Reactor, Trancy, and InterSub
+            work instantly—why not this one?"
+            <br />
+            <br />
+            Here's the truth: Free services either use low-quality translation APIs, run at a loss
+            (subsidized by premium users), or monetize your data. 💰
+            <br />
+            <br />
+            <strong className="token-management-setting-card__help-section-strong">
+              I built this extension differently because I believe you deserve:
+            </strong>
+            <br />
+            <br />✨{" "}
+            <strong className="token-management-setting-card__help-section-strong">
+              Best-in-class translations
+            </strong>{" "}
+            – DeepL is objectively the best for Finnish (especially puhekieli!)
+            <br />
+            🔒{" "}
+            <strong className="token-management-setting-card__help-section-strong">
+              Complete privacy
+            </strong>{" "}
+            – No data collection, no ads, no tracking
+            <br />
+            ♻️{" "}
+            <strong className="token-management-setting-card__help-section-strong">
+              Sustainability
+            </strong>{" "}
+            – No active maintenance burden on my end
+            <br />
+            🆓{" "}
+            <strong className="token-management-setting-card__help-section-strong">
+              Truly free
+            </strong>{" "}
+            – DeepL's free tier gives you 500,000 characters/month!
+            <br />
+            <br />
+            Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without
+            compromise. Worth it? I think so! 😊
+          </p>
+
+          <p>
+            <strong className="token-management-setting-card__help-section-strong">
+              🔑 How to get your free translation key (one-time setup):
+            </strong>
+          </p>
+
+          <p>
+            <strong className="token-management-setting-card__help-section-strong">
+              📺 Prefer a video guide?
+            </strong>
+            <br />
+            Watch this 2-minute tutorial:{" "}
+            <a
+              href="https://www.youtube.com/watch?v=VgpxUH7SbSY"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="token-management-setting-card__help-section-link"
+            >
+              How to Generate DeepL API Key
+            </a>
+          </p>
+
+          <p>
+            <strong className="token-management-setting-card__help-section-strong">
+              📝 Step-by-step instructions:
+            </strong>
+          </p>
+
+          <ol className="token-management-setting-card__help-section-list">
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Sign up for a free DeepL account
+              </strong>
+              <br />
+              Visit{" "}
+              <a
+                href="https://www.deepl.com/en/your-account"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="token-management-setting-card__help-section-link"
+              >
+                DeepL Account Signup
+              </a>{" "}
+              and create your account
+            </li>
+
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Select your DeepL API plan
+              </strong>
+              <br />
+              Go to{" "}
+              <a
+                href="https://www.deepl.com/en/pro#developer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="token-management-setting-card__help-section-link"
+              >
+                DeepL Developer Page
+              </a>
+              , scroll down, until you see `Find your pefect plan` then click the{" "}
+              <strong className="token-management-setting-card__help-section-strong">
+                "DeepL API"
+              </strong>{" "}
+              tab. Select either Free or Pro plan depending on your needs.
+            </li>
+
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Create your subscription
+              </strong>
+              <br />
+              Click "Sign up for free" under DeepLAPI Free plan or "Buy now" under DeepLAPI Pro plan
+              <br />
+              Your credit card is needed, but not charged for free plan
+            </li>
+
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Create your API key
+              </strong>
+              <br />
+              After the subscription has been made, go to{" "}
+              <a
+                href="https://www.deepl.com/en/your-account/keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="token-management-setting-card__help-section-link"
+              >
+                DeepL Key Page
+              </a>
+              . Click{" "}
+              <strong className="token-management-setting-card__help-section-strong">
+                "Create Key"
+              </strong>{" "}
+              button in the right section, and give it a name (e.g., "YLE Dualsub translation key")
+            </li>
+
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Copy your key
+              </strong>
+              <br />
+              Your API key will look like this:
+              <br />
+              <small className="token-management-setting-card__help-section-small">
+                • Free tier: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx</code> (ends with :fx)
+                <br />• Pro tier: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code> (no :fx suffix)
+              </small>
+            </li>
+
+            <li>
+              <strong className="token-management-setting-card__help-section-strong">
+                Paste it below
+              </strong>
+              <br />
+              Copy the entire key and paste it in the form below, select your account type
+              (Free/Pro), and click "Add new translation key"
+            </li>
+          </ol>
+
+          <p className="token-management-setting-card__help-section-footer">
+            🎉 That's it! Your extension is now ready to provide high-quality translations.
+          </p>
+
+          <p className="token-management-setting-card__help-section-footer">
+            📚 Need more help? View the{" "}
+            <a
+              href="https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="token-management-setting-card__help-section-link"
+            >
+              official DeepL guide
+            </a>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TokenManagementAccordion() {
   const [accordionOpen, setAccordionOpen] = useState(false);
 
@@ -730,32 +946,27 @@ function TokenManagementAccordion() {
           className="setting-card__accordion-header"
           onClick={() => setAccordionOpen(!accordionOpen)}
         >
-          <span>Tokens Management</span>
+          <span>Translation Keys Management</span>
           <span className="setting-card__accordion-icon">&#9660;</span>
         </button>
         <div className="setting-card__accordion-content">
           <div className="setting-card__accordion-content-inner">
             <p className="setting-card__title">
-              Manage your DeepL API tokens to enable translation service.
+              Manage your DeepL translation keys to enable translation service.
             </p>
 
             <p className="setting-card__description">
-              Currently, only&nbsp;
+              This extension uses{" "}
               <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">
-                DeepL, the best translation service for Finnish language
-              </a>
-              &nbsp;is supported.
+                DeepL, the best translation service for Finnish
+              </a>{" "}
+              to translate subtitles.
               <br />
-              You can upload up to 5 tokens. View&nbsp;
-              <a
-                href="https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                this guide
-              </a>
-              &nbsp;to get an API token.
+              <br />
+              💡 You can add up to 5 translation keys for extended usage!
             </p>
+
+            <TokenManagementHelpSection />
 
             <TokenManagementSection />
           </div>
@@ -768,7 +979,7 @@ function TokenManagementAccordion() {
 function App() {
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "100%", overflowX: "hidden" }}>
         <Header />
 
         <TokenManagementAccordion />
