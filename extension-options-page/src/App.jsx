@@ -728,7 +728,7 @@ function TokenManagementHelpSection() {
         onClick={() => setIsOpen(!isOpen)}
         className="token-management-setting-card__help-section-button"
       >
-        <span>🔍 What is a translation key? How do I get one?</span>
+        <span>ℹ️ What is a translation key? How do I get one?</span>
         <span
           className={`token-management-setting-card__help-section-arrow ${
             isOpen ? "token-management-setting-card__help-section-arrow--open" : ""
@@ -745,6 +745,10 @@ function TokenManagementHelpSection() {
             </strong>
             <br />A translation key is like a password that allows this extension to use DeepL's
             translation service. It's completely free for basic usage!
+            <br />
+            <br />
+            ⚠️ <strong className="token-management-setting-card__help-section-strong">Important:</strong> You'll need a credit card to sign up for DeepL's API, but{" "}
+            <strong className="token-management-setting-card__help-section-strong">the free tier is 100% free</strong> - you won't be charged unless you manually upgrade to a paid plan.
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
@@ -802,18 +806,20 @@ function TokenManagementHelpSection() {
 
           <p>
             <strong className="token-management-setting-card__help-section-strong">
-              📺 Prefer a video guide?
+              📺 Video walkthrough (recommended):
             </strong>
+            <div style={{ margin: "12px 0" }}>
+              <iframe
+                width="100%"
+                height="315"
+                style={{ maxWidth: "650px", borderRadius: "8px" }}
+                src="https://www.youtube.com/embed/VgpxUH7SbSY"
+                title="How to Generate DeepL API Key"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
             <br />
-            Watch this 2-minute tutorial:{" "}
-            <a
-              href="https://www.youtube.com/watch?v=VgpxUH7SbSY"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="token-management-setting-card__help-section-link"
-            >
-              How to Generate DeepL API Key
-            </a>
           </p>
 
           <p>
@@ -854,7 +860,7 @@ function TokenManagementHelpSection() {
               >
                 DeepL Developer Page
               </a>
-              , scroll down, until you see `Find your pefect plan` then click the{" "}
+              , scroll down, until you see `Find your perfect plan` then click the{" "}
               <strong className="token-management-setting-card__help-section-strong">
                 "DeepL API"
               </strong>{" "}
@@ -863,12 +869,18 @@ function TokenManagementHelpSection() {
 
             <li>
               <strong className="token-management-setting-card__help-section-strong">
-                Create your subscription
+                Create your free subscription
               </strong>
               <br />
-              Click "Sign up for free" under DeepLAPI Free plan or "Buy now" under DeepLAPI Pro plan
+              Click{" "}
+              <strong className="token-management-setting-card__help-section-strong">
+                "Sign up for free"
+              </strong>{" "}
+              under the DeepL API Free plan (for Pro users, click "Buy now")
               <br />
-              Your credit card is needed, but not charged for free plan
+              <small className="token-management-setting-card__help-section-small">
+                💳 You'll be asked for a credit card, but it won't be charged for the free plan
+              </small>
             </li>
 
             <li>
@@ -900,8 +912,8 @@ function TokenManagementHelpSection() {
               Your API key will look like this:
               <br />
               <small className="token-management-setting-card__help-section-small">
-                • Free tier: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx</code> (ends with :fx)
-                <br />• Pro tier: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code> (no :fx suffix)
+                • Free tier: <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2:fx</code> (ends with :fx)
+                <br />• Pro tier: <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2</code> (no :fx suffix)
               </small>
             </li>
 

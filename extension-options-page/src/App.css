@@ -507,3 +507,13 @@
 .token-management-setting-card__help-section-footer {
   font-size: 14px;
 }
+
+.token-management-setting-card__help-section code {
+  background: #1a1a1a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: #10b981;
+  border: 1px solid #404040;
+}
