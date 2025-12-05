@@ -483,13 +483,13 @@
   overflow-wrap: break-word;
 }
 
+.token-management-setting-card__help-section-content strong {
+  color: #e0e0e0;
+}
+
 .token-management-setting-card__help-section-paragraph {
   word-wrap: break-word;
   overflow-wrap: break-word;
-}
-
-.token-management-setting-card__help-section-strong {
-  color: #e0e0e0;
 }
 
 .token-management-setting-card__help-section-list {

@@ -338,7 +338,7 @@ function TokenInfoCard(props) {
             className="token-card__button token-card__check-usage-button"
           >
             <RefreshCw size={16} />
-            Check Usage
+            Check usage
           </button>
           <button
             onClick={(e) => {
@@ -644,7 +644,7 @@ function AddNewTokenForm(props) {
           type="text"
           name="apiTokenKey"
           className="add-token-form__input-field"
-          placeholder="Add your DeepL token here"
+          placeholder="Paste your DeepL API key here (e.g., xxxx-xxxx-xxxx-xxxx:fx)"
         />
       </div>
 
@@ -657,7 +657,7 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Free</div>
               <div className="add-token-form__radio-description">
-                For personal and non-commercial use
+                500,000 characters/month, perfect for casual use
               </div>
             </div>
           </label>
@@ -667,7 +667,7 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Pro</div>
               <div className="add-token-form__radio-description">
-                For subscription use with high limit
+                1 million characters/month or more, ideal for enthusiastic learners
               </div>
             </div>
           </label>
@@ -740,21 +740,18 @@ function TokenManagementHelpSection() {
       {isOpen && (
         <div className="token-management-setting-card__help-section-content">
           <p className="token-management-setting-card__help-section-paragraph">
-            <strong className="token-management-setting-card__help-section-strong">
-              📖 What is a translation key (API key)?
-            </strong>
+            <strong>📖 What is a translation key (API key)?</strong>
             <br />A translation key is like a password that allows this extension to use DeepL's
             translation service. It's completely free for basic usage!
             <br />
             <br />
-            ⚠️ <strong className="token-management-setting-card__help-section-strong">Important:</strong> You'll need a credit card to sign up for DeepL's API, but{" "}
-            <strong className="token-management-setting-card__help-section-strong">the free tier is 100% free</strong> - you won't be charged unless you manually upgrade to a paid plan.
+            ⚠️ <strong>Important:</strong> You'll need a credit card to sign up for DeepL's API, but{" "}
+            <strong>the free tier is 100% free</strong> - you won't be charged unless you manually
+            upgrade to a paid plan.
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
-            <strong className="token-management-setting-card__help-section-strong">
-              🤔 Why do I need to set this up?
-            </strong>
+            <strong>🤔 Why do I need to set this up?</strong>
             <br />
             <br />
             You might wonder: "Other dual-sub extensions like Language Reactor, Trancy, and InterSub
@@ -765,33 +762,16 @@ function TokenManagementHelpSection() {
             (subsidized by premium users), or monetize your data. 💰
             <br />
             <br />
-            <strong className="token-management-setting-card__help-section-strong">
-              I built this extension differently because I believe you deserve:
-            </strong>
+            <strong>I built this extension differently because I believe you deserve:</strong>
             <br />
-            <br />✨{" "}
-            <strong className="token-management-setting-card__help-section-strong">
-              Best-in-class translations
-            </strong>{" "}
-            – DeepL is objectively the best for Finnish (especially puhekieli!)
+            <br />✨ <strong>Best-in-class translations</strong> – DeepL is objectively the best for
+            Finnish (especially puhekieli!)
             <br />
-            🔒{" "}
-            <strong className="token-management-setting-card__help-section-strong">
-              Complete privacy
-            </strong>{" "}
-            – No data collection, no ads, no tracking
+            🔒 <strong>Complete privacy</strong> – No data collection, no ads, no tracking
             <br />
-            ♻️{" "}
-            <strong className="token-management-setting-card__help-section-strong">
-              Sustainability
-            </strong>{" "}
-            – No active maintenance burden on my end
+            ♻️ <strong>Sustainability</strong> – No active maintenance burden on my end
             <br />
-            🆓{" "}
-            <strong className="token-management-setting-card__help-section-strong">
-              Truly free
-            </strong>{" "}
-            – DeepL's free tier gives you 500,000 characters/month!
+            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 500,000 characters/month!
             <br />
             <br />
             Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without
@@ -799,15 +779,11 @@ function TokenManagementHelpSection() {
           </p>
 
           <p>
-            <strong className="token-management-setting-card__help-section-strong">
-              🔑 How to get your free translation key (one-time setup):
-            </strong>
+            <strong>🔑 How to get your free translation key (one-time setup):</strong>
           </p>
 
           <p>
-            <strong className="token-management-setting-card__help-section-strong">
-              📺 Video walkthrough (recommended):
-            </strong>
+            <strong>📺 Video walkthrough (recommended):</strong>
             <div style={{ margin: "12px 0" }}>
               <iframe
                 width="100%"
@@ -823,16 +799,12 @@ function TokenManagementHelpSection() {
           </p>
 
           <p>
-            <strong className="token-management-setting-card__help-section-strong">
-              📝 Step-by-step instructions:
-            </strong>
+            <strong>📝 Step-by-step instructions:</strong>
           </p>
 
           <ol className="token-management-setting-card__help-section-list">
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Sign up for a free DeepL account
-              </strong>
+              <strong>Sign up for a free DeepL account</strong>
               <br />
               Visit{" "}
               <a
@@ -847,9 +819,7 @@ function TokenManagementHelpSection() {
             </li>
 
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Select your DeepL API plan
-              </strong>
+              <strong>Select your DeepL API plan</strong>
               <br />
               Go to{" "}
               <a
@@ -860,33 +830,31 @@ function TokenManagementHelpSection() {
               >
                 DeepL Developer Page
               </a>
-              , scroll down, until you see `Find your perfect plan` then click the{" "}
-              <strong className="token-management-setting-card__help-section-strong">
-                "DeepL API"
-              </strong>{" "}
-              tab. Select either Free or Pro plan depending on your needs.
+              , look for <strong>"Find your perfect plan"</strong>, then click the{" "}
+              <strong>"DeepL API"</strong> tab. Select either Free or Pro plan depending on your
+              needs.
+              <br />
+              <br />
+              <img
+                src="/assets/find_your_perfect_plan.png"
+                alt="Find your perfect plan section"
+                style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
+              />
             </li>
 
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Create your free subscription
-              </strong>
+              <strong>Create your free subscription</strong>
               <br />
-              Click{" "}
-              <strong className="token-management-setting-card__help-section-strong">
-                "Sign up for free"
-              </strong>{" "}
-              under the DeepL API Free plan (for Pro users, click "Buy now")
+              Click <strong>"Sign up for free"</strong> under the DeepL API Free plan (for Pro
+              users, click <strong>"Buy now"</strong>).
               <br />
-              <small className="token-management-setting-card__help-section-small">
+              <small>
                 💳 You'll be asked for a credit card, but it won't be charged for the free plan
               </small>
             </li>
 
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Create your API key
-              </strong>
+              <strong>Create your API key</strong>
               <br />
               After the subscription has been made, go to{" "}
               <a
@@ -897,17 +865,19 @@ function TokenManagementHelpSection() {
               >
                 DeepL Key Page
               </a>
-              . Click{" "}
-              <strong className="token-management-setting-card__help-section-strong">
-                "Create Key"
-              </strong>{" "}
-              button in the right section, and give it a name (e.g., "YLE Dualsub translation key")
+              . Click the <strong>"Create Key"</strong> button and give it a name (e.g., "YLE
+              Dualsub translation key")
+              <br />
+              <br />
+              <img
+                src="/assets/create_your_key.png"
+                alt="Create your API key"
+                style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
+              />
             </li>
 
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Copy your key
-              </strong>
+              <strong>Copy your key</strong>
               <br />
               Your API key will look like this:
               <br />
@@ -918,9 +888,7 @@ function TokenManagementHelpSection() {
             </li>
 
             <li>
-              <strong className="token-management-setting-card__help-section-strong">
-                Paste it below
-              </strong>
+              <strong>Paste it below</strong>
               <br />
               Copy the entire key and paste it in the form below, select your account type
               (Free/Pro), and click "Add new translation key"
