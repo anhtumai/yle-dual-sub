@@ -371,8 +371,8 @@ async function sleep(ms) {
 }
 
 /**
- * Handle dual sub behaviour based on whether the system has valid token selected.
- * If no token is selected, display warning icon and disable dual sub switch.
+ * Handle dual sub behaviour based on whether the system has valid key selected.
+ * If no key is selected, display warning icon and disable dual sub switch.
  * @param {boolean} hasSelectedToken
  */
 function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
@@ -495,7 +495,7 @@ async function addDualSubExtensionSection() {
   `
   bottomControlBarLeftControls.insertAdjacentHTML('beforeend', dualSubExtensionSection);
 
-  // Display warning section if no token is selected
+  // Display warning section if no key is selected
   const selectedTokenInfo = await loadSelectedTokenFromChromeStorageSync();
   const hasSelectedToken = selectedTokenInfo !== null;
   _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
@@ -708,7 +708,7 @@ document.addEventListener("sendTranslationTextEvent", function (e) {
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
   /**
-   * Listen for user setting changes for token selection in Options page
+   * Listen for user setting changes for key selection in Options page
    * @param {Object} changes
    * @param {string} namespace
    */

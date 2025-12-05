@@ -88,9 +88,9 @@ class DeepLUsageError {
   _getErrorMessageFromStatus(status) {
     switch (status) {
       case 400:
-        return "Bad request. Please check your API token format and try again.";
+        return "Bad request. Please check your API key format and try again.";
       case 403:
-        return "Authorization failed. The API key is invalid or missing. Please verify your DeepL API token.";
+        return "Authorization failed. The API key is invalid or missing. Please verify your DeepL API key.";
       case 404:
         return "The requested resource could not be found. Please check your API endpoint configuration.";
       case 413:
@@ -98,7 +98,7 @@ class DeepLUsageError {
       case 429:
         return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
       case 456:
-        return "Quota exceeded. You've reached your monthly character limit for this token. Please use a different token or upgrade your DeepL plan.";
+        return "Quota exceeded. You've reached your monthly character limit for this key. Please use a different key or upgrade your DeepL plan.";
       case 500:
         return "Internal server error. DeepL is experiencing technical issues. Please try again later.";
       case 504:
@@ -106,7 +106,7 @@ class DeepLUsageError {
       case 529:
         return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
       default:
-        return `Checking token usage failed with error code ${status}. Please try again or contact support.`;
+        return `Checking key usage failed with error code ${status}. Please try again or contact support.`;
     }
   }
 }
@@ -344,7 +344,7 @@ function TokenInfoCard(props) {
             onClick={(e) => {
               e.stopPropagation();
               if (
-                confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)
+                confirm(`Are you sure you want to remove this translation key: ${maskString(tokenInfo.key)}?`)
               ) {
                 handleRemoveToken(tokenInfo.key);
               }
@@ -384,7 +384,7 @@ function DeactivatedTokenInfoCard(props) {
           <div className="token-card__error-message">
             <span className="token-card__error-icon">⛔</span>
             <span className="token-card__error-text">
-              This token has been deactivated or is invalid. Please remove it and add a new token.
+              This translation key has been deactivated. Please remove it and add a new key.
             </span>
           </div>
 
@@ -412,7 +412,7 @@ function DeactivatedTokenInfoCard(props) {
             onClick={(e) => {
               e.stopPropagation();
               if (
-                confirm(`Are you sure you want to remove this token: ${maskString(tokenInfo.key)}?`)
+                confirm(`Are you sure you want to remove this translation key: ${maskString(tokenInfo.key)}?`)
               ) {
                 handleRemoveToken(tokenInfo.key);
               }
@@ -580,9 +580,9 @@ function AddNewTokenForm(props) {
 
     if (!validateDeeplApiTokenKey(deepLApiTokenKey)) {
       alert(
-        "Please enter a valid DeepL API token.\n" +
-          "Sample DeepL Token format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
-          "Note: DeepL Free token may have ':fx' suffix."
+        "Please enter a valid DeepL translation key.\n" +
+          "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
+          "Note: DeepL Free keys may have ':fx' suffix."
       );
       return;
     }
@@ -594,8 +594,8 @@ function AddNewTokenForm(props) {
 
     if (tokenKeysSet.has(deepLApiTokenKey)) {
       alert(
-        "You have already added this token.\n" +
-          "If the token is not visible, please refresh the page."
+        "You have already added this translation key.\n" +
+          "If the key is not visible, please refresh the page."
       );
       return;
     }

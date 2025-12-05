@@ -4,7 +4,7 @@ importScripts('utils.js');
  * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
 
-// Load selected DeepL token from Chrome storage sync
+// Load selected DeepL key from Chrome storage sync
 /**
  * @type {string}
  */
@@ -14,7 +14,7 @@ let deeplTokenKey = "";
  */
 let isDeepLPro = false;
 
-// Load token on extension startup
+// Load key on extension startup
 loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
   if (tokenInfo) {
     deeplTokenKey = tokenInfo.key;
@@ -22,10 +22,10 @@ loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
   }
 });
 
-// Listen for storage changes to update token when user changes selection
+// Listen for storage changes to update key when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.tokenInfos) {
-    console.log('YleDualSubExtension: Token configuration changed, reloading...');
+    console.log('YleDualSubExtension: Key configuration changed, reloading...');
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
       /**
        * @type {DeepLTokenInfoInStorage[]}
@@ -36,7 +36,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         deeplTokenKey = selectedTokenInfo.key;
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
-        console.info('YleDualSubExtension: No selected token found in updated storage');
+        console.info('YleDualSubExtension: No selected key found in updated storage');
       }
     }
   }
@@ -96,7 +96,7 @@ function getErrorMessageFromStatus(status) {
     case 400:
       return "Translation request is invalid. Please try again.";
     case 403:
-      return "This API token is invalid. Please check your DeepL token in settings.";
+      return "This API key is invalid. Please check your DeepL translation key in settings.";
     case 404:
       return "Cannot connect to DeepL. Please contact the extension developer.";
     case 413:
@@ -106,7 +106,7 @@ function getErrorMessageFromStatus(status) {
     case 429:
       return "You're translating too quickly. Please wait a moment and try again.";
     case 456:
-      return "Monthly character limit reached. Please use a different token or upgrade your plan.";
+      return "Monthly character limit reached. Please use a different translation key or upgrade your plan.";
     case 500:
       return "DeepL is having technical problems. Please try again in a few minutes.";
     case 504:
