@@ -40,7 +40,7 @@ async function openDatabase() {
         // Handle database upgrade (first time or version change)
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-            console.log('YleDualSubExtension: Upgrading database...');
+            console.info('YleDualSubExtension: Upgrading database...');
 
             // Create object stores here
             const subtitlesObjectStore = db.createObjectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE, {
@@ -359,7 +359,7 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
         const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         const cutoffDays = nowDays - maxAgeDays;
 
-        console.log(`YleDualSubExtension: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
+        console.info(`YleDualSubExtension: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
 
         // Get all movie metadata
         const allMetadata = await getAllMovieMetadata(db);
@@ -369,7 +369,7 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
             metadata.lastAccessedDays < cutoffDays
         );
 
-        console.log(`YleDualSubExtension: Found ${oldMovieMetadatas.length} movies to clean up`);
+        console.info(`YleDualSubExtension: Found ${oldMovieMetadatas.length} movies to clean up`);
 
         // Delete each old movie's data
         let cleanedCount = 0;
@@ -382,7 +382,7 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
                 await deleteMovieMetadata(db, metadata.movieName);
 
                 cleanedCount++;
-                console.log(`YleDualSubExtension: Cleaned up movie: ${metadata.movieName}`);
+                console.info(`YleDualSubExtension: Cleaned up movie: ${metadata.movieName}`);
             } catch (error) {
                 console.warn(`YleDualSubExtension: Failed to clean up movie ${metadata.movieName}:`, error);
             }

@@ -25,7 +25,7 @@ loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
 // Listen for storage changes to update key when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.tokenInfos) {
-    console.log('YleDualSubExtension: Key configuration changed, reloading...');
+    console.info('YleDualSubExtension: Key configuration changed, reloading...');
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
       /**
        * @type {DeepLTokenInfoInStorage[]}

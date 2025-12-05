@@ -37,7 +37,7 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 
   cleanupOldMovieData(db).then((cleanCount) => {
-    console.log(`YleDualSubExtension: Clean ${cleanCount} movies data`);
+    console.info(`YleDualSubExtension: Clean ${cleanCount} movies data`);
   }).catch(error => { console.error("YleDualSubExtension: Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
@@ -638,6 +638,9 @@ async function loadMovieCacheAndUpdateMetadata() {
   }
 
   const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName);
+  if ( Array.isArray(subtitleRecords) && subtitleRecords.length >= 0) {
+    console.info(`YleDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
+  }
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
       subtitleRecord.finnishText,
