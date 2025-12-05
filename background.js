@@ -66,6 +66,23 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Calculate backoff delay with exponential backoff and jitter
+ * @param {number} attempt - Current attempt number (0-indexed)
+ * @returns {number} Delay in milliseconds
+ */
+function calculateBackoffDelay(attempt) {
+  // Exponential backoff: 200ms * 2^attempt
+  // attempt 0: 200ms, attempt 1: 400ms, attempt 2: 800ms
+  const exponentialDelay = 200 * Math.pow(2, attempt);
+
+  // Add jitter: random value between 0 and delay/2
+  // This prevents thundering herd problem when multiple requests retry simultaneously
+  const jitter = Math.random() * (exponentialDelay / 2);
+
+  return exponentialDelay + jitter;
+}
+
 class DeepLTranslationError {
   /**
    * Init DeepLTranslationError for DeepL API translation request failures
@@ -81,8 +98,6 @@ class DeepLTranslationError {
      */
     this.status = status;
   }
-
-
 }
 
 /**
@@ -126,7 +141,9 @@ function getErrorMessageFromStatus(status) {
  * indicates success and the second is either translated texts or an error message.
  */
 async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
-  for (let i = 0; i < 5; i++) {
+  const MAX_RETRIES = 3;
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     const [isSucceeded, translationResponse] = await translateTexts(rawSubtitleFinnishTexts);
 
     if (isSucceeded) {
@@ -136,10 +153,18 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
     if (translationResponse instanceof DeepLTranslationError) {
       const deepLTranslationError = translationResponse;
       const errorStatusCode = deepLTranslationError.status;
+
+      // Retry on transient errors
       if ([413, 429, 503, 504, 529].includes(errorStatusCode)) {
-        await sleep(400);
-        continue;
+        if (attempt < MAX_RETRIES - 1) {
+          const backoffDelay = calculateBackoffDelay(attempt);
+          await sleep(backoffDelay);
+          continue;
+        } else {
+          return [false, getErrorMessageFromStatus(errorStatusCode)];
+        }
       } else {
+        // Non-retryable error (e.g., 403 invalid key)
         return [false, getErrorMessageFromStatus(errorStatusCode)];
       }
     } else {
@@ -147,8 +172,8 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
       return [false, errorMessage];
     }
   }
-
-  return [false, "Translation fails after 5 retry attempts."];
+  // Should not reach here, but just in case
+  return [false, "Translation failed after 3 retry attempts."];
 }
 
 /**
