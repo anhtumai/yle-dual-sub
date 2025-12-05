@@ -36,7 +36,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         deeplTokenKey = selectedTokenInfo.key;
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
-        console.warn('YleDualSubExtension: No selected token found in updated storage');
+        console.info('YleDualSubExtension: No selected token found in updated storage');
       }
     }
   }
