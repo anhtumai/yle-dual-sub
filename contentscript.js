@@ -451,7 +451,7 @@ async function addDualSubExtensionSection() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          No translation token selected!<br>
+          No translation key selected!<br>
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
           <a href="https://anhtumai.github.io/yle-dual-sub"
