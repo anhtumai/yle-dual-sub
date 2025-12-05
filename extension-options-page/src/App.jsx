@@ -783,18 +783,14 @@ function TokenManagementHelpSection() {
           </p>
 
           <p>
-            <strong>📺 Video walkthrough (recommended):</strong>
-            <div style={{ margin: "12px 0" }}>
-              <iframe
-                width="100%"
-                height="315"
-                style={{ maxWidth: "650px", borderRadius: "8px" }}
-                src="https://www.youtube.com/embed/VgpxUH7SbSY"
-                title="How to Generate DeepL API Key"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
+            <strong>📺 Video walkthrough (recommended):</strong>{" "}
+            <a
+              href="https://www.youtube.com/watch?v=VgpxUH7SbSY"
+              target="_blank"
+              className="token-management-setting-card__help-section-link"
+            >
+              Watch 1 min tutorial from Youtube
+            </a>
             <br />
           </p>
 
@@ -836,7 +832,7 @@ function TokenManagementHelpSection() {
               <br />
               <br />
               <img
-                src="/assets/find_your_perfect_plan.png"
+                src="./assets/find_your_perfect_plan.png"
                 alt="Find your perfect plan section"
                 style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
               />
@@ -870,7 +866,7 @@ function TokenManagementHelpSection() {
               <br />
               <br />
               <img
-                src="/assets/create_your_key.png"
+                src="./assets/create_your_key.png"
                 alt="Create your API key"
                 style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
               />
