@@ -344,75 +344,11 @@ function TokenInfoCard(props) {
             onClick={(e) => {
               e.stopPropagation();
               if (
-                confirm(`Are you sure you want to remove this translation key: ${maskString(tokenInfo.key)}?`)
-              ) {
-                handleRemoveToken(tokenInfo.key);
-              }
-            }}
-            className="token-card__button token-card__remove_button"
-          >
-            <Trash2 size={16} />
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- *
- * @param {any} props
- * @returns
- */
-function DeactivatedTokenInfoCard(props) {
-  const { tokenInfo, handleRemoveToken } = props;
-  return (
-    <div key={tokenInfo.key} className="token-card token-card-deactivated">
-      <div className="token-card__content">
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="token-card__header">
-            <TriangleAlert size={24} className="token-card__warning-icon" />
-            <div className="token-card__details">
-              <h3 className="token-card__token-type">
-                DeepL {capitalizeFirstLetter(tokenInfo.type)}
-              </h3>
-              <p className="token-card__token-key">{maskString(tokenInfo.key)}</p>
-            </div>
-          </div>
-
-          <div className="token-card__error-message">
-            <span className="token-card__error-icon">⛔</span>
-            <span className="token-card__error-text">
-              This translation key has been deactivated. Please remove it and add a new key.
-            </span>
-          </div>
-
-          <div className="token-card__usage-container">
-            <div className="token-card__usage-stats">
-              <span className="token-card__usage-text">-- / -- characters</span>
-              <span className="token-card__usage-percentage">--</span>
-            </div>
-
-            <p className="token-card__last-checked-text">
-              Last checked: {tokenInfo.lastUsageCheckedAt}
-            </p>
-          </div>
-        </div>
-
-        <div className="token-card__action-buttons">
-          <button
-            disabled
-            className="token-card__button token-card__check-usage-button token-card__button-disabled"
-          >
-            <RefreshCw size={16} />
-            Check Usage
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (
-                confirm(`Are you sure you want to remove this translation key: ${maskString(tokenInfo.key)}?`)
+                confirm(
+                  `Are you sure you want to remove this translation key: ${maskString(
+                    tokenInfo.key
+                  )}?`
+                )
               ) {
                 handleRemoveToken(tokenInfo.key);
               }
@@ -476,18 +412,26 @@ function TokenInfoCardList(props) {
           if (!isSucceeded) {
             if (queryResponse instanceof DeepLUsageError) {
               const deeplUsageError = queryResponse;
-              alert(deeplUsageError.errorMessage);
               if (deeplUsageError.status === 403) {
-                tokenInfo.isDeactivated = true;
-                tokenInfo.selected = false;
-                tokenInfo.lastUsageCheckedAt = formatDateInEnglishLocale(new Date());
-                const newTokenInfos = structuredClone(tokenInfos);
+                alert(
+                  "This translation key has been deactivated. It will be removed from the list."
+                );
+                const wasSelected = tokenInfo.selected;
+                const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
+                if (wasSelected && newTokenInfos.length > 0) {
+                  newTokenInfos[0].selected = true;
+                  for (let i = 1; i < newTokenInfos.length; i++) {
+                    newTokenInfos[i].selected = false;
+                  }
+                }
                 setTokenInfos(newTokenInfos);
+                return;
               }
-            } else {
-              const errorMessage = queryResponse;
-              alert(errorMessage);
+              alert(deeplUsageError.errorMessage);
+              return;
             }
+            const errorMessage = queryResponse;
+            alert(errorMessage);
             return;
           }
           const deeplUsageResponse = queryResponse;
@@ -516,15 +460,19 @@ function TokenInfoCardList(props) {
 
     const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
 
-    const validTokenInfos = newTokenInfos.filter((tokenInfo) => tokenInfo.isDeactivated !== true);
-
-    if (wasSelected && validTokenInfos.length > 0) {
-      const tokenWithMostUsageRemaining = validTokenInfos.reduce((best, current) => {
+    if (wasSelected && newTokenInfos.length > 0) {
+      const tokenWithMostUsageRemaining = newTokenInfos.reduce((best, current) => {
         const bestCharacterLeftInUsage = best.characterLimit - best.characterCount;
         const currentCharacterLeftInUsage = current.characterLimit - current.characterCount;
         return currentCharacterLeftInUsage > bestCharacterLeftInUsage ? current : best;
       });
       tokenWithMostUsageRemaining.selected = true;
+
+      for (const tokenInfo of newTokenInfos) {
+        if (tokenInfo.key !== tokenWithMostUsageRemaining.key) {
+          tokenInfo.selected = false;
+        }
+      }
     }
 
     setTokenInfos(newTokenInfos);
@@ -535,15 +483,6 @@ function TokenInfoCardList(props) {
       <p>Here is your list of translation keys:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
         {tokenInfos.map((tokenInfo) => {
-          if (tokenInfo.isDeactivated === true) {
-            return (
-              <DeactivatedTokenInfoCard
-                key={tokenInfo.key}
-                tokenInfo={tokenInfo}
-                handleRemoveToken={handleRemoveToken}
-              />
-            );
-          }
           return (
             <TokenInfoCard
               key={tokenInfo.key}
