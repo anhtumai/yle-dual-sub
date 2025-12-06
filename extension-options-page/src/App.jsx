@@ -516,8 +516,10 @@ function TokenInfoCardList(props) {
 
     const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
 
-    if (wasSelected && newTokenInfos.length > 0) {
-      const tokenWithMostUsageRemaining = newTokenInfos.reduce((best, current) => {
+    const validTokenInfos = newTokenInfos.filter((tokenInfo) => tokenInfo.isDeactivated !== true);
+
+    if (wasSelected && validTokenInfos.length > 0) {
+      const tokenWithMostUsageRemaining = validTokenInfos.reduce((best, current) => {
         const bestCharacterLeftInUsage = best.characterLimit - best.characterCount;
         const currentCharacterLeftInUsage = current.characterLimit - current.characterCount;
         return currentCharacterLeftInUsage > bestCharacterLeftInUsage ? current : best;
