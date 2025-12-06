@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YLE Areena Dual Subtitles",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "An extension to add dual subtitles on YLE Areena videos.",
   "icons": {
     "16": "icons/icon.png",
