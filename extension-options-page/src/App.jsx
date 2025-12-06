@@ -608,7 +608,7 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Pro</div>
               <div className="add-token-form__radio-description">
-                1 million characters/month or more, ideal for enthusiastic learners
+                1000 billions characters/month or more, ideal for enthusiastic learners
               </div>
             </div>
           </label>
