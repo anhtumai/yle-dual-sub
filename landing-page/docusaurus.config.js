@@ -120,12 +120,12 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/your-org/your-extension',
+                href: 'https://github.com/anhtumai/yle-dual-sub',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Your Extension Name.`,
+        copyright: `Copyright © ${new Date().getFullYear()} YLE Areena Dual Subtitles.`,
       },
       prism: {
         theme: prismThemes.github,
