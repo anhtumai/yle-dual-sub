@@ -20,15 +20,15 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://anhtumai.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/yle-dual-sub/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-org', // Usually your GitHub org/user name.
-  projectName: 'your-extension', // Usually your repo name.
+  organizationName: 'anhtumai', // Usually your GitHub org/user name.
+  projectName: 'yle-dual-sub', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
