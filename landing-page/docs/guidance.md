@@ -8,11 +8,11 @@ This page provides step-by-step instructions on how to set up and use the extens
 2. Click "Add to Chrome".
 3. Open Extension popup and click `Settings` button.
 
-   - <img src="/img/extension-popup-page.png" alt="Extension popup page" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+   - <img src={require('@site/static/img/extension-popup-page.png').default} alt="Extension popup page" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
 4. Add your `DeepL Translation Key`.
 
-   - <img src="/img/add-new-deepl-translation-key.png" alt="Add new DeepL translation key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+   - <img src={require('@site/static/img/add-new-deepl-translation-key.png').default} alt="Add new DeepL translation key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
 5. Open [YLE Areena TV](https://areena.yle.fi/tv) and enjoy.
 
@@ -59,7 +59,7 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
    Go to [DeepL Developer Page](https://www.deepl.com/en/pro#developer), look for **"Find your perfect plan"**, then click the **"DeepL API"** tab. Select either Free or Pro plan depending on your needs.
 
-   <img src="/img/find_your_perfect_plan.png" alt="Find your perfect plan section" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+   <img src={require('@site/static/img/find_your_perfect_plan.png').default} alt="Find your perfect plan section" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
 3. **Create your free subscription**
 
@@ -71,7 +71,7 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
    After the subscription has been made, go to [DeepL Key Page](https://www.deepl.com/en/your-account/keys). Click the **"Create Key"** button and give it a name (e.g., "YLE Dualsub translation key")
 
-   <img src="/img/create_your_key.png" alt="Create you key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+   <img src={require('@site/static/img/create_your_key.png').default} alt="Create you key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
 5. **Copy your key**
 

@@ -89,7 +89,7 @@ const config = {
             position: 'left',
           },
           {
-            href: 'https://github.com/your-org/your-extension',
+            href: 'https://github.com/anhtumai/yle-dual-sub',
             label: 'GitHub',
             position: 'right',
           },

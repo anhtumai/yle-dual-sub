@@ -4,13 +4,22 @@ slug: /
 
 # Introduction
 
-__YLE AREENA DUAL SUBTITLES — Learn Finnish Through Immersion__
+**YLE AREENA DUAL SUBTITLES — Learn Finnish Through Immersion**
 
 Master Finnish naturally by watching YLE Areena with dual subtitles. See Finnish and English side-by-side in real-time, turning every video into an immersive language learning experience.
 
+Demo video:
 
-   <img src="/img/extension-function.png" alt="Extension function" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
-
+<iframe
+  width="640"
+  height="315"
+  src="https://www.youtube.com/embed/O3B7BCvd99Y"
+  title="Extension demo video"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+  style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}}
+></iframe>
 
 ## Installation
 
