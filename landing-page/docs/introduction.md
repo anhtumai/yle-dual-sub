@@ -11,6 +11,11 @@ Master Finnish naturally by watching YLE Areena with dual subtitles. See Finnish
 
    <img src="/img/extension-function.png" alt="Extension function" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
+
+## Installation
+
+- [Google Chrome](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
+
 ## About This Extension
 
 **The Challenge:** Spoken Finnish differs drastically from written Finnish, with unique grammar and slang. Traditional study methods don't prepare you for real conversations. This extension bridges that gap by letting you learn through authentic Finnish media.
