@@ -21,6 +21,8 @@ function toTranslationKey(rawSubtitleFinnishText) {
 
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
+// State to control whether we hide the Finnish subtitles and only show translations
+let englishOnlyEnabled = false;
 
 /**
  * @type {string | null}
@@ -258,11 +260,13 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
 function addContentToDisplayedSubtitlesWrapper(
   displayedSubtitlesWrapper,
   originalSubtitlesWrapperSpans,
+  options = {}
 ) {
   if (!originalSubtitlesWrapperSpans || originalSubtitlesWrapperSpans.length === 0) {
     return;
   }
   const spanClassName = originalSubtitlesWrapperSpans[0].className;
+  const { englishOnly = false } = options;
 
   const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
     span => span.innerText
@@ -284,8 +288,12 @@ function addContentToDisplayedSubtitlesWrapper(
   // TODO: Add retry mechanism if Translation is not found
 
   const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
+  finnishSpan.dataset.dualSubLanguage = "fi";
+  translatedEnglishSpan.dataset.dualSubLanguage = "en";
 
-  displayedSubtitlesWrapper.appendChild(finnishSpan);
+  if (!englishOnly) {
+    displayedSubtitlesWrapper.appendChild(finnishSpan);
+  }
   displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
 }
 
@@ -311,7 +319,45 @@ function handleSubtitlesWrapperMutation(mutation) {
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
       finnishTextSpans,
+      { englishOnly: englishOnlyEnabled },
     )
+  }
+}
+
+/**
+ * Update the English-only button's aria & disabled state based on the current mode.
+ */
+function syncEnglishOnlySwitchState() {
+  const englishOnlySwitch = document.getElementById("english-only-switch");
+  if (!englishOnlySwitch) {
+    return;
+  }
+  const shouldDisable = !dualSubEnabled;
+  englishOnlySwitch.disabled = shouldDisable;
+  englishOnlySwitch.checked = englishOnlyEnabled && !shouldDisable;
+}
+
+/**
+ * Re-render the displayed subtitles wrapper while respecting the English-only mode.
+ */
+function refreshDisplayedSubtitlesWrapper() {
+  if (!dualSubEnabled) {
+    return;
+  }
+  const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
+  const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+  if (!originalSubtitlesWrapper || !displayedSubtitlesWrapper) {
+    return;
+  }
+
+  const finnishTextSpans = originalSubtitlesWrapper.querySelectorAll("span");
+  displayedSubtitlesWrapper.innerHTML = "";
+  if (finnishTextSpans.length > 0) {
+    addContentToDisplayedSubtitlesWrapper(
+      displayedSubtitlesWrapper,
+      finnishTextSpans,
+      { englishOnly: englishOnlyEnabled },
+    );
   }
 }
 
@@ -446,6 +492,10 @@ async function addDualSubExtensionSection() {
     <div class="dual-sub-extension-section">
       <span>Dual Sub:</span>
       <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox" ${dualSubEnabled ? 'checked' : ''}>
+      <div class="english-only-control">
+        <span>EN only</span>
+        <input id="english-only-switch" class="dual-sub-switch english-only-switch" type="checkbox">
+      </div>
       <span class="dual-sub-warning" style="display: none;">
         <span class="dual-sub-warning__icon">
           !
@@ -534,6 +584,21 @@ async function addDualSubExtensionSection() {
   }
   else {
     console.error("YleDualSubExtension: Cannot find settings button");
+  }
+
+  const englishOnlySwitch = document.getElementById("english-only-switch");
+  if (englishOnlySwitch) {
+    englishOnlySwitch.addEventListener("change", () => {
+      if (!dualSubEnabled) {
+        englishOnlySwitch.checked = false;
+        return;
+      }
+      englishOnlyEnabled = englishOnlySwitch.checked;
+      refreshDisplayedSubtitlesWrapper();
+    });
+    syncEnglishOnlySwitchState();
+  } else {
+    console.warn("YleDualSubExtension: English-only switch not found");
   }
 
   // Rewind and forward button logic
@@ -759,8 +824,10 @@ document.addEventListener("change", function (e) {
         addContentToDisplayedSubtitlesWrapper(
           displayedSubtitlesWrapper,
           originalSubtitlesWrapperSpans,
+          { englishOnly: englishOnlyEnabled },
         )
       }
+      syncEnglishOnlySwitchState();
       translationQueue.processQueue().then(() => { }).catch((error) => {
         console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
@@ -775,6 +842,8 @@ document.addEventListener("change", function (e) {
       if (originalSubtitlesWrapper) {
         originalSubtitlesWrapper.style.display = "flex";
       }
+      englishOnlyEnabled = false;
+      syncEnglishOnlySwitchState();
     }
   }
 });
