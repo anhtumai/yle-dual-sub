@@ -143,6 +143,20 @@
   cursor: pointer;
 }
 
+.english-only-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #e0e0e0;
+}
+
+.english-only-switch {
+  width: 2.6rem;
+  height: 1.4rem;
+  cursor: pointer;
+}
+
 .dual-sub-extension-section_rewind_tooltip,
 .dual-sub-extension-section_forward_tooltip,
 .dual-sub-extension-section_settings_tooltip {
