@@ -737,7 +737,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
   if (namespace === 'sync' && changes.targetLanguage) {
     if (changes.targetLanguage.newValue && typeof changes.targetLanguage.newValue === 'string') {
-      alert(`Your target language has changed to ${changes.targetLanguage.newValue}.`
+      alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
         `We need to reload the page for the change to work.`);
       location.reload();
     }
