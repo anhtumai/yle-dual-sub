@@ -1,8 +1,9 @@
 /**
  * @typedef {Object} SubtitleRecord
  * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
+ * @property {string} targetLanguage - The target language code (e.g., "EN_US", "VI")
  * @property {string} finnishText - The Finnish subtitle text (normalized)
- * @property {string} translatedText - The English (or other language) translation
+ * @property {string} translatedText - The translated text in target language
  */
 
 /**
@@ -12,8 +13,8 @@
  */
 
 const DATABASE = "YleDualSubCache"
-const ENGLISH_SUBTITLE_CACHE_OBJECT_STORE = "EnglishSubtitlesCache"
-const VIETNAMESE_SUBTITLE_CACHE_OBJECT_STORE = "VietnameseSubtitleCache"
+const SUBTITLE_CACHE_OBJECT_STORE = "SubtitlesCache"
+const DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE = "EnglishSubtitlesCache"
 const MOVIE_METADATA_OBJECT_STORE = "MovieMetadata"
 
 /**
@@ -23,7 +24,7 @@ const MOVIE_METADATA_OBJECT_STORE = "MovieMetadata"
 async function openDatabase() {
     return new Promise((resolve, reject) => {
 
-        const request = indexedDB.open(DATABASE, 1);
+        const request = indexedDB.open(DATABASE, 2);
 
         // Handle errors
         request.onerror = (event) => {
@@ -40,35 +41,52 @@ async function openDatabase() {
         // Handle database upgrade (first time or version change)
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
-            console.info('YleDualSubExtension: Upgrading database...');
+            const oldVersion = event.oldVersion;
+            console.info(`YleDualSubExtension: Upgrading database from version ${oldVersion} to 2...`);
 
-            // Create object stores here
-            const subtitlesObjectStore = db.createObjectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE, {
-                keyPath: ['movieName', 'finnishText'],
-            });
-            subtitlesObjectStore.createIndex('movieName', 'movieName', { unique: false });
+            // Create metadata store (only for new users, version 0 -> 1/2)
+            if (oldVersion < 1) {
+                db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
+                    keyPath: 'movieName',
+                });
+            }
 
-            const movieMetadataObjectStore = db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
-                keyPath: 'movieName',
-            });
+            // Create new subtitle cache and delete old one (version 1 -> 2)
+            if (oldVersion < 2) {
+                const subtitlesObjectStore = db.createObjectStore(SUBTITLE_CACHE_OBJECT_STORE, {
+                    keyPath: ['movieName', 'targetLanguage', 'finnishText'],
+                });
+                subtitlesObjectStore.createIndex('movieName', 'movieName', { unique: false });
+
+                // Delete old subtitle cache
+                if (db.objectStoreNames.contains(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE)) {
+                    db.deleteObjectStore(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+                }
+            }
         };
     })
 }
 
 /**
- * Load all subtitles for a given movie from IndexedDB
+ * Load all subtitles for a given movie and target language from IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name (e.g., "Series Title | Episode Name")
+ * @param {string} targetLanguage - Target language (e.g., "EN_US", "VI")
  * @returns {Promise<Array<SubtitleRecord>>}
  */
-async function loadSubtitlesByMovieName(db, movieName) {
+async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readonly');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
-            const index = objectStore.index('movieName');
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readonly');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
-            const request = index.getAll(movieName);
+            // Query by [movieName, targetLanguage] prefix
+            const range = IDBKeyRange.bound(
+                [movieName, targetLanguage],
+                [movieName, targetLanguage, []] // [] is higher than any string
+            );
+
+            const request = objectStore.getAll(range);
 
             request.onsuccess = (event) => {
                 /**
@@ -94,18 +112,20 @@ async function loadSubtitlesByMovieName(db, movieName) {
  * Save a subtitle translation to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
+ * @param {string} targetLanguage - Target language (e.g., "EN_US", "VI")
  * @param {string} finnishText - The Finnish subtitle text (normalized)
- * @param {string} translatedText - The English (or other languages) translation
+ * @param {string} translatedText - The translated text in target language
  * @returns {Promise<void>}
  */
-async function saveSubtitle(db, movieName, finnishText, translatedText) {
+async function saveSubtitle(db, movieName, targetLanguage, finnishText, translatedText) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
             const subtitle = {
                 movieName: movieName,
+                targetLanguage: targetLanguage,
                 finnishText: finnishText,
                 translatedText: translatedText
             };
@@ -131,14 +151,14 @@ async function saveSubtitle(db, movieName, finnishText, translatedText) {
 /**
  * Save multiple subtitle translations to IndexedDB in a single transaction
  * @param {IDBDatabase} db - Opening database instance
- * @param {Array<SubtitleRecord>} subtitles - Array of subtitle objects to save
+ * @param {Array<SubtitleRecord>} subtitles - Array of subtitle objects to save (must include targetLanguage)
  * @returns {Promise<number>} Number of subtitles saved
  */
 async function saveSubtitlesBatch(db, subtitles) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
             let savedCount = 0;
             let errorOccurred = false;
@@ -178,7 +198,7 @@ async function saveSubtitlesBatch(db, subtitles) {
 }
 
 /**
- * Delete all subtitles for a given movie from IndexedDB
+ * Delete all subtitles for a given movie from IndexedDB (across all languages)
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
  * @returns {Promise<number>} Number of subtitles deleted
@@ -186,12 +206,17 @@ async function saveSubtitlesBatch(db, subtitles) {
 async function clearSubtitlesByMovieName(db, movieName) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
-            const index = objectStore.index('movieName');
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
             let deletedCount = 0;
-            const request = index.openCursor(IDBKeyRange.only(movieName));
+            // Use keyPath range to delete all entries for this movie (all languages)
+            const range = IDBKeyRange.bound(
+                [movieName],
+                [movieName, []] // [] is higher than any string
+            );
+
+            const request = objectStore.openCursor(range);
 
             request.onsuccess = (event) => {
                 const cursor = event.target.result;

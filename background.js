@@ -46,7 +46,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'fetchTranslation') {
     /** @type {string[]} */
     const rawSubtitleFinnishTexts = request.data.rawSubtitleFinnishTexts;
-    translateTextsWithErrorHandling(rawSubtitleFinnishTexts).then((translationResult) => {
+    /** @type {string} */
+    const targetLanguage = request.data.targetLanguage;
+    translateTextsWithErrorHandling(
+      rawSubtitleFinnishTexts,
+      targetLanguage
+    ).then((translationResult) => {
       sendResponse(translationResult);
     }).catch((error) => {
       sendResponse([false, error.message || String(error)]);
@@ -137,14 +142,18 @@ function getErrorMessageFromStatus(status) {
  * Translate DeepL text with proper error handling
  *
  * @param {string[]} rawSubtitleFinnishTexts
+ * @param {string} targetLanguage (exp, "EN_US", "VI")
  * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
  * indicates success and the second is either translated texts or an error message.
  */
-async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
+async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts, targetLanguage) {
   const MAX_RETRIES = 3;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const [isSucceeded, translationResponse] = await translateTexts(rawSubtitleFinnishTexts);
+    const [isSucceeded, translationResponse] = await translateTexts(
+      rawSubtitleFinnishTexts,
+      targetLanguage
+    );
 
     if (isSucceeded) {
       return [true, translationResponse];
@@ -179,10 +188,11 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts) {
 /**
  * Translate text using DeepL API
  * @param {Array<string>} rawSubtitleFinnishTexts - Array of Finnish texts to translate
+ * @param {string} targetLanguage - target language code (exp: "EN_US", "VI", "GE", ...)
  * @returns {Promise<[true, Array<string>]|[false, DeepLTranslationError]|[false, string]>} -
  * Returns a tuple where the first element indicates success and the second is either translated texts, translation error or an error message.
  */
-async function translateTexts(rawSubtitleFinnishTexts) {
+async function translateTexts(rawSubtitleFinnishTexts, targetLanguage) {
   const apiKey = deeplTokenKey;
   const url = isDeepLPro ?
     'https://api.deepl.com/v2/translate' :
@@ -198,7 +208,7 @@ async function translateTexts(rawSubtitleFinnishTexts) {
       body: JSON.stringify({
         text: rawSubtitleFinnishTexts,
         source_lang: "FI",
-        target_lang: "EN-US"
+        target_lang: targetLanguage,
       })
     });
     if (!response.ok) {

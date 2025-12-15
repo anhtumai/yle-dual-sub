@@ -2,6 +2,8 @@
  * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
 
+const DEFAULT_TARGET_LANGUAGE = 'EN_US';
+
 /**
  * Load selected DeepL token from Chrome storage sync
  * @returns {Promise<{key: string, isPro: boolean} | null>} Returns token info or null if not found
@@ -30,7 +32,32 @@ async function loadSelectedTokenFromChromeStorageSync() {
       return null;
     }
   } catch (error) {
-    console.error('YleDualSubExtension: Error loading token from storage:', error);
+    console.error('YleDualSubExtension: Error loading application settings (to get token information) from storage:', error);
     return null;
+  }
+}
+
+/**
+ * Load all information
+ * @returns {Promise<string>} return target language code (e.g., 'EN_US')
+ */
+async function loadTargetLanguageFromChromeStorageSync() {
+  try {
+    const storageSyncInformation = await chrome.storage.sync.get("targetLanguage");
+    if (!storageSyncInformation || typeof storageSyncInformation !== 'object') {
+      console.info('YleDualSubExtension: No settings found in storage');
+      return DEFAULT_TARGET_LANGUAGE;
+    }
+
+    if (storageSyncInformation.targetLanguage &&
+      typeof storageSyncInformation.targetLanguage === 'string') {
+      return storageSyncInformation.targetLanguage;
+    } else {
+      console.info('YleDualSubExtension: No target language found in storage, using default');
+    }
+    return DEFAULT_TARGET_LANGUAGE;
+  } catch (error) {
+    console.error('YleDualSubExtension: Error loading application settings (to get target language) from storage:', error);
+    return DEFAULT_TARGET_LANGUAGE;
   }
 }
