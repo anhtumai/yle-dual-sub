@@ -142,7 +142,7 @@ function getErrorMessageFromStatus(status) {
  * Translate DeepL text with proper error handling
  *
  * @param {string[]} rawSubtitleFinnishTexts
- * @param {string} targetLanguage (exp, "EN_US", "VI")
+ * @param {string} targetLanguage (exp, "EN-US", "VI")
  * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
  * indicates success and the second is either translated texts or an error message.
  */
@@ -188,7 +188,7 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts, targetLa
 /**
  * Translate text using DeepL API
  * @param {Array<string>} rawSubtitleFinnishTexts - Array of Finnish texts to translate
- * @param {string} targetLanguage - target language code (exp: "EN_US", "VI", "GE", ...)
+ * @param {string} targetLanguage - target language code (exp: "EN-US", "VI", "GE", ...)
  * @returns {Promise<[true, Array<string>]|[false, DeepLTranslationError]|[false, string]>} -
  * Returns a tuple where the first element indicates success and the second is either translated texts, translation error or an error message.
  */

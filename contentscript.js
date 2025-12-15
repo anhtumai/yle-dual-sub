@@ -20,7 +20,7 @@ function toTranslationKey(rawSubtitleFinnishText) {
 }
 
 // State of target_language (cached from chrome storage sync)
-let targetLanguage = "EN_US";
+let targetLanguage = "EN-US";
 loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   targetLanguage = loadedTargetLanguage;
 }).catch((error) => {

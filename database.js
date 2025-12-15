@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} SubtitleRecord
  * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @property {string} targetLanguage - The target language code (e.g., "EN_US", "VI")
+ * @property {string} targetLanguage - The target language code (e.g., "EN-US", "VI")
  * @property {string} finnishText - The Finnish subtitle text (normalized)
  * @property {string} translatedText - The translated text in target language
  */
@@ -71,7 +71,7 @@ async function openDatabase() {
  * Load all subtitles for a given movie and target language from IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @param {string} targetLanguage - Target language (e.g., "EN_US", "VI")
+ * @param {string} targetLanguage - Target language (e.g., "EN-US", "VI")
  * @returns {Promise<Array<SubtitleRecord>>}
  */
 async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
@@ -112,7 +112,7 @@ async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
  * Save a subtitle translation to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
- * @param {string} targetLanguage - Target language (e.g., "EN_US", "VI")
+ * @param {string} targetLanguage - Target language (e.g., "EN-US", "VI")
  * @param {string} finnishText - The Finnish subtitle text (normalized)
  * @param {string} translatedText - The translated text in target language
  * @returns {Promise<void>}

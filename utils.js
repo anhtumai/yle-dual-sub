@@ -2,7 +2,7 @@
  * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
 
-const DEFAULT_TARGET_LANGUAGE = 'EN_US';
+const DEFAULT_TARGET_LANGUAGE = 'EN-US';
 
 /**
  * Load selected DeepL token from Chrome storage sync
@@ -39,7 +39,7 @@ async function loadSelectedTokenFromChromeStorageSync() {
 
 /**
  * Load all information
- * @returns {Promise<string>} return target language code (e.g., 'EN_US')
+ * @returns {Promise<string>} return target language code (e.g., 'EN-US')
  */
 async function loadTargetLanguageFromChromeStorageSync() {
   try {
