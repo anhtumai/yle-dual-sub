@@ -28,7 +28,7 @@ async function openDatabase() {
         const DBOpenRequest = indexedDB.open(DATABASE, 2);
 
         // Handle errors
-        DBOpenRequest.onerror = (event) => {
+        DBOpenRequest.onerror = (_event) => {
             console.error("YleDualSubExtension: Database error:", DBOpenRequest.error);
             reject(DBOpenRequest.error);
         }
@@ -92,7 +92,7 @@ async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
                 resolve(subtitleRecords);
             };
 
-            DBGetAllRequest.onerror = (event) => {
+            DBGetAllRequest.onerror = (_event) => {
                 console.error("YleDualSubExtension: Error loading subtitles:", DBGetAllRequest.error);
                 reject(DBGetAllRequest.error);
             };
@@ -132,11 +132,11 @@ async function saveSubtitle(db, movieName, targetLanguage, originalText, transla
 
             const DBSaveSubtitlesRequest = objectStore.put(subtitle);
 
-            DBSaveSubtitlesRequest.onsuccess = () => {
+            DBSaveSubtitlesRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            DBSaveSubtitlesRequest.onerror = (event) => {
+            DBSaveSubtitlesRequest.onerror = (_event) => {
                 console.error("YleDualSubExtension: Error saving subtitle:", DBSaveSubtitlesRequest.error);
                 reject(DBSaveSubtitlesRequest.error);
             };
@@ -180,7 +180,7 @@ async function saveSubtitlesBatch(db, subtitles) {
             for (const subtitle of subtitles) {
                 const DBSaveRequest = objectStore.put(subtitle);
 
-                DBSaveRequest.onsuccess = () => {
+                DBSaveRequest.onsuccess = (_event) => {
                     savedCount++;
                 };
 
@@ -296,11 +296,11 @@ async function upsertMovieMetadata(db, movieName, lastAccessedDays) {
 
             const DBUpsertMovieMetadataRequest = objectStore.put(metadata);
 
-            DBUpsertMovieMetadataRequest.onsuccess = () => {
+            DBUpsertMovieMetadataRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            DBUpsertMovieMetadataRequest.onerror = (event) => {
+            DBUpsertMovieMetadataRequest.onerror = (_event) => {
                 console.error("YleDualSubExtension: Error saving movie metadata:", DBUpsertMovieMetadataRequest.error);
                 reject(DBUpsertMovieMetadataRequest.error);
             };
@@ -325,12 +325,12 @@ async function getAllMovieMetadata(db) {
 
             const DBGetAllMovieMetadatas = objectStore.getAll();
 
-            DBGetAllMovieMetadatas.onsuccess = (event) => {
+            DBGetAllMovieMetadatas.onsuccess = (_event) => {
                 const metadataRecords = DBGetAllMovieMetadatas.result;
                 resolve(metadataRecords);
             };
 
-            DBGetAllMovieMetadatas.onerror = (event) => {
+            DBGetAllMovieMetadatas.onerror = (_event) => {
                 console.error("YleDualSubExtension: Error getting all movie metadata:", DBGetAllMovieMetadatas.error);
                 reject(DBGetAllMovieMetadatas.error);
             };
@@ -356,11 +356,11 @@ async function deleteMovieMetadata(db, movieName) {
 
             const DBDeleteMovieMetadataRequest = objectStore.delete(movieName);
 
-            DBDeleteMovieMetadataRequest.onsuccess = () => {
+            DBDeleteMovieMetadataRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            DBDeleteMovieMetadataRequest.onerror = (event) => {
+            DBDeleteMovieMetadataRequest.onerror = (_event) => {
                 console.error("YleDualSubExtension: Error deleting movie metadata:", DBDeleteMovieMetadataRequest.error);
                 reject(DBDeleteMovieMetadataRequest.error);
             };
