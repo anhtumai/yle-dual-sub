@@ -116,8 +116,9 @@ class TranslationQueue {
             if (currentMovieName) {
               toCacheSubtitleRecords.push({
                 "movieName": currentMovieName,
+                "originalLanguage": "FI",
                 "targetLanguage": targetLanguage,
-                "finnishText": sharedTranslationMapKey,
+                "originalText": sharedTranslationMapKey,
                 "translatedText": sharedTranslationMapValue,
               })
             }
@@ -652,7 +653,7 @@ async function loadMovieCacheAndUpdateMetadata() {
   }
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
-      subtitleRecord.finnishText,
+      subtitleRecord.originalText,
       subtitleRecord.translatedText
     );
   }
