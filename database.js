@@ -29,7 +29,7 @@ async function openDatabase() {
 
         // Handle errors
         DBOpenRequest.onerror = (_event) => {
-            console.error("YleDualSubExtension: Database error:", DBOpenRequest.error);
+            console.error("YleDualSubExtension: openDatabase: Database error:", DBOpenRequest.error);
             reject(DBOpenRequest.error);
         }
 
@@ -93,12 +93,12 @@ async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
             };
 
             DBGetAllRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error loading subtitles:", DBGetAllRequest.error);
+                console.error("YleDualSubExtension: loadSubtitlesByMovieName: Error loading subtitles:", DBGetAllRequest.error);
                 reject(DBGetAllRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: loadSubtitlesByMovieName: Error in transaction:", error);
             reject(error);
         }
     });
@@ -137,12 +137,12 @@ async function saveSubtitle(db, movieName, targetLanguage, originalText, transla
             };
 
             DBSaveSubtitlesRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error saving subtitle:", DBSaveSubtitlesRequest.error);
+                console.error("YleDualSubExtension: saveSubtitle: Error saving subtitle:", DBSaveSubtitlesRequest.error);
                 reject(DBSaveSubtitlesRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: saveSubtitle: Error in transaction:", error);
             reject(error);
         }
     });
@@ -171,10 +171,16 @@ async function saveSubtitlesBatch(db, subtitles) {
             };
 
             transaction.onerror = (_event) => {
-                console.error("YleDualSubExtension: Transaction error:", transaction.error);
+                console.error("YleDualSubExtension: saveSubtitlesBatch: Transaction error:", transaction.error);
                 errorOccurred = true;
                 reject(transaction.error);
             };
+
+            transaction.onabort = (_event) => {
+                console.error("YleDualSubExtension: saveSubtitlesBatch: Transaction aborted:", transaction.error);
+                errorOccurred = true;
+                reject(transaction.error);
+            }
 
             // Add all subtitles to the transaction
             for (const subtitle of subtitles) {
@@ -185,13 +191,13 @@ async function saveSubtitlesBatch(db, subtitles) {
                 };
 
                 DBSaveRequest.onerror = (_event) => {
-                    console.error("YleDualSubExtension: Error saving subtitle:", DBSaveRequest.error);
+                    console.error("YleDualSubExtension: saveSubtitlesBatch: Error saving subtitle:", DBSaveRequest.error);
                     errorOccurred = true;
                 };
             }
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error in batch save:", error);
+            console.error("YleDualSubExtension: saveSubtitlesBatch: Error in batch save:", error);
             reject(error);
         }
     });
@@ -218,24 +224,36 @@ async function clearSubtitlesByMovieName(db, movieName) {
 
             const DBDeleteCursorRequest = objectStore.openCursor(range);
 
+            transaction.oncomplete = () => {
+                resolve(deletedCount);
+            }
+
+            transaction.onerror = (_event) => {
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error during subtitle deletion transaction:", transaction.error);
+                reject(transaction.error);
+            }
+
+            transaction.onabort = (_event) => {
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Subtitle deletion transaction aborted:", transaction.error);
+                reject(transaction.error);
+            }
+
             DBDeleteCursorRequest.onsuccess = (_event) => {
                 const cursor = DBDeleteCursorRequest.result;
                 if (cursor) {
                     cursor.delete();
                     deletedCount++;
                     cursor.continue();
-                } else {
-                    resolve(deletedCount);
                 }
             };
 
             DBDeleteCursorRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error clearing subtitles:", DBDeleteCursorRequest.error);
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error clearing subtitles:", DBDeleteCursorRequest.error);
                 reject(DBDeleteCursorRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error in transaction:", error);
             reject(error);
         }
     });
@@ -265,12 +283,12 @@ async function getMovieMetadata(db, movieName) {
             };
 
             DBGetMovieMetadataRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error getting movie metadata:", DBGetMovieMetadataRequest.error);
+                console.error("YleDualSubExtension: getMovieMetadata: Error getting movie metadata:", DBGetMovieMetadataRequest.error);
                 reject(DBGetMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error retrieving movie metadata:", error);
+            console.error("YleDualSubExtension: getMovieMetadata: Error in transaction:", error);
             reject(error);
         }
     });
@@ -301,12 +319,12 @@ async function upsertMovieMetadata(db, movieName, lastAccessedDays) {
             };
 
             DBUpsertMovieMetadataRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error saving movie metadata:", DBUpsertMovieMetadataRequest.error);
+                console.error("YleDualSubExtension: upsertMovieMetadata: Error saving movie metadata:", DBUpsertMovieMetadataRequest.error);
                 reject(DBUpsertMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error saving movie metadata:", error);
+            console.error("YleDualSubExtension: upsertMovieMetadata: Error in transaction:", error);
             reject(error);
         }
     });
@@ -331,12 +349,12 @@ async function getAllMovieMetadata(db) {
             };
 
             DBGetAllMovieMetadatas.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error getting all movie metadata:", DBGetAllMovieMetadatas.error);
+                console.error("YleDualSubExtension: getAllMovieMetadata: Error getting all movie metadata:", DBGetAllMovieMetadatas.error);
                 reject(DBGetAllMovieMetadatas.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error retrieving all movie metadata:", error);
+            console.error("YleDualSubExtension: getAllMovieMetadata: Error retrieving all movie metadata:", error);
             reject(error);
         }
     });
@@ -361,12 +379,12 @@ async function deleteMovieMetadata(db, movieName) {
             };
 
             DBDeleteMovieMetadataRequest.onerror = (_event) => {
-                console.error("YleDualSubExtension: Error deleting movie metadata:", DBDeleteMovieMetadataRequest.error);
+                console.error("YleDualSubExtension: deleteMovieMetadata: Error deleting movie metadata:", DBDeleteMovieMetadataRequest.error);
                 reject(DBDeleteMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error deleting movie metadata:", error);
+            console.error("YleDualSubExtension: deleteMovieMetadata: Error deleting movie metadata:", error);
             reject(error);
         }
     });
@@ -384,7 +402,7 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
         const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
         const cutoffDays = nowDays - maxAgeDays;
 
-        console.info(`YleDualSubExtension: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
+        console.info(`YleDualSubExtension: cleanupOldMovieData: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
 
         // Get all movie metadata
         const allMetadata = await getAllMovieMetadata(db);
@@ -394,7 +412,7 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
             metadata.lastAccessedDays < cutoffDays
         );
 
-        console.info(`YleDualSubExtension: Found ${oldMovieMetadatas.length} movies to clean up`);
+        console.info(`YleDualSubExtension: cleanupOldMovieData: Found ${oldMovieMetadatas.length} movies to clean up`);
 
         // Delete each old movie's data
         let cleanedCount = 0;
@@ -407,9 +425,9 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
                 await deleteMovieMetadata(db, metadata.movieName);
 
                 cleanedCount++;
-                console.info(`YleDualSubExtension: Cleaned up movie: ${metadata.movieName}`);
+                console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
             } catch (error) {
-                console.warn(`YleDualSubExtension: Failed to clean up movie ${metadata.movieName}:`, error);
+                console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
             }
         }
         return cleanedCount;
@@ -418,3 +436,17 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
         throw error;
     }
 }
+
+// Export for testing (ES modules)
+export {
+    openDatabase,
+    saveSubtitle,
+    saveSubtitlesBatch,
+    loadSubtitlesByMovieName,
+    clearSubtitlesByMovieName,
+    getMovieMetadata,
+    upsertMovieMetadata,
+    getAllMovieMetadata,
+    deleteMovieMetadata,
+    cleanupOldMovieData
+};
