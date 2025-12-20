@@ -1,8 +1,10 @@
 /**
  * @typedef {Object} SubtitleRecord
  * @property {string} movieName - The movie name (e.g., "Series Title | Episode Name")
- * @property {string} finnishText - The Finnish subtitle text (normalized)
- * @property {string} translatedText - The English (or other language) translation
+ * @property {string} originalLanguage - The original language code (e.g., "FI") (for now, this will be always "FI")
+ * @property {string} targetLanguage - The target language code (e.g., "EN-US", "VI")
+ * @property {string} originalText - The Finnish subtitle text (normalized)
+ * @property {string} translatedText - The translated text in target language
  */
 
 /**
@@ -12,8 +14,8 @@
  */
 
 const DATABASE = "YleDualSubCache"
-const ENGLISH_SUBTITLE_CACHE_OBJECT_STORE = "EnglishSubtitlesCache"
-const VIETNAMESE_SUBTITLE_CACHE_OBJECT_STORE = "VietnameseSubtitleCache"
+const SUBTITLE_CACHE_OBJECT_STORE = "SubtitlesCache"
+const DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE = "EnglishSubtitlesCache"
 const MOVIE_METADATA_OBJECT_STORE = "MovieMetadata"
 
 /**
@@ -23,68 +25,80 @@ const MOVIE_METADATA_OBJECT_STORE = "MovieMetadata"
 async function openDatabase() {
     return new Promise((resolve, reject) => {
 
-        const request = indexedDB.open(DATABASE, 1);
+        const DBOpenRequest = indexedDB.open(DATABASE, 2);
 
         // Handle errors
-        request.onerror = (event) => {
-            console.error("YleDualSubExtension: Database error:", event.target.error);
-            reject(event.target.error);
+        DBOpenRequest.onerror = (_event) => {
+            console.error("YleDualSubExtension: openDatabase: Database error:", DBOpenRequest.error);
+            reject(DBOpenRequest.error);
         }
 
         // Handle success
-        request.onsuccess = (event) => {
-            const db = event.target.result;
+        DBOpenRequest.onsuccess = (_event) => {
+            const db = DBOpenRequest.result;
             resolve(db);
         };
 
         // Handle database upgrade (first time or version change)
-        request.onupgradeneeded = (event) => {
+        DBOpenRequest.onupgradeneeded = (event) => {
             const db = event.target.result;
-            console.info('YleDualSubExtension: Upgrading database...');
+            const oldVersion = event.oldVersion;
+            console.info(`YleDualSubExtension: Upgrading database from version ${oldVersion} to 2...`);
 
-            // Create object stores here
-            const subtitlesObjectStore = db.createObjectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE, {
-                keyPath: ['movieName', 'finnishText'],
-            });
-            subtitlesObjectStore.createIndex('movieName', 'movieName', { unique: false });
+            // Create metadata store (only for new users, version 0 -> 1/2)
+            if (oldVersion < 1) {
+                db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
+                    keyPath: 'movieName',
+                });
+            }
 
-            const movieMetadataObjectStore = db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
-                keyPath: 'movieName',
-            });
+            // Create new subtitle cache and delete old one (version 1 -> 2)
+            if (oldVersion < 2) {
+                const subtitlesObjectStore = db.createObjectStore(SUBTITLE_CACHE_OBJECT_STORE, {
+                    keyPath: ['movieName', 'originalLanguage', 'targetLanguage', 'originalText'],
+                });
+                subtitlesObjectStore.createIndex('movieSubtitlesByLanguage', ['movieName', 'originalLanguage', 'targetLanguage'], { unique: false });
+
+                // Delete old subtitle cache
+                if (db.objectStoreNames.contains(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE)) {
+                    db.deleteObjectStore(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+                }
+            }
         };
     })
 }
 
 /**
- * Load all subtitles for a given movie from IndexedDB
+ * Load all subtitles for a given movie and target language from IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name (e.g., "Series Title | Episode Name")
+ * @param {string} targetLanguage - Target language (e.g., "EN-US", "VI")
  * @returns {Promise<Array<SubtitleRecord>>}
  */
-async function loadSubtitlesByMovieName(db, movieName) {
+async function loadSubtitlesByMovieName(db, movieName, targetLanguage) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readonly');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
-            const index = objectStore.index('movieName');
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readonly');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
+            const index = objectStore.index('movieSubtitlesByLanguage');
 
-            const request = index.getAll(movieName);
+            const DBGetAllRequest = index.getAll([movieName, "FI", targetLanguage]);
 
-            request.onsuccess = (event) => {
+            DBGetAllRequest.onsuccess = (_event) => {
                 /**
                  * @type {Array<SubtitleRecord>}
                  */
-                const subtitleRecords = event.target.result;
+                const subtitleRecords = DBGetAllRequest.result;
                 resolve(subtitleRecords);
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error loading subtitles:", event.target.error);
-                reject(event.target.error);
+            DBGetAllRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: loadSubtitlesByMovieName: Error loading subtitles:", DBGetAllRequest.error);
+                reject(DBGetAllRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: loadSubtitlesByMovieName: Error in transaction:", error);
             reject(error);
         }
     });
@@ -94,35 +108,41 @@ async function loadSubtitlesByMovieName(db, movieName) {
  * Save a subtitle translation to IndexedDB
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
- * @param {string} finnishText - The Finnish subtitle text (normalized)
- * @param {string} translatedText - The English (or other languages) translation
+ * @param {string} targetLanguage - Target language (e.g., "EN-US", "VI")
+ * @param {string} originalText - The Finnish subtitle text (normalized)
+ * @param {string} translatedText - The translated text in target language
  * @returns {Promise<void>}
  */
-async function saveSubtitle(db, movieName, finnishText, translatedText) {
+async function saveSubtitle(db, movieName, targetLanguage, originalText, translatedText) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
+            /**
+             * @type {SubtitleRecord}
+             */
             const subtitle = {
-                movieName: movieName,
-                finnishText: finnishText,
-                translatedText: translatedText
+                movieName,
+                originalLanguage: "FI",
+                targetLanguage,
+                originalText,
+                translatedText
             };
 
-            const request = objectStore.put(subtitle);
+            const DBSaveSubtitlesRequest = objectStore.put(subtitle);
 
-            request.onsuccess = () => {
+            DBSaveSubtitlesRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error saving subtitle:", event.target.error);
-                reject(event.target.error);
+            DBSaveSubtitlesRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: saveSubtitle: Error saving subtitle:", DBSaveSubtitlesRequest.error);
+                reject(DBSaveSubtitlesRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: saveSubtitle: Error in transaction:", error);
             reject(error);
         }
     });
@@ -131,54 +151,63 @@ async function saveSubtitle(db, movieName, finnishText, translatedText) {
 /**
  * Save multiple subtitle translations to IndexedDB in a single transaction
  * @param {IDBDatabase} db - Opening database instance
- * @param {Array<SubtitleRecord>} subtitles - Array of subtitle objects to save
+ * @param {Array<SubtitleRecord>} subtitles - Array of subtitle objects to save (must include targetLanguage)
  * @returns {Promise<number>} Number of subtitles saved
  */
 async function saveSubtitlesBatch(db, subtitles) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
             let savedCount = 0;
             let errorOccurred = false;
 
             // Handle transaction completion
             transaction.oncomplete = () => {
-                if (!errorOccurred) {
-                    resolve(savedCount);
+                if (errorOccurred) {
+                    reject(new Error("One or more errors occurred during batch subtitle save."));
                 }
+                resolve(savedCount);
             };
 
-            transaction.onerror = (event) => {
-                console.error("YleDualSubExtension: Transaction error:", event.target.error);
+            transaction.onerror = (_event) => {
+                console.error("YleDualSubExtension: saveSubtitlesBatch: Transaction error:", transaction.error);
                 errorOccurred = true;
-                reject(event.target.error);
+                reject(transaction.error);
             };
+
+            transaction.onabort = (_event) => {
+                console.error("YleDualSubExtension: saveSubtitlesBatch: Transaction aborted:", transaction.error);
+                errorOccurred = true;
+                reject(transaction.error);
+            }
 
             // Add all subtitles to the transaction
             for (const subtitle of subtitles) {
-                const request = objectStore.put(subtitle);
+                const DBSaveRequest = objectStore.put(subtitle);
 
-                request.onsuccess = () => {
+                // eslint-disable-next-line no-loop-func
+                DBSaveRequest.onsuccess = (_event) => {
                     savedCount++;
                 };
 
-                request.onerror = (event) => {
-                    console.error("YleDualSubExtension: Error saving subtitle:", event.target.error);
+                // eslint-disable-next-line no-loop-func
+                DBSaveRequest.onerror = (_event) => {
+                    console.error("YleDualSubExtension: saveSubtitlesBatch: Error saving subtitle:", DBSaveRequest.error);
                     errorOccurred = true;
                 };
             }
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error in batch save:", error);
+            console.error("YleDualSubExtension: saveSubtitlesBatch: Error in batch save:", error);
             reject(error);
         }
     });
 }
 
 /**
- * Delete all subtitles for a given movie from IndexedDB
+ * Delete all subtitles for a given movie from IndexedDB (across all languages)
  * @param {IDBDatabase} db - Opening database instance
  * @param {string} movieName - The movie name
  * @returns {Promise<number>} Number of subtitles deleted
@@ -186,31 +215,48 @@ async function saveSubtitlesBatch(db, subtitles) {
 async function clearSubtitlesByMovieName(db, movieName) {
     return new Promise((resolve, reject) => {
         try {
-            const transaction = db.transaction([ENGLISH_SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
-            const objectStore = transaction.objectStore(ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
-            const index = objectStore.index('movieName');
+            const transaction = db.transaction([SUBTITLE_CACHE_OBJECT_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SUBTITLE_CACHE_OBJECT_STORE);
 
             let deletedCount = 0;
-            const request = index.openCursor(IDBKeyRange.only(movieName));
+            // Use keyPath range to delete all entries for this movie (all languages)
+            const range = IDBKeyRange.bound(
+                [movieName, "", "", ""],
+                [movieName, "\uffff", "\uffff", "\uffff"]
+            );
 
-            request.onsuccess = (event) => {
-                const cursor = event.target.result;
+            const DBDeleteCursorRequest = objectStore.openCursor(range);
+
+            transaction.oncomplete = () => {
+                resolve(deletedCount);
+            }
+
+            transaction.onerror = (_event) => {
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error during subtitle deletion transaction:", transaction.error);
+                reject(transaction.error);
+            }
+
+            transaction.onabort = (_event) => {
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Subtitle deletion transaction aborted:", transaction.error);
+                reject(transaction.error);
+            }
+
+            DBDeleteCursorRequest.onsuccess = (_event) => {
+                const cursor = DBDeleteCursorRequest.result;
                 if (cursor) {
                     cursor.delete();
                     deletedCount++;
                     cursor.continue();
-                } else {
-                    resolve(deletedCount);
                 }
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error clearing subtitles:", event.target.error);
-                reject(event.target.error);
+            DBDeleteCursorRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error clearing subtitles:", DBDeleteCursorRequest.error);
+                reject(DBDeleteCursorRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error opening database:", error);
+            console.error("YleDualSubExtension: clearSubtitlesByMovieName: Error in transaction:", error);
             reject(error);
         }
     });
@@ -228,10 +274,10 @@ async function getMovieMetadata(db, movieName) {
             const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readonly');
             const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
-            const request = objectStore.get(movieName);
+            const DBGetMovieMetadataRequest = objectStore.get(movieName);
 
-            request.onsuccess = (event) => {
-                const metadata = event.target.result;
+            DBGetMovieMetadataRequest.onsuccess = (_event) => {
+                const metadata = DBGetMovieMetadataRequest.result;
                 if (metadata) {
                     resolve(metadata);
                 } else {
@@ -239,13 +285,13 @@ async function getMovieMetadata(db, movieName) {
                 }
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error getting movie metadata:", event.target.error);
-                reject(event.target.error);
+            DBGetMovieMetadataRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: getMovieMetadata: Error getting movie metadata:", DBGetMovieMetadataRequest.error);
+                reject(DBGetMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error retrieving movie metadata:", error);
+            console.error("YleDualSubExtension: getMovieMetadata: Error in transaction:", error);
             reject(error);
         }
     });
@@ -265,23 +311,23 @@ async function upsertMovieMetadata(db, movieName, lastAccessedDays) {
             const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const metadata = {
-                movieName: movieName,
-                lastAccessedDays: lastAccessedDays
+                movieName,
+                lastAccessedDays
             };
 
-            const request = objectStore.put(metadata);
+            const DBUpsertMovieMetadataRequest = objectStore.put(metadata);
 
-            request.onsuccess = () => {
+            DBUpsertMovieMetadataRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error saving movie metadata:", event.target.error);
-                reject(event.target.error);
+            DBUpsertMovieMetadataRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: upsertMovieMetadata: Error saving movie metadata:", DBUpsertMovieMetadataRequest.error);
+                reject(DBUpsertMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error saving movie metadata:", error);
+            console.error("YleDualSubExtension: upsertMovieMetadata: Error in transaction:", error);
             reject(error);
         }
     });
@@ -298,20 +344,20 @@ async function getAllMovieMetadata(db) {
             const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readonly');
             const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
-            const request = objectStore.getAll();
+            const DBGetAllMovieMetadatas = objectStore.getAll();
 
-            request.onsuccess = (event) => {
-                const metadataRecords = event.target.result;
+            DBGetAllMovieMetadatas.onsuccess = (_event) => {
+                const metadataRecords = DBGetAllMovieMetadatas.result;
                 resolve(metadataRecords);
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error getting all movie metadata:", event.target.error);
-                reject(event.target.error);
+            DBGetAllMovieMetadatas.onerror = (_event) => {
+                console.error("YleDualSubExtension: getAllMovieMetadata: Error getting all movie metadata:", DBGetAllMovieMetadatas.error);
+                reject(DBGetAllMovieMetadatas.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error retrieving all movie metadata:", error);
+            console.error("YleDualSubExtension: getAllMovieMetadata: Error retrieving all movie metadata:", error);
             reject(error);
         }
     });
@@ -329,19 +375,19 @@ async function deleteMovieMetadata(db, movieName) {
             const transaction = db.transaction([MOVIE_METADATA_OBJECT_STORE], 'readwrite');
             const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
-            const request = objectStore.delete(movieName);
+            const DBDeleteMovieMetadataRequest = objectStore.delete(movieName);
 
-            request.onsuccess = () => {
+            DBDeleteMovieMetadataRequest.onsuccess = (_event) => {
                 resolve();
             };
 
-            request.onerror = (event) => {
-                console.error("YleDualSubExtension: Error deleting movie metadata:", event.target.error);
-                reject(event.target.error);
+            DBDeleteMovieMetadataRequest.onerror = (_event) => {
+                console.error("YleDualSubExtension: deleteMovieMetadata: Error deleting movie metadata:", DBDeleteMovieMetadataRequest.error);
+                reject(DBDeleteMovieMetadataRequest.error);
             };
 
         } catch (error) {
-            console.error("YleDualSubExtension: Error deleting movie metadata:", error);
+            console.error("YleDualSubExtension: deleteMovieMetadata: Error deleting movie metadata:", error);
             reject(error);
         }
     });
@@ -355,41 +401,57 @@ async function deleteMovieMetadata(db, movieName) {
  * @returns {Promise<number>} Number of movies cleaned up
  */
 async function cleanupOldMovieData(db, maxAgeDays = 30) {
-    try {
-        const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-        const cutoffDays = nowDays - maxAgeDays;
+    const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    const cutoffDays = nowDays - maxAgeDays;
 
-        console.info(`YleDualSubExtension: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
+    console.info(`YleDualSubExtension: cleanupOldMovieData: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
 
-        // Get all movie metadata
-        const allMetadata = await getAllMovieMetadata(db);
+    // Get all movie metadata
+    const allMetadata = await getAllMovieMetadata(db);
 
-        // Filter for old movies
-        const oldMovieMetadatas = allMetadata.filter(metadata =>
-            metadata.lastAccessedDays < cutoffDays
-        );
+    // Filter for old movies
+    const oldMovieMetadatas = allMetadata.filter(metadata =>
+        metadata.lastAccessedDays < cutoffDays
+    );
 
-        console.info(`YleDualSubExtension: Found ${oldMovieMetadatas.length} movies to clean up`);
+    console.info(`YleDualSubExtension: cleanupOldMovieData: Found ${oldMovieMetadatas.length} movies to clean up`);
 
-        // Delete each old movie's data
-        let cleanedCount = 0;
-        for (const metadata of oldMovieMetadatas) {
-            try {
-                // Delete all subtitles for this movie
-                await clearSubtitlesByMovieName(db, metadata.movieName);
+    // Delete each old movie's data
+    let cleanedCount = 0;
+    for (const metadata of oldMovieMetadatas) {
+        try {
+            // Delete all subtitles for this movie
+            await clearSubtitlesByMovieName(db, metadata.movieName);
 
-                // Delete the metadata record
-                await deleteMovieMetadata(db, metadata.movieName);
+            // Delete the metadata record
+            await deleteMovieMetadata(db, metadata.movieName);
 
-                cleanedCount++;
-                console.info(`YleDualSubExtension: Cleaned up movie: ${metadata.movieName}`);
-            } catch (error) {
-                console.warn(`YleDualSubExtension: Failed to clean up movie ${metadata.movieName}:`, error);
-            }
+            cleanedCount++;
+            console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
+        } catch (error) {
+            console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
         }
-        return cleanedCount;
-
-    } catch (error) {
-        throw error;
     }
+    return cleanedCount;
+
 }
+
+// Conditional export for testing
+// Check for module.exports first (CommonJS/Node.js environment)
+// @ts-ignore - module may not be defined in browser
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    // Node.js/Jest environment (even with JSDOM)
+    module.exports = {
+        openDatabase,
+        saveSubtitle,
+        saveSubtitlesBatch,
+        loadSubtitlesByMovieName,
+        clearSubtitlesByMovieName,
+        getMovieMetadata,
+        upsertMovieMetadata,
+        getAllMovieMetadata,
+        deleteMovieMetadata,
+        cleanupOldMovieData
+    };
+}
+// In browser extension (content script), functions are automatically global

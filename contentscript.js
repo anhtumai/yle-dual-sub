@@ -2,9 +2,11 @@
 // SECTION 1: STATE & INITIALIZATION
 // ==================================
 
+/* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
+/* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
 
 /** @type {Map<string, string>}
- * Shared translation map, with key is normalized Finnish text, and value is English text
+ * Shared translation map, with key is normalized Finnish text, and value is translated text
  */
 const sharedTranslationMap = new Map();
 /** @type {Map<string, string>} */
@@ -18,6 +20,14 @@ const sharedTranslationErrorMap = new Map();
 function toTranslationKey(rawSubtitleFinnishText) {
   return rawSubtitleFinnishText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
+
+// State of target_language (cached from chrome storage sync)
+let targetLanguage = "EN-US";
+loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
+  targetLanguage = loadedTargetLanguage;
+}).catch((error) => {
+  console.error("YleDualSubExtension: Error loading target language from storage:", error);
+});
 
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
@@ -76,7 +86,7 @@ class TranslationQueue {
    * @returns {Promise<void>}
    */
   async processQueue() {
-    if (this.isProcessing || this.queue.length === 0) return;
+    if (this.isProcessing || this.queue.length === 0) {return;}
 
     while (this.queue.length > 0 && dualSubEnabled) {
       this.isProcessing = true;
@@ -91,16 +101,16 @@ class TranslationQueue {
         const [isSucceeded, translationResponse] = await fetchTranslation(toProcessItems);
 
         if (isSucceeded) {
-          const translatedEnglishTexts = translationResponse;
+          const translatedTexts = translationResponse;
           /**
            * @type {Array<SubtitleRecord>}
            */
           const toCacheSubtitleRecords = [];
           for (let i = 0; i < toProcessItems.length; i++) {
-            const translatedEnglishText = translatedEnglishTexts[i];
+            const translatedText = translatedTexts[i];
             const rawSubtitleFinnishText = toProcessItems[i];
             const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
-            const sharedTranslationMapValue = translatedEnglishText.trim().replace(/\n/g, ' ');
+            const sharedTranslationMapValue = translatedText.trim().replace(/\n/g, ' ');
             sharedTranslationMap.set(
               sharedTranslationMapKey,
               sharedTranslationMapValue,
@@ -108,7 +118,9 @@ class TranslationQueue {
             if (currentMovieName) {
               toCacheSubtitleRecords.push({
                 "movieName": currentMovieName,
-                "finnishText": sharedTranslationMapKey,
+                "originalLanguage": "FI",
+                targetLanguage,
+                "originalText": sharedTranslationMapKey,
                 "translatedText": sharedTranslationMapValue,
               })
             }
@@ -159,7 +171,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
     const response = await chrome.runtime.sendMessage(
       {
         action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts: rawSubtitleFinnishTexts }
+        data: { rawSubtitleFinnishTexts, targetLanguage }
       });
     return response;
   } catch (error) {
@@ -249,7 +261,7 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
 }
 
 /**
- * Add Finnish and translated English subtitles to the displayed subtitles wrapper
+ * Add both Finnish and target language subtitles to the displayed subtitles wrapper
  *
  * @param {HTMLElement} displayedSubtitlesWrapper
  * @param {NodeListOf<HTMLSpanElement>} originalSubtitlesWrapperSpans
@@ -277,16 +289,16 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = toTranslationKey(finnishText);
-  const translatedEnglishText =
+  const targetLanguageText =
     sharedTranslationMap.get(translationKey) ||
     sharedTranslationErrorMap.get(translationKey) ||
     "Translating...";
   // TODO: Add retry mechanism if Translation is not found
 
-  const translatedEnglishSpan = createSubtitleSpan(translatedEnglishText, spanClassName);
+  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, spanClassName);
 
   displayedSubtitlesWrapper.appendChild(finnishSpan);
-  displayedSubtitlesWrapper.appendChild(translatedEnglishSpan);
+  displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
 }
 
 /**
@@ -319,6 +331,7 @@ function handleSubtitlesWrapperMutation(mutation) {
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations.
 // Set to true when video detection starts, prevents re-triggering for 1.5 seconds.
 // This handles the case where video player construction fires multiple sequential mutations.
+ 
 let checkVideoAppearMutationDebounceFlag = false;
 /**
  * Generic video element detection - detects when any <video> element appears in the DOM
@@ -354,6 +367,7 @@ function isVideoElementAppearMutation(mutation) {
       // Case 2: The added node CONTAINS a video element (initial load scenario)
       if (element.tagName === "VIDEO" || element.querySelector?.('video')) {
         checkVideoAppearMutationDebounceFlag = true;
+        // eslint-disable-next-line no-loop-func
         setTimeout(() => { checkVideoAppearMutationDebounceFlag = false; }, 1500);
         return true;
       }
@@ -553,7 +567,7 @@ async function addDualSubExtensionSection() {
     }
 
     document.addEventListener('keydown', (event) => {
-      if (!videoElement) return;
+      if (!videoElement) {return;}
 
       if (event.key === ',') {
         event.preventDefault();
@@ -637,13 +651,13 @@ async function loadMovieCacheAndUpdateMetadata() {
     return;
   }
 
-  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName);
-  if ( Array.isArray(subtitleRecords) && subtitleRecords.length >= 0) {
+  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
+  if (Array.isArray(subtitleRecords) && subtitleRecords.length >= 0) {
     console.info(`YleDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
   }
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
-      subtitleRecord.finnishText,
+      subtitleRecord.originalText,
       subtitleRecord.translatedText
     );
   }
@@ -682,7 +696,7 @@ if (document.body instanceof Node) {
   });
 }
 
-document.addEventListener("sendTranslationTextEvent", function (e) {
+document.addEventListener("sendTranslationTextEvent", (e) => {
   /**
    * Listening for incoming subtitle texts loaded into video player from injected.js
    * Send raw Finnish text from subtitle to a translation queue
@@ -726,9 +740,16 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
     }
   }
+  if (namespace === 'sync' && changes.targetLanguage) {
+    if (changes.targetLanguage.newValue && typeof changes.targetLanguage.newValue === 'string') {
+      alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
+        `We need to reload the page for the change to work.`);
+      location.reload();
+    }
+  }
 });
 
-document.addEventListener("change", function (e) {
+document.addEventListener("change", (e) => {
   /**
    * Listen for user interaction events in YLE Areena page,
    * for example: dual sub switch change event

@@ -4,6 +4,7 @@ import "./App.css";
 
 const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
 const DEEPL_PRO_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
+const DEFAULT_TARGET_LANGUAGE = "EN-US";
 
 /**
  *
@@ -156,6 +157,32 @@ class ChromeStorageSyncHandler {
 
     return result.tokenInfos;
   }
+
+  /**
+   * @returns {Promise<string>}
+   */
+  static async getTargetLanguage() {
+    const result = await chrome.storage.sync.get("targetLanguage");
+
+    if (typeof result !== "object" || result === null) {
+      return DEFAULT_TARGET_LANGUAGE;
+    }
+    if (!Object.prototype.hasOwnProperty.call(result, "targetLanguage")) {
+      return DEFAULT_TARGET_LANGUAGE;
+    }
+    if (typeof result.targetLanguage !== "string" || result.targetLanguage.length === 0) {
+      return DEFAULT_TARGET_LANGUAGE;
+    }
+    return result.targetLanguage;
+  }
+
+  /**
+   * @param {string} targetLanguage
+   * @returns {Promise<void>}
+   */
+  static async setTargetLanguage(targetLanguage) {
+    await chrome.storage.sync.set({ targetLanguage: targetLanguage });
+  }
 }
 
 function Header() {
@@ -291,9 +318,8 @@ function TokenInfoCard(props) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="token-card__header">
             <div
-              className={`token-card__checkbox ${
-                tokenInfo.selected ? "token-card__checkbox-selected" : ""
-              }`}
+              className={`token-card__checkbox ${tokenInfo.selected ? "token-card__checkbox-selected" : ""
+                }`}
             >
               {tokenInfo.selected && <Check size={14} className="check-icon" />}
             </div>
@@ -522,8 +548,8 @@ function AddNewTokenForm(props) {
     if (!validateDeeplApiTokenKey(deepLApiTokenKey)) {
       alert(
         "Please enter a valid DeepL translation key.\n" +
-          "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
-          "Note: DeepL Free keys may have ':fx' suffix."
+        "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
+        "Note: DeepL Free keys may have ':fx' suffix."
       );
       return;
     }
@@ -536,7 +562,7 @@ function AddNewTokenForm(props) {
     if (tokenKeysSet.has(deepLApiTokenKey)) {
       alert(
         "You have already added this translation key.\n" +
-          "If the key is not visible, please refresh the page."
+        "If the key is not visible, please refresh the page."
       );
       return;
     }
@@ -669,11 +695,11 @@ function TokenManagementHelpSection() {
         onClick={() => setIsOpen(!isOpen)}
         className="token-management-setting-card__help-section-button"
       >
-        <span>ℹ️ What is a translation key? How do I get one?</span>
+        <span>ℹ️ What is a translation key? How do I get one? (Click to too instruction)</span>
         <span
-          className={`token-management-setting-card__help-section-arrow ${
-            isOpen ? "token-management-setting-card__help-section-arrow--open" : ""
-          }`}
+          className={`token-management-setting-card__help-section-arrow ${isOpen ? "token-management-setting-card__help-section-arrow--open" : ""
+            }`}
+          title="Click to see instruction"
         >
           ▼
         </span>
@@ -853,6 +879,93 @@ function TokenManagementHelpSection() {
   );
 }
 
+function PersonalSettingsSection() {
+  const [targetLanguage, setTargetLanguage] = useState("EN-US");
+
+  useEffect(() => {
+
+    ChromeStorageSyncHandler.getTargetLanguage()
+      .then((storedTargetLanguage) => {
+        setTargetLanguage(storedTargetLanguage);
+      })
+      .catch((error) => {
+        console.error("YleDualSubExtension: Error loading target language from Chrome storage:", error);
+      });
+  }, []);
+
+  function handleTargetLanguageChange(event) {
+    const newTargetLanguage = event.target.value;
+
+    if (newTargetLanguage === targetLanguage) {
+      return;
+    }
+
+    try {
+      ChromeStorageSyncHandler.setTargetLanguage(newTargetLanguage);
+      setTargetLanguage(newTargetLanguage);
+    } catch (error) {
+      console.error("YleDualSubExtension: Error saving target language to Chrome storage:", error);
+      alert("Failed to save target language. Please try again.");
+      return;
+    }
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <label className="add-token-form__input-label">Target Language for Translation</label>
+        <select
+          value={targetLanguage}
+          onChange={handleTargetLanguageChange}
+          className="add-token-form__input-field"
+          style={{ padding: "12px", cursor: "pointer" }}
+        >
+          <option value="EN-US">English (US)</option>
+          <option value="EN-GB">English (UK)</option>
+          <option value="VI">Vietnamese</option>
+          <option value="DE">German</option>
+        </select>
+        <p style={{ fontSize: "14px", color: "#666", margin: "8px 0 0 0" }}>
+          <strong>Note:</strong> When you change the target language, you'll need to reload the YLE
+          Areena page for the change to take effect.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PersonalSettingsAccordion() {
+  const [accordionOpen, setAccordionOpen] = useState(false);
+
+  return (
+    <div className="setting-card">
+      <div className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}>
+        <button
+          className="setting-card__accordion-header"
+          onClick={() => setAccordionOpen(!accordionOpen)}
+        >
+          <span>Personal Settings</span>
+          <span className="setting-card__accordion-icon">&#9660;</span>
+        </button>
+        <div className="setting-card__accordion-content">
+          <div className="setting-card__accordion-content-inner">
+            <p className="setting-card__title">Customize your subtitle translation preferences.</p>
+
+            <p className="setting-card__description">
+              Choose which language you want Finnish subtitles to be translated to.
+              <br />
+              <br />
+              💡 Supported languages: English (US), English (UK), and Vietnamese
+            </p>
+
+            <PersonalSettingsSection />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TokenManagementAccordion() {
   const [accordionOpen, setAccordionOpen] = useState(false);
 
@@ -900,6 +1013,8 @@ function App() {
         <Header />
 
         <TokenManagementAccordion />
+
+        <PersonalSettingsAccordion />
       </div>
     </>
   );
