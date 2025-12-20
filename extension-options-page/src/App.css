@@ -32,6 +32,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: border-color 0.3s;
+  width: 800px;
 }
 
 .setting-card__accordion:hover {

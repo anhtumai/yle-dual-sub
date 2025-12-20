@@ -436,16 +436,22 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
 
 }
 
-// Export for testing (ES modules)
-export {
-    openDatabase,
-    saveSubtitle,
-    saveSubtitlesBatch,
-    loadSubtitlesByMovieName,
-    clearSubtitlesByMovieName,
-    getMovieMetadata,
-    upsertMovieMetadata,
-    getAllMovieMetadata,
-    deleteMovieMetadata,
-    cleanupOldMovieData
-};
+// Conditional export for testing
+// Check for module.exports first (CommonJS/Node.js environment)
+// @ts-ignore - module may not be defined in browser
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    // Node.js/Jest environment (even with JSDOM)
+    module.exports = {
+        openDatabase,
+        saveSubtitle,
+        saveSubtitlesBatch,
+        loadSubtitlesByMovieName,
+        clearSubtitlesByMovieName,
+        getMovieMetadata,
+        upsertMovieMetadata,
+        getAllMovieMetadata,
+        deleteMovieMetadata,
+        cleanupOldMovieData
+    };
+}
+// In browser extension (content script), functions are automatically global
