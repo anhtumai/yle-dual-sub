@@ -2,6 +2,8 @@
 // SECTION 1: STATE & INITIALIZATION
 // ==================================
 
+/* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
+/* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
 
 /** @type {Map<string, string>}
  * Shared translation map, with key is normalized Finnish text, and value is translated text
@@ -84,7 +86,7 @@ class TranslationQueue {
    * @returns {Promise<void>}
    */
   async processQueue() {
-    if (this.isProcessing || this.queue.length === 0) return;
+    if (this.isProcessing || this.queue.length === 0) {return;}
 
     while (this.queue.length > 0 && dualSubEnabled) {
       this.isProcessing = true;
@@ -117,7 +119,7 @@ class TranslationQueue {
               toCacheSubtitleRecords.push({
                 "movieName": currentMovieName,
                 "originalLanguage": "FI",
-                "targetLanguage": targetLanguage,
+                targetLanguage,
                 "originalText": sharedTranslationMapKey,
                 "translatedText": sharedTranslationMapValue,
               })
@@ -169,7 +171,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
     const response = await chrome.runtime.sendMessage(
       {
         action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts: rawSubtitleFinnishTexts, targetLanguage: targetLanguage }
+        data: { rawSubtitleFinnishTexts, targetLanguage }
       });
     return response;
   } catch (error) {
@@ -329,6 +331,7 @@ function handleSubtitlesWrapperMutation(mutation) {
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations.
 // Set to true when video detection starts, prevents re-triggering for 1.5 seconds.
 // This handles the case where video player construction fires multiple sequential mutations.
+ 
 let checkVideoAppearMutationDebounceFlag = false;
 /**
  * Generic video element detection - detects when any <video> element appears in the DOM
@@ -364,6 +367,7 @@ function isVideoElementAppearMutation(mutation) {
       // Case 2: The added node CONTAINS a video element (initial load scenario)
       if (element.tagName === "VIDEO" || element.querySelector?.('video')) {
         checkVideoAppearMutationDebounceFlag = true;
+        // eslint-disable-next-line no-loop-func
         setTimeout(() => { checkVideoAppearMutationDebounceFlag = false; }, 1500);
         return true;
       }
@@ -563,7 +567,7 @@ async function addDualSubExtensionSection() {
     }
 
     document.addEventListener('keydown', (event) => {
-      if (!videoElement) return;
+      if (!videoElement) {return;}
 
       if (event.key === ',') {
         event.preventDefault();
@@ -692,7 +696,7 @@ if (document.body instanceof Node) {
   });
 }
 
-document.addEventListener("sendTranslationTextEvent", function (e) {
+document.addEventListener("sendTranslationTextEvent", (e) => {
   /**
    * Listening for incoming subtitle texts loaded into video player from injected.js
    * Send raw Finnish text from subtitle to a translation queue
@@ -745,7 +749,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-document.addEventListener("change", function (e) {
+document.addEventListener("change", (e) => {
   /**
    * Listen for user interaction events in YLE Areena page,
    * for example: dual sub switch change event

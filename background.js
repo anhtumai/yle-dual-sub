@@ -1,3 +1,4 @@
+/* global importScripts, loadSelectedTokenFromChromeStorageSync */
 importScripts('utils.js');
 
 /**

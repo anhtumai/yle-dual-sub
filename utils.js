@@ -8,6 +8,7 @@ const DEFAULT_TARGET_LANGUAGE = 'EN-US';
  * Load selected DeepL token from Chrome storage sync
  * @returns {Promise<{key: string, isPro: boolean} | null>} Returns token info or null if not found
  */
+// eslint-disable-next-line no-unused-vars
 async function loadSelectedTokenFromChromeStorageSync() {
   try {
     const result = await chrome.storage.sync.get("tokenInfos");
@@ -41,6 +42,7 @@ async function loadSelectedTokenFromChromeStorageSync() {
  * Load all information
  * @returns {Promise<string>} return target language code (e.g., 'EN-US')
  */
+// eslint-disable-next-line no-unused-vars
 async function loadTargetLanguageFromChromeStorageSync() {
   try {
     const storageSyncInformation = await chrome.storage.sync.get("targetLanguage");

@@ -123,11 +123,11 @@ async function saveSubtitle(db, movieName, targetLanguage, originalText, transla
              * @type {SubtitleRecord}
              */
             const subtitle = {
-                movieName: movieName,
+                movieName,
                 originalLanguage: "FI",
-                targetLanguage: targetLanguage,
-                originalText: originalText,
-                translatedText: translatedText
+                targetLanguage,
+                originalText,
+                translatedText
             };
 
             const DBSaveSubtitlesRequest = objectStore.put(subtitle);
@@ -165,9 +165,10 @@ async function saveSubtitlesBatch(db, subtitles) {
 
             // Handle transaction completion
             transaction.oncomplete = () => {
-                if (!errorOccurred) {
-                    resolve(savedCount);
+                if (errorOccurred) {
+                    reject(new Error("One or more errors occurred during batch subtitle save."));
                 }
+                resolve(savedCount);
             };
 
             transaction.onerror = (_event) => {
@@ -186,10 +187,12 @@ async function saveSubtitlesBatch(db, subtitles) {
             for (const subtitle of subtitles) {
                 const DBSaveRequest = objectStore.put(subtitle);
 
+                // eslint-disable-next-line no-loop-func
                 DBSaveRequest.onsuccess = (_event) => {
                     savedCount++;
                 };
 
+                // eslint-disable-next-line no-loop-func
                 DBSaveRequest.onerror = (_event) => {
                     console.error("YleDualSubExtension: saveSubtitlesBatch: Error saving subtitle:", DBSaveRequest.error);
                     errorOccurred = true;
@@ -308,8 +311,8 @@ async function upsertMovieMetadata(db, movieName, lastAccessedDays) {
             const objectStore = transaction.objectStore(MOVIE_METADATA_OBJECT_STORE);
 
             const metadata = {
-                movieName: movieName,
-                lastAccessedDays: lastAccessedDays
+                movieName,
+                lastAccessedDays
             };
 
             const DBUpsertMovieMetadataRequest = objectStore.put(metadata);
@@ -398,43 +401,39 @@ async function deleteMovieMetadata(db, movieName) {
  * @returns {Promise<number>} Number of movies cleaned up
  */
 async function cleanupOldMovieData(db, maxAgeDays = 30) {
-    try {
-        const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-        const cutoffDays = nowDays - maxAgeDays;
+    const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    const cutoffDays = nowDays - maxAgeDays;
 
-        console.info(`YleDualSubExtension: cleanupOldMovieData: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
+    console.info(`YleDualSubExtension: cleanupOldMovieData: Starting cleanup of movies not accessed since day ${cutoffDays} (${maxAgeDays} days ago)`);
 
-        // Get all movie metadata
-        const allMetadata = await getAllMovieMetadata(db);
+    // Get all movie metadata
+    const allMetadata = await getAllMovieMetadata(db);
 
-        // Filter for old movies
-        const oldMovieMetadatas = allMetadata.filter(metadata =>
-            metadata.lastAccessedDays < cutoffDays
-        );
+    // Filter for old movies
+    const oldMovieMetadatas = allMetadata.filter(metadata =>
+        metadata.lastAccessedDays < cutoffDays
+    );
 
-        console.info(`YleDualSubExtension: cleanupOldMovieData: Found ${oldMovieMetadatas.length} movies to clean up`);
+    console.info(`YleDualSubExtension: cleanupOldMovieData: Found ${oldMovieMetadatas.length} movies to clean up`);
 
-        // Delete each old movie's data
-        let cleanedCount = 0;
-        for (const metadata of oldMovieMetadatas) {
-            try {
-                // Delete all subtitles for this movie
-                await clearSubtitlesByMovieName(db, metadata.movieName);
+    // Delete each old movie's data
+    let cleanedCount = 0;
+    for (const metadata of oldMovieMetadatas) {
+        try {
+            // Delete all subtitles for this movie
+            await clearSubtitlesByMovieName(db, metadata.movieName);
 
-                // Delete the metadata record
-                await deleteMovieMetadata(db, metadata.movieName);
+            // Delete the metadata record
+            await deleteMovieMetadata(db, metadata.movieName);
 
-                cleanedCount++;
-                console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
-            } catch (error) {
-                console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
-            }
+            cleanedCount++;
+            console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
+        } catch (error) {
+            console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
         }
-        return cleanedCount;
-
-    } catch (error) {
-        throw error;
     }
+    return cleanedCount;
+
 }
 
 // Export for testing (ES modules)

@@ -10,8 +10,8 @@ export default defineConfig({
         target: 'https://api-free.deepl.com/v2',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/deepl/, ''),
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, _req, _res) => {
             // Add auth header here or pass it from frontend
           });
         }
