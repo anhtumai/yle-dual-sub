@@ -21,7 +21,7 @@
     "validate": "npm run type-check && npm run lint && npm test",
     "docs:start": "cd landing-page && npm start",
     "docs:build": "cd landing-page && npm run build",
-    "docs:serve": "cd landing-page && npm run serve",
+    "docs:serve": "cd landing-page && npm run serve"
   },
   "jest": {
     "testEnvironment": "jsdom",
