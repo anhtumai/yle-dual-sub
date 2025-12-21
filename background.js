@@ -1,10 +1,6 @@
 /* global importScripts, loadSelectedTokenFromChromeStorageSync */
 importScripts('utils.js');
 
-/**
- * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
- */
-
 // Load selected DeepL key from Chrome storage sync
 /**
  * @type {string}
@@ -178,7 +174,7 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts, targetLa
         return [false, getErrorMessageFromStatus(errorStatusCode)];
       }
     } else {
-      const errorMessage = translationResponse;
+      const errorMessage = String(translationResponse);
       return [false, errorMessage];
     }
   }

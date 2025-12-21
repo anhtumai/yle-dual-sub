@@ -1,7 +1,3 @@
-/**
- * @typedef {import('./types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
- */
-
 const DEFAULT_TARGET_LANGUAGE = 'EN-US';
 
 /**

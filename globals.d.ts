@@ -3,11 +3,37 @@
 // Chrome extension APIs
 /// <reference types="chrome"/>
 
+// Extend EventTarget to be more lenient with properties
+interface EventTarget {
+    id?: string;
+    checked?: boolean;
+    value?: string;
+    result?: any;
+}
+
+// Extend Node to include common DOM properties
+interface Node {
+    dataset?: DOMStringMap;
+    style?: CSSStyleDeclaration;
+    querySelectorAll?: (selector: string) => NodeListOf<Element>;
+}
+
+// Extend Element to include style property
+interface Element {
+    style?: CSSStyleDeclaration;
+}
+
+// Extend HTMLElement to include common form properties
+interface HTMLElement {
+    disabled?: boolean;
+    checked?: boolean;
+}
+
 // Service Worker globals
 declare function importScripts(...urls: string[]): void;
 
 // Utility functions from utils.js
-declare function loadSelectedTokenFromChromeStorageSync(): Promise<string>;
+declare function loadSelectedTokenFromChromeStorageSync(): Promise<{key: string, isPro: boolean} | null>;
 declare function loadTargetLanguageFromChromeStorageSync(): Promise<string>;
 
 // Database functions from database.js
@@ -69,6 +95,10 @@ interface MovieMetadata {
 
 // Types for DeepL
 interface DeepLTokenInfoInStorage {
-    tokenName: string;
-    tokenValue: string;
+    key: string;
+    type: string;
+    characterCount: string;
+    characterLimit: string;
+    lastUsageCheckedAt: string;
+    selected: boolean;
 }

@@ -314,6 +314,7 @@ function handleSubtitlesWrapperMutation(mutation) {
   originalSubtitlesWrapper.style.display = "none";
 
   const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
+    // @ts-ignore - Node is used as HTMLElement at runtime
     originalSubtitlesWrapper
   );
   displayedSubtitlesWrapper.innerHTML = "";
@@ -322,6 +323,7 @@ function handleSubtitlesWrapperMutation(mutation) {
     const finnishTextSpans = mutation.target.querySelectorAll("span");
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
+      // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
       finnishTextSpans,
     )
   }
@@ -525,6 +527,7 @@ async function addDualSubExtensionSection() {
   })
 
   document.addEventListener("click", (e) => {
+    // @ts-ignore - EventTarget is used as Node at runtime
     if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
       warningPopover.classList.remove("active");
     }
@@ -770,6 +773,7 @@ document.addEventListener("change", (e) => {
       }
       originalSubtitlesWrapper.style.display = "none";
       const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
+        // @ts-ignore - Element is used as HTMLElement at runtime
         originalSubtitlesWrapper
       );
       displayedSubtitlesWrapper.innerHTML = "";
@@ -779,6 +783,7 @@ document.addEventListener("change", (e) => {
       if (originalSubtitlesWrapperSpans) {
         addContentToDisplayedSubtitlesWrapper(
           displayedSubtitlesWrapper,
+          // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
           originalSubtitlesWrapperSpans,
         )
       }

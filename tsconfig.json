@@ -4,14 +4,19 @@
     "checkJs": true,
     "noEmit": true,
     "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM"],
+    "module": "None",
+    "lib": ["ES2020", "DOM", "WebWorker"],
     "strict": false,
     "skipLibCheck": true,
     "types": ["chrome"]
   },
   "include": [
-    "*.js"
+    "database.js",
+    "utils.js",
+    "background.js",
+    "types.js",
+    "contentscript.js",
+    "globals.d.ts"
   ],
   "exclude": [
     "node_modules",
