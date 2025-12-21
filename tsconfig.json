@@ -16,7 +16,9 @@
     "background.js",
     "types.js",
     "contentscript.js",
-    "globals.d.ts"
+    "globals.d.ts",
+    "popup.js",
+    "extension-options-page/src/App.jsx"
   ],
   "exclude": [
     "node_modules",
