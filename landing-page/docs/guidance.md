@@ -14,9 +14,11 @@ This page provides step-by-step instructions on how to set up and use the extens
 
    - <img src={require('@site/static/img/add-new-deepl-translation-key.png').default} alt="Add new DeepL translation key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
-5. Open [YLE Areena TV](https://areena.yle.fi/tv) and enjoy.
+5. (Optional) Select your preferred translation language from the dropdown (default is English). You can choose from Vietnamese, Japanese, Spanish, and all other languages supported by DeepL.
 
-6. Remember to turn on subtitle `Tekstitykset.Ohjelmatekstitys` and toggle on `Dual Sub` switch on the bottom bar.
+6. Open [YLE Areena TV](https://areena.yle.fi/tv) and enjoy.
+
+7. Remember to turn on subtitle `Tekstitykset.Ohjelmatekstitys` and toggle on `Dual Sub` switch on the bottom bar.
 
 Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) if you want to see the whole usage flow.
 
@@ -38,7 +40,7 @@ Here's the truth: Free services either use low-quality translation APIs, run at 
 
 **I built this extension differently because I believe you deserve:**
 
-- ✨ **Best-in-class translations** – DeepL is objectively the best for Finnish (especially puhekieli!)
+- ✨ **Best-in-class translations** – DeepL provides high-quality translations to 30+ languages including English, Vietnamese, Japanese, and more
 - 🔒 **Complete privacy** – No data collection, no ads, no tracking
 - ♻️ **Sustainability** – No active maintenance burden on my end
 - 🆓 **Truly free** – DeepL's free tier gives you 500,000 characters/month!
