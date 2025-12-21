@@ -42,27 +42,29 @@ async function openDatabase() {
         // Handle database upgrade (first time or version change)
         DBOpenRequest.onupgradeneeded = (event) => {
             const db = event.target.result;
-            const oldVersion = event.oldVersion;
-            console.info(`YleDualSubExtension: Upgrading database from version ${oldVersion} to 2...`);
+            console.info(`YleDualSubExtension: Database upgrade triggered, ensuring all object stores exist...`);
 
-            // Create metadata store (only for new users, version 0 -> 1/2)
-            if (oldVersion < 1) {
+            // Create movie metadata store if it doesn't exist
+            if (!db.objectStoreNames.contains(MOVIE_METADATA_OBJECT_STORE)) {
+                console.info(`YleDualSubExtension: Creating ${MOVIE_METADATA_OBJECT_STORE} object store...`);
                 db.createObjectStore(MOVIE_METADATA_OBJECT_STORE, {
                     keyPath: 'movieName',
                 });
             }
 
-            // Create new subtitle cache and delete old one (version 1 -> 2)
-            if (oldVersion < 2) {
+            // Create subtitle cache store if it doesn't exist
+            if (!db.objectStoreNames.contains(SUBTITLE_CACHE_OBJECT_STORE)) {
+                console.info(`YleDualSubExtension: Creating ${SUBTITLE_CACHE_OBJECT_STORE} object store...`);
                 const subtitlesObjectStore = db.createObjectStore(SUBTITLE_CACHE_OBJECT_STORE, {
                     keyPath: ['movieName', 'originalLanguage', 'targetLanguage', 'originalText'],
                 });
                 subtitlesObjectStore.createIndex('movieSubtitlesByLanguage', ['movieName', 'originalLanguage', 'targetLanguage'], { unique: false });
+            }
 
-                // Delete old subtitle cache
-                if (db.objectStoreNames.contains(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE)) {
-                    db.deleteObjectStore(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
-                }
+            // Delete deprecated old subtitle cache if it exists
+            if (db.objectStoreNames.contains(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE)) {
+                console.info(`YleDualSubExtension: Deleting deprecated ${DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE} object store...`);
+                db.deleteObjectStore(DEPRECATED_ENGLISH_SUBTITLE_CACHE_OBJECT_STORE);
             }
         };
     })
