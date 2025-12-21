@@ -917,13 +917,19 @@ function PersonalSettingsSection() {
         <select
           value={targetLanguage}
           onChange={handleTargetLanguageChange}
-          className="add-token-form__input-field"
-          style={{ padding: "12px", cursor: "pointer" }}
+          className="language-select-dropdown"
         >
           <option value="EN-US">English (US)</option>
           <option value="EN-GB">English (UK)</option>
           <option value="VI">Vietnamese</option>
           <option value="DE">German</option>
+          <option value="SV">Swedish</option>
+          <option value="ES">Spanish</option>
+          <option value="FR">French</option>
+          <option value="HU">Hungarian</option>
+          <option value="ET">Estonian</option>
+          <option value="UK">Ukrainian</option>
+          <option value="JA">Japanese</option>
         </select>
         <p style={{ fontSize: "14px", color: "#666", margin: "8px 0 0 0" }}>
           <strong>Note:</strong> When you change the target language, you'll need to reload the YLE
@@ -955,7 +961,7 @@ function PersonalSettingsAccordion() {
               Choose which language you want Finnish subtitles to be translated to.
               <br />
               <br />
-              💡 Supported languages: English (US), English (UK), and Vietnamese
+              💡 Supported languages: English (US), English (UK), and Vietnamese and more
             </p>
 
             <PersonalSettingsSection />
