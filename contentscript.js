@@ -295,7 +295,7 @@ function addContentToDisplayedSubtitlesWrapper(
     "Translating...";
   // TODO: Add retry mechanism if Translation is not found
 
-  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, spanClassName);
+  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `translated-text`);
 
   displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
