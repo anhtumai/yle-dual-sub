@@ -178,9 +178,15 @@
 
 .translated-text-span {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
-  font-size: 45px;
+  font-size: 42px;
+  font-weight: 300;
   color: rgb(255, 255, 255);
   color-scheme: dark;
+  text-shadow:
+    -1px -1px 1px #000,
+     1px -1px 1px #000,
+    -1px  1px 1px #000,
+     1px  1px 1px #000;
 
   background-attachment: scroll;
   background-clip: border-box;
