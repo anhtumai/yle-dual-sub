@@ -86,7 +86,7 @@ class TranslationQueue {
    * @returns {Promise<void>}
    */
   async processQueue() {
-    if (this.isProcessing || this.queue.length === 0) {return;}
+    if (this.isProcessing || this.queue.length === 0) { return; }
 
     while (this.queue.length > 0 && dualSubEnabled) {
       this.isProcessing = true;
@@ -295,7 +295,7 @@ function addContentToDisplayedSubtitlesWrapper(
     "Translating...";
   // TODO: Add retry mechanism if Translation is not found
 
-  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `translated-text`);
+  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, "translated-text-span");
 
   displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
@@ -333,7 +333,7 @@ function handleSubtitlesWrapperMutation(mutation) {
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations.
 // Set to true when video detection starts, prevents re-triggering for 1.5 seconds.
 // This handles the case where video player construction fires multiple sequential mutations.
- 
+
 let checkVideoAppearMutationDebounceFlag = false;
 /**
  * Generic video element detection - detects when any <video> element appears in the DOM
@@ -570,7 +570,7 @@ async function addDualSubExtensionSection() {
     }
 
     document.addEventListener('keydown', (event) => {
-      if (!videoElement) {return;}
+      if (!videoElement) { return; }
 
       if (event.key === ',') {
         event.preventDefault();
