@@ -89,3 +89,11 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 🎉 That's it! Your extension is now ready to provide high-quality translations.
 
 📚 Need more help? View the [official DeepL guide](https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API)
+
+### 💡 Pro Tip: Maximizing Your Free Usage
+
+Since DeepL Pro uses a pay-as-you-go model, it's recommended to use multiple DeepL API Free keys first. You can add up to 5 keys to this extension for extended usage before considering the Pro tier!
+
+For example, in 2025, 500,000 characters/month limit in DeepL Free will cost you 15 euro in DeepL Pro subscription.
+
+Read more about DeepL pricing in the [official DeepL developer page](https://www.deepl.com/pro#developer).

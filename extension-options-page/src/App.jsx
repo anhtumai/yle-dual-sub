@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { Trash2, RefreshCw, Check, TriangleAlert } from "lucide-react";
 import "./App.css";
 
-const DEEPL_FREE_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api-free.deepl.com/v2";
-const DEEPL_PRO_ENDPOINT = import.meta.env.DEV ? "/api/deepl" : "https://api.deepl.com/v2";
+const DEEPL_FREE_ENDPOINT = import.meta.env.DEV
+  ? "/api/deepl"
+  : "https://api-free.deepl.com/v2";
+const DEEPL_PRO_ENDPOINT = import.meta.env.DEV
+  ? "/api/deepl"
+  : "https://api.deepl.com/v2";
 const DEFAULT_TARGET_LANGUAGE = "EN-US";
 
 /**
@@ -42,7 +46,10 @@ class DeepLUsageResponse {
     ) {
       throw new Error(errorMessage);
     }
-    if (isNaN(usageResponse.character_count) || isNaN(usageResponse.character_limit)) {
+    if (
+      isNaN(usageResponse.character_count) ||
+      isNaN(usageResponse.character_limit)
+    ) {
       throw new Error(errorMessage);
     }
 
@@ -170,7 +177,10 @@ class ChromeStorageSyncHandler {
     if (!Object.prototype.hasOwnProperty.call(result, "targetLanguage")) {
       return DEFAULT_TARGET_LANGUAGE;
     }
-    if (typeof result.targetLanguage !== "string" || result.targetLanguage.length === 0) {
+    if (
+      typeof result.targetLanguage !== "string" ||
+      result.targetLanguage.length === 0
+    ) {
       return DEFAULT_TARGET_LANGUAGE;
     }
     return result.targetLanguage;
@@ -213,7 +223,10 @@ function validateDeeplApiTokenKey(tokenKey) {
  * Returns a tuple where the first element indicates validity and the second is either usage data, usage error or an error message.
  */
 async function queryTokenUsageInfo(tokenKey, tokenType) {
-  const url = tokenType === "free" ? `${DEEPL_FREE_ENDPOINT}/usage` : `${DEEPL_PRO_ENDPOINT}/usage`;
+  const url =
+    tokenType === "free"
+      ? `${DEEPL_FREE_ENDPOINT}/usage`
+      : `${DEEPL_PRO_ENDPOINT}/usage`;
 
   try {
     const response = await fetch(url, {
@@ -306,20 +319,27 @@ function getProgressBarColorCssClassname(percentage) {
  * @returns
  */
 function TokenInfoCard(props) {
-  const { tokenInfo, handleSelectToken, handleCheckUsage, handleRemoveToken } = props;
-  const usagePercentage = ((tokenInfo.characterCount / tokenInfo.characterLimit) * 100).toFixed(1);
+  const { tokenInfo, handleSelectToken, handleCheckUsage, handleRemoveToken } =
+    props;
+  const usagePercentage = (
+    (tokenInfo.characterCount / tokenInfo.characterLimit) *
+    100
+  ).toFixed(1);
   return (
     <div
       key={tokenInfo.key}
       onClick={() => handleSelectToken(tokenInfo.key)}
-      className={`token-card ${tokenInfo.selected ? "token-card-selected" : ""}`}
+      className={`token-card ${
+        tokenInfo.selected ? "token-card-selected" : ""
+      }`}
     >
       <div className="token-card__content">
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="token-card__header">
             <div
-              className={`token-card__checkbox ${tokenInfo.selected ? "token-card__checkbox-selected" : ""
-                }`}
+              className={`token-card__checkbox ${
+                tokenInfo.selected ? "token-card__checkbox-selected" : ""
+              }`}
             >
               {tokenInfo.selected && <Check size={14} className="check-icon" />}
             </div>
@@ -327,7 +347,9 @@ function TokenInfoCard(props) {
               <h3 className="token-card__token-type">
                 DeepL {capitalizeFirstLetter(tokenInfo.type)}
               </h3>
-              <p className="token-card__token-key">{maskString(tokenInfo.key)}</p>
+              <p className="token-card__token-key">
+                {maskString(tokenInfo.key)}
+              </p>
             </div>
           </div>
 
@@ -335,9 +357,12 @@ function TokenInfoCard(props) {
             <div className="token-card__usage-stats">
               <span className="token-card__usage-text">
                 {formatCharacterUsageNumber(tokenInfo.characterCount)} /{" "}
-                {formatCharacterUsageNumber(tokenInfo.characterLimit)} characters
+                {formatCharacterUsageNumber(tokenInfo.characterLimit)}{" "}
+                characters
               </span>
-              <span className="token-card__usage-percentage">{usagePercentage}%</span>
+              <span className="token-card__usage-percentage">
+                {usagePercentage}%
+              </span>
             </div>
 
             <div className="token-card__progress-bar">
@@ -443,7 +468,9 @@ function TokenInfoCardList(props) {
                   "This translation key has been deactivated. It will be removed from the list."
                 );
                 const wasSelected = tokenInfo.selected;
-                const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
+                const newTokenInfos = tokenInfos.filter(
+                  (tokenInfo) => tokenInfo.key !== tokenKey
+                );
                 if (wasSelected && newTokenInfos.length > 0) {
                   newTokenInfos[0].selected = true;
                   for (let i = 1; i < newTokenInfos.length; i++) {
@@ -481,17 +508,27 @@ function TokenInfoCardList(props) {
    * @return {void}
    */
   function handleRemoveToken(tokenKey) {
-    const removedToken = tokenInfos.find((tokenInfo) => tokenInfo.key === tokenKey);
+    const removedToken = tokenInfos.find(
+      (tokenInfo) => tokenInfo.key === tokenKey
+    );
     const wasSelected = removedToken ? removedToken.selected : false;
 
-    const newTokenInfos = tokenInfos.filter((tokenInfo) => tokenInfo.key !== tokenKey);
+    const newTokenInfos = tokenInfos.filter(
+      (tokenInfo) => tokenInfo.key !== tokenKey
+    );
 
     if (wasSelected && newTokenInfos.length > 0) {
-      const tokenWithMostUsageRemaining = newTokenInfos.reduce((best, current) => {
-        const bestCharacterLeftInUsage = best.characterLimit - best.characterCount;
-        const currentCharacterLeftInUsage = current.characterLimit - current.characterCount;
-        return currentCharacterLeftInUsage > bestCharacterLeftInUsage ? current : best;
-      });
+      const tokenWithMostUsageRemaining = newTokenInfos.reduce(
+        (best, current) => {
+          const bestCharacterLeftInUsage =
+            best.characterLimit - best.characterCount;
+          const currentCharacterLeftInUsage =
+            current.characterLimit - current.characterCount;
+          return currentCharacterLeftInUsage > bestCharacterLeftInUsage
+            ? current
+            : best;
+        }
+      );
       tokenWithMostUsageRemaining.selected = true;
 
       for (const tokenInfo of newTokenInfos) {
@@ -507,7 +544,14 @@ function TokenInfoCardList(props) {
   return (
     <div>
       <p>Here is your list of translation keys:</p>
-      <div style={{ display: "flex", flexDirection: "column", gap: "18px", marginTop: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "18px",
+          marginTop: "20px",
+        }}
+      >
         {tokenInfos.map((tokenInfo) => {
           return (
             <TokenInfoCard
@@ -548,8 +592,8 @@ function AddNewTokenForm(props) {
     if (!validateDeeplApiTokenKey(deepLApiTokenKey)) {
       alert(
         "Please enter a valid DeepL translation key.\n" +
-        "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
-        "Note: DeepL Free keys may have ':fx' suffix."
+          "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
+          "Note: DeepL Free keys may have ':fx' suffix."
       );
       return;
     }
@@ -562,15 +606,13 @@ function AddNewTokenForm(props) {
     if (tokenKeysSet.has(deepLApiTokenKey)) {
       alert(
         "You have already added this translation key.\n" +
-        "If the key is not visible, please refresh the page."
+          "If the key is not visible, please refresh the page."
       );
       return;
     }
 
-    const [validateSuccess, checkTokenUsageResponse] = await queryTokenUsageInfo(
-      deepLApiTokenKey,
-      deepLApiTokenType
-    );
+    const [validateSuccess, checkTokenUsageResponse] =
+      await queryTokenUsageInfo(deepLApiTokenKey, deepLApiTokenType);
     if (!validateSuccess) {
       if (checkTokenUsageResponse instanceof DeepLUsageError) {
         const deepLUsageError = checkTokenUsageResponse;
@@ -606,7 +648,9 @@ function AddNewTokenForm(props) {
   return (
     <form className="add-token-form" onSubmit={handleSubmit}>
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <label className="add-token-form__input-label">New translation key</label>
+        <label className="add-token-form__input-label">
+          New translation key
+        </label>
         <input
           type="text"
           name="apiTokenKey"
@@ -624,7 +668,7 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Free</div>
               <div className="add-token-form__radio-description">
-                500,000 characters/month, perfect for casual use
+                500,000 characters/month, perfect for casual use.
               </div>
             </div>
           </label>
@@ -634,14 +678,22 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Pro</div>
               <div className="add-token-form__radio-description">
-                1000 billions characters/month or more, ideal for enthusiastic learners
+                Unlimited usage, pay-as-you-go model, ideal for a group of heavy
+                users.
+                <br />
+                <strong>⚠️ Warning: This is expensive!</strong> Consider using
+                the free tier instead.
               </div>
             </div>
           </label>
         </div>
       </div>
 
-      <button type="submit" className="add-token-form__button" style={{ margin: "8px 0" }}>
+      <button
+        type="submit"
+        className="add-token-form__button"
+        style={{ margin: "8px 0" }}
+      >
         Add new translation key
       </button>
     </form>
@@ -680,8 +732,14 @@ function TokenManagementSection() {
 
   return (
     <>
-      <TokenInfoCardList tokenInfos={tokenInfos} setTokenInfos={setTokenInfosAndPersist} />
-      <AddNewTokenForm tokenInfos={tokenInfos} setTokenInfos={setTokenInfosAndPersist} />
+      <TokenInfoCardList
+        tokenInfos={tokenInfos}
+        setTokenInfos={setTokenInfosAndPersist}
+      />
+      <AddNewTokenForm
+        tokenInfos={tokenInfos}
+        setTokenInfos={setTokenInfosAndPersist}
+      />
     </>
   );
 }
@@ -695,10 +753,16 @@ function TokenManagementHelpSection() {
         onClick={() => setIsOpen(!isOpen)}
         className="token-management-setting-card__help-section-button"
       >
-        <span>ℹ️ What is a translation key? How do I get one? (Click to too instruction)</span>
+        <span>
+          ℹ️ What is a translation key? How do I get one? (Click to too
+          instruction)
+        </span>
         <span
-          className={`token-management-setting-card__help-section-arrow ${isOpen ? "token-management-setting-card__help-section-arrow--open" : ""
-            }`}
+          className={`token-management-setting-card__help-section-arrow ${
+            isOpen
+              ? "token-management-setting-card__help-section-arrow--open"
+              : ""
+          }`}
           title="Click to see instruction"
         >
           ▼
@@ -708,45 +772,54 @@ function TokenManagementHelpSection() {
         <div className="token-management-setting-card__help-section-content">
           <p className="token-management-setting-card__help-section-paragraph">
             <strong>📖 What is a translation key (API key)?</strong>
-            <br />A translation key is like a password that allows this extension to use DeepL's
-            translation service. It's completely free for basic usage!
+            <br />A translation key is like a password that allows this
+            extension to use DeepL's translation service. It's completely free
+            for basic usage!
             <br />
             <br />
-            ⚠️ <strong>Important:</strong> You'll need a credit card to sign up for DeepL's API, but{" "}
-            <strong>the free tier is 100% free</strong> - you won't be charged unless you manually
-            upgrade to a paid plan.
+            ⚠️ <strong>Important:</strong> You'll need a credit card to sign up
+            for DeepL's API, but <strong>the free tier is 100% free</strong> -
+            you won't be charged unless you manually upgrade to a paid plan.
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
             <strong>🤔 Why do I need to set this up?</strong>
             <br />
             <br />
-            You might wonder: "Other dual-sub extensions like Language Reactor, Trancy, and InterSub
-            work instantly—why not this one?"
+            You might wonder: "Other dual-sub extensions like Language Reactor,
+            Trancy, and InterSub work instantly—why not this one?"
             <br />
             <br />
-            Here's the truth: Free services either use low-quality translation APIs, run at a loss
-            (subsidized by premium users), or monetize your data. 💰
+            Here's the truth: Free services either use low-quality translation
+            APIs, run at a loss (subsidized by premium users), or monetize your
+            data. 💰
             <br />
             <br />
-            <strong>I built this extension differently because I believe you deserve:</strong>
+            <strong>
+              I built this extension differently because I believe you deserve:
+            </strong>
             <br />
-            <br />✨ <strong>Best-in-class translations</strong> – DeepL is objectively the best for
-            Finnish (especially puhekieli!)
+            <br />✨ <strong>Best-in-class translations</strong> – DeepL is
+            objectively the best for Finnish (especially puhekieli!)
             <br />
-            🔒 <strong>Complete privacy</strong> – No data collection, no ads, no tracking
+            🔒 <strong>Complete privacy</strong> – No data collection, no ads,
+            no tracking
             <br />
-            ♻️ <strong>Sustainability</strong> – No active maintenance burden on my end
+            ♻️ <strong>Sustainability</strong> – No active maintenance burden on
+            my end
             <br />
-            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 500,000 characters/month!
+            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 500,000
+            characters/month!
             <br />
             <br />
-            Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without
-            compromise. Worth it? I think so! 😊
+            Yes, it takes 5-10 minutes for one-time setup, but you get premium
+            quality without compromise. Worth it? I think so! 😊
           </p>
 
           <p>
-            <strong>🔑 How to get your free translation key (one-time setup):</strong>
+            <strong>
+              🔑 How to get your free translation key (one-time setup):
+            </strong>
           </p>
 
           <p>
@@ -793,26 +866,31 @@ function TokenManagementHelpSection() {
               >
                 DeepL Developer Page
               </a>
-              , look for <strong>"Find your perfect plan"</strong>, then click the{" "}
-              <strong>"DeepL API"</strong> tab. Select either Free or Pro plan depending on your
-              needs.
+              , look for <strong>"Find your perfect plan"</strong>, then click
+              the <strong>"DeepL API"</strong> tab. Select either Free or Pro
+              plan depending on your needs.
               <br />
               <br />
               <img
                 src="./assets/find_your_perfect_plan.png"
                 alt="Find your perfect plan section"
-                style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
+                style={{
+                  maxWidth: "100%",
+                  borderRadius: "8px",
+                  border: "1px solid #404040",
+                }}
               />
             </li>
 
             <li>
               <strong>Create your free subscription</strong>
               <br />
-              Click <strong>"Sign up for free"</strong> under the DeepL API Free plan (for Pro
-              users, click <strong>"Buy now"</strong>).
+              Click <strong>"Sign up for free"</strong> under the DeepL API Free
+              plan (for Pro users, click <strong>"Buy now"</strong>).
               <br />
               <small>
-                💳 You'll be asked for a credit card, but it won't be charged for the free plan
+                💳 You'll be asked for a credit card, but it won't be charged
+                for the free plan
               </small>
             </li>
 
@@ -828,14 +906,18 @@ function TokenManagementHelpSection() {
               >
                 DeepL Key Page
               </a>
-              . Click the <strong>"Create Key"</strong> button and give it a name (e.g., "YLE
-              Dualsub translation key")
+              . Click the <strong>"Create Key"</strong> button and give it a
+              name (e.g., "YLE Dualsub translation key")
               <br />
               <br />
               <img
                 src="./assets/create_your_key.png"
                 alt="Create your API key"
-                style={{ maxWidth: "100%", borderRadius: "8px", border: "1px solid #404040" }}
+                style={{
+                  maxWidth: "100%",
+                  borderRadius: "8px",
+                  border: "1px solid #404040",
+                }}
               />
             </li>
 
@@ -845,21 +927,26 @@ function TokenManagementHelpSection() {
               Your API key will look like this:
               <br />
               <small className="token-management-setting-card__help-section-small">
-                • Free tier: <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2:fx</code> (ends with :fx)
-                <br />• Pro tier: <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2</code> (no :fx suffix)
+                • Free tier:{" "}
+                <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2:fx</code> (ends with
+                :fx)
+                <br />• Pro tier:{" "}
+                <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2</code> (no :fx
+                suffix)
               </small>
             </li>
 
             <li>
               <strong>Paste it below</strong>
               <br />
-              Copy the entire key and paste it in the form below, select your account type
-              (Free/Pro), and click "Add new translation key"
+              Copy the entire key and paste it in the form below, select your
+              account type (Free/Pro), and click "Add new translation key"
             </li>
           </ol>
 
           <p className="token-management-setting-card__help-section-footer">
-            🎉 That's it! Your extension is now ready to provide high-quality translations.
+            🎉 That's it! Your extension is now ready to provide high-quality
+            translations.
           </p>
 
           <p className="token-management-setting-card__help-section-footer">
@@ -873,6 +960,26 @@ function TokenManagementHelpSection() {
               official DeepL guide
             </a>
           </p>
+
+          <p className="token-management-setting-card__help-section-footer">
+            💡 <strong>Pro tip:</strong> Since DeepL Pro uses a pay-as-you-go
+            model, it's recommended to use multiple DeepL API Free keys first.
+            You can add up to 5 keys to this extension for extended usage before
+            considering the Pro tier!
+            <br />
+            For example, in 2025, 500,000 characters/month limit in DeepL Free will cost
+            you 15 euro in DeepL Pro subscription.
+            <br />
+            Read more about DeepL pricing{" "}
+            <a
+              href="https://www.deepl.com/pro#developer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="token-management-setting-card__help-section-link"
+            >
+              in official DeepL developer page.
+            </a>
+          </p>
         </div>
       )}
     </div>
@@ -883,13 +990,15 @@ function PersonalSettingsSection() {
   const [targetLanguage, setTargetLanguage] = useState("EN-US");
 
   useEffect(() => {
-
     ChromeStorageSyncHandler.getTargetLanguage()
       .then((storedTargetLanguage) => {
         setTargetLanguage(storedTargetLanguage);
       })
       .catch((error) => {
-        console.error("YleDualSubExtension: Error loading target language from Chrome storage:", error);
+        console.error(
+          "YleDualSubExtension: Error loading target language from Chrome storage:",
+          error
+        );
       });
   }, []);
 
@@ -904,7 +1013,10 @@ function PersonalSettingsSection() {
       ChromeStorageSyncHandler.setTargetLanguage(newTargetLanguage);
       setTargetLanguage(newTargetLanguage);
     } catch (error) {
-      console.error("YleDualSubExtension: Error saving target language to Chrome storage:", error);
+      console.error(
+        "YleDualSubExtension: Error saving target language to Chrome storage:",
+        error
+      );
       alert("Failed to save target language. Please try again.");
       return;
     }
@@ -913,7 +1025,9 @@ function PersonalSettingsSection() {
   return (
     <div>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <label className="add-token-form__input-label">Target Language for Translation</label>
+        <label className="add-token-form__input-label">
+          Target Language for Translation
+        </label>
         <select
           value={targetLanguage}
           onChange={handleTargetLanguageChange}
@@ -956,8 +1070,8 @@ function PersonalSettingsSection() {
           <option value="ZH-HANT">Chinese (Traditional)</option>
         </select>
         <p style={{ fontSize: "14px", color: "#666", margin: "8px 0 0 0" }}>
-          <strong>Note:</strong> When you change the target language, you'll need to reload the YLE
-          Areena page for the change to take effect.
+          <strong>Note:</strong> When you change the target language, you'll
+          need to reload the YLE Areena page for the change to take effect.
         </p>
       </div>
     </div>
@@ -969,7 +1083,9 @@ function PersonalSettingsAccordion() {
 
   return (
     <div className="setting-card">
-      <div className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}>
+      <div
+        className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}
+      >
         <button
           className="setting-card__accordion-header"
           onClick={() => setAccordionOpen(!accordionOpen)}
@@ -979,13 +1095,17 @@ function PersonalSettingsAccordion() {
         </button>
         <div className="setting-card__accordion-content">
           <div className="setting-card__accordion-content-inner">
-            <p className="setting-card__title">Customize your subtitle translation preferences.</p>
+            <p className="setting-card__title">
+              Customize your subtitle translation preferences.
+            </p>
 
             <p className="setting-card__description">
-              Choose which language you want Finnish subtitles to be translated to.
+              Choose which language you want Finnish subtitles to be translated
+              to.
               <br />
               <br />
-              💡 Supported languages: English (US), English (UK), and Vietnamese and more
+              💡 Supported languages: English (US), English (UK), and Vietnamese
+              and more
             </p>
 
             <PersonalSettingsSection />
@@ -1001,7 +1121,9 @@ function TokenManagementAccordion() {
 
   return (
     <div className="setting-card">
-      <div className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}>
+      <div
+        className={`setting-card__accordion ${accordionOpen ? "active" : ""}`}
+      >
         <button
           className="setting-card__accordion-header"
           onClick={() => setAccordionOpen(!accordionOpen)}
@@ -1017,7 +1139,11 @@ function TokenManagementAccordion() {
 
             <p className="setting-card__description">
               This extension uses{" "}
-              <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.deepl.com/pro-api"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 DeepL, the best translation service for Finnish
               </a>{" "}
               to translate subtitles.
@@ -1039,7 +1165,14 @@ function TokenManagementAccordion() {
 function App() {
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%", overflowX: "hidden" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          overflowX: "hidden",
+        }}
+      >
         <Header />
 
         <TokenManagementAccordion />
