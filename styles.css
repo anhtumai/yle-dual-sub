@@ -169,34 +169,19 @@
   cursor: pointer;
 }
 
-.dual-sub-extension-section button:hover .dual-sub-extension-section_rewind_tooltip,
-.dual-sub-extension-section button:hover .dual-sub-extension-section_forward_tooltip,
-.dual-sub-extension-section button:hover .dual-sub-extension-section_settings_tooltip {
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_rewind_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_forward_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_settings_tooltip {
   opacity: 1;
   visibility: visible;
 }
 
 .translated-text-span {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
-  font-size: 42px;
-  font-weight: 300;
-  color: rgb(255, 255, 255);
-  color-scheme: dark;
-  text-shadow:
-    -1px -1px 1px #000,
-     1px -1px 1px #000,
-    -1px  1px 1px #000,
-     1px  1px 1px #000;
-
-  background-attachment: scroll;
-  background-clip: border-box;
-  background-color: rgba(0, 0, 0, 0);
-  background-image: none;
-  background-origin: padding-box;
-  background-position-x: 0%;
-  background-position-y: 0%;
-  background-repeat: repeat;
-  background-size: auto;
-
-  box-sizing: border-box;
+  font-size: 46px !important;
 }
