@@ -218,11 +218,15 @@ function copySubtitlesWrapper(className) {
  * 
  * @param {string} text - text content of the span
  * @param {string} className - class name to set for the span
+ * @param {string|null} spanId - id to set for the span
  * @returns {HTMLSpanElement} - created span element to display
  */
-function createSubtitleSpan(text, className) {
+function createSubtitleSpan(text, className, spanId = null) {
   const span = document.createElement("span");
   span.setAttribute("class", className);
+  if (spanId) {
+    span.setAttribute("id", spanId);
+  }
   span.textContent = text;
   return span;
 }
@@ -299,11 +303,12 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span`);
 
-  if (!translatedTextOnlyModeEnabled) {
-    const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
-    displayedSubtitlesWrapper.appendChild(finnishSpan);
-  }
+  const finnishSpan = createSubtitleSpan(finnishText, spanClassName, "original-text-span");
+  displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
+  if (translatedTextOnlyModeEnabled) {
+    finnishSpan.style.display = "none";
+  }
 }
 
 /**
@@ -614,7 +619,11 @@ async function addDualSubExtensionSection() {
 
   if (!dualSubEnabled) {
     const translatedTextOnlyModeSwitch = document.getElementById("translated-text-only-mode-switch");
-    translatedTextOnlyModeSwitch.disabled = true;
+    if (translatedTextOnlyModeSwitch) {
+      translatedTextOnlyModeSwitch.disabled = true;
+    } else {
+      console.error("YleDualSubExtension: Cannot find translated text only mode switch");
+    }
   }
 }
 
@@ -806,7 +815,10 @@ document.addEventListener("change", (e) => {
         console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
 
-      translatedTextOnlyModeSwitch.disabled = false;
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = false;
+      }
     }
     else {
       const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
@@ -819,10 +831,26 @@ document.addEventListener("change", (e) => {
         originalSubtitlesWrapper.style.display = "flex";
       }
 
-      translatedTextOnlyModeSwitch.disabled = true;
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = true;
+        translatedTextOnlyModeSwitch.checked = false;
+        translatedTextOnlyModeEnabled = false;
+      }
     }
   }
+  /**
+   * Listen for translated text only mode switch change event
+   */
   if (e.target.id === "translated-text-only-mode-switch") {
-    translatedTextOnlyModeEnabled = e.target.checked;
+    translatedTextOnlyModeEnabled = Boolean(e.target.checked);
+    const originalTextSpan = document.getElementById("original-text-span");
+    if (originalTextSpan) {
+      if (e.target.checked) {
+        originalTextSpan.style.display = "none";
+      } else {
+        originalTextSpan.style.display = "block";
+      }
+    }
   }
 });
