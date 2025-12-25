@@ -32,6 +32,9 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
 
+// State of Translated Text Only Mode
+let translatedTextOnlyModeEnabled = false;
+
 /**
  * @type {string | null}
  * Memory cached current movie name
@@ -215,11 +218,15 @@ function copySubtitlesWrapper(className) {
  * 
  * @param {string} text - text content of the span
  * @param {string} className - class name to set for the span
+ * @param {string|null} spanId - id to set for the span
  * @returns {HTMLSpanElement} - created span element to display
  */
-function createSubtitleSpan(text, className) {
+function createSubtitleSpan(text, className, spanId = null) {
   const span = document.createElement("span");
   span.setAttribute("class", className);
+  if (spanId) {
+    span.setAttribute("id", spanId);
+  }
   span.textContent = text;
   return span;
 }
@@ -287,7 +294,6 @@ function addContentToDisplayedSubtitlesWrapper(
     return;
   }
 
-  const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = toTranslationKey(finnishText);
   const targetLanguageText =
     sharedTranslationMap.get(translationKey) ||
@@ -297,8 +303,12 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span`);
 
+  const finnishSpan = createSubtitleSpan(finnishText, spanClassName, "original-text-span");
   displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
+  if (translatedTextOnlyModeEnabled) {
+    finnishSpan.style.display = "none";
+  }
 }
 
 /**
@@ -479,6 +489,9 @@ async function addDualSubExtensionSection() {
         </span>
       </span>
 
+      <span style="margin-left: 12px;">${targetLanguage} Only:</span>
+      <input id="translated-text-only-mode-switch" class="translated-text-only-mode-switch" type="checkbox" ${translatedTextOnlyModeEnabled && dualSubEnabled ? 'checked' : ''}>
+
       <button aria-label="Open settings" type="button" id="yle-dual-sub-settings-button" style="margin-left: 16px;">
         <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
           <path fill="currentColor" d="M20.207 9.017l-1.845-.424a7.2 7.2 0 0 0-.663-1.6l1.045-1.536a1 1 0 0 0-.121-1.29l-1.398-1.398a1 1 0 0 0-1.29-.121l-1.536 1.045a7.2 7.2 0 0 0-1.6-.663l-.424-1.845A1 1 0 0 0 11.4.75h-1.978a1 1 0 0 0-.975.435l-.424 1.845a7.2 7.2 0 0 0-1.6.663L4.887 2.648a1 1 0 0 0-1.29.121L2.199 4.167a1 1 0 0 0-.121 1.29l1.045 1.536a7.2 7.2 0 0 0-.663 1.6l-1.845.424A1 1 0 0 0 .18 10v1.978a1 1 0 0 0 .435.975l1.845.424a7.2 7.2 0 0 0 .663 1.6l-1.045 1.536a1 1 0 0 0 .121 1.29l1.398 1.398a1 1 0 0 0 1.29.121l1.536-1.045a7.2 7.2 0 0 0 1.6.663l.424 1.845a1 1 0 0 0 .975.435h1.978a1 1 0 0 0 .975-.435l.424-1.845a7.2 7.2 0 0 0 1.6-.663l1.536 1.045a1 1 0 0 0 1.29-.121l1.398-1.398a1 1 0 0 0 .121-1.29l-1.045-1.536a7.2 7.2 0 0 0 .663-1.6l1.845-.424a1 1 0 0 0 .435-.975V10a1 1 0 0 0-.435-.975v-.008zM11 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
@@ -603,6 +616,15 @@ async function addDualSubExtensionSection() {
     }
   }
   rewindForwardLogicHandle();
+
+  if (!dualSubEnabled) {
+    const translatedTextOnlyModeSwitch = document.getElementById("translated-text-only-mode-switch");
+    if (translatedTextOnlyModeSwitch) {
+      translatedTextOnlyModeSwitch.disabled = true;
+    } else {
+      console.error("YleDualSubExtension: Cannot find translated text only mode switch");
+    }
+  }
 }
 
 /**
@@ -760,6 +782,8 @@ document.addEventListener("change", (e) => {
    */
   if (e.target.id === "dual-sub-switch") {
     dualSubEnabled = e.target.checked;
+
+    const translatedTextOnlyModeSwitch = document.getElementById("translated-text-only-mode-switch");
     if (e.target.checked) {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
@@ -790,6 +814,11 @@ document.addEventListener("change", (e) => {
       translationQueue.processQueue().then(() => { }).catch((error) => {
         console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
+
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = false;
+      }
     }
     else {
       const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
@@ -800,6 +829,27 @@ document.addEventListener("change", (e) => {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (originalSubtitlesWrapper) {
         originalSubtitlesWrapper.style.display = "flex";
+      }
+
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = true;
+        translatedTextOnlyModeSwitch.checked = false;
+        translatedTextOnlyModeEnabled = false;
+      }
+    }
+  }
+  /**
+   * Listen for translated text only mode switch change event
+   */
+  if (e.target.id === "translated-text-only-mode-switch") {
+    translatedTextOnlyModeEnabled = Boolean(e.target.checked);
+    const originalTextSpan = document.getElementById("original-text-span");
+    if (originalTextSpan) {
+      if (e.target.checked) {
+        originalTextSpan.style.display = "none";
+      } else {
+        originalTextSpan.style.display = "block";
       }
     }
   }
