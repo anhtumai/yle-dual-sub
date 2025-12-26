@@ -193,6 +193,32 @@ class ChromeStorageSyncHandler {
   static async setTargetLanguage(targetLanguage) {
     await chrome.storage.sync.set({ targetLanguage: targetLanguage });
   }
+
+  /**
+   * @returns {Promise<boolean>}
+   */
+  static async getTranslatedOnlyModeEnabled() {
+    const result = await chrome.storage.sync.get("translatedOnlyModeEnabled");
+
+    if (typeof result !== "object" || result === null) {
+      return false;
+    }
+    if (!Object.prototype.hasOwnProperty.call(result, "translatedOnlyModeEnabled")) {
+      return false;
+    }
+    if (typeof result.translatedOnlyModeEnabled !== "boolean") {
+      return false;
+    }
+    return result.translatedOnlyModeEnabled;
+  }
+
+  /**
+   * @param {boolean} translatedOnlyModeEnabled
+   * @returns {Promise<void>}
+   */
+  static async setTranslatedOnlyModeEnabled(translatedOnlyModeEnabled) {
+    await chrome.storage.sync.set({ translatedOnlyModeEnabled: translatedOnlyModeEnabled });
+  }
 }
 
 function Header() {
@@ -967,8 +993,8 @@ function TokenManagementHelpSection() {
             You can add up to 5 keys to this extension for extended usage before
             considering the Pro tier!
             <br />
-            For example, in 2025, 500,000 characters/month limit in DeepL Free will cost
-            you 15 euro in DeepL Pro subscription.
+            For example, in 2025, 500,000 characters/month limit in DeepL Free
+            will cost you 15 euro in DeepL Pro subscription.
             <br />
             Read more about DeepL pricing{" "}
             <a
@@ -986,7 +1012,7 @@ function TokenManagementHelpSection() {
   );
 }
 
-function PersonalSettingsSection() {
+function TargetLanguageSettingSection() {
   const [targetLanguage, setTargetLanguage] = useState("EN-US");
 
   useEffect(() => {
@@ -1024,6 +1050,14 @@ function PersonalSettingsSection() {
 
   return (
     <div>
+      <p className="setting-card__description">
+        Choose which language you want Finnish subtitles to be translated to.
+        <br />
+        <br />
+        💡 Supported languages: English (US), English (UK), and Vietnamese and
+        more
+      </p>
+
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         <label className="add-token-form__input-label">
           Target Language for Translation
@@ -1078,6 +1112,63 @@ function PersonalSettingsSection() {
   );
 }
 
+function TranslatedOnlyModeSettingSection() {
+  const [translatedOnlyModeEnabled, setTranslatedOnlyModeEnabled] = useState(false);
+
+  useEffect(() => {
+    ChromeStorageSyncHandler.getTranslatedOnlyModeEnabled()
+      .then((storedValue) => {
+        setTranslatedOnlyModeEnabled(storedValue);
+      })
+      .catch((error) => {
+        console.error(
+          "YleDualSubExtension: Error loading translated only mode setting from Chrome storage:",
+          error
+        );
+      });
+  }, []);
+
+  function handleToggleChange(event) {
+    const newValue = event.target.checked;
+
+    try {
+      ChromeStorageSyncHandler.setTranslatedOnlyModeEnabled(newValue);
+      setTranslatedOnlyModeEnabled(newValue);
+    } catch (error) {
+      console.error(
+        "YleDualSubExtension: Error saving translated only mode setting to Chrome storage:",
+        error
+      );
+      alert("Failed to save setting. Please try again.");
+      return;
+    }
+  }
+
+  return (
+    <div>
+      <p className="setting-card__description">
+        Enable this mode to show only translated subtitles without the original Finnish text.
+      </p>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px" }}>
+        <input
+          type="checkbox"
+          id="translated-only-mode-checkbox"
+          checked={translatedOnlyModeEnabled}
+          onChange={handleToggleChange}
+          style={{ width: "18px", height: "18px", cursor: "pointer" }}
+        />
+        <label
+          htmlFor="translated-only-mode-checkbox"
+          style={{ cursor: "pointer", fontSize: "14px" }}
+        >
+          Show translated text only
+        </label>
+      </div>
+    </div>
+  );
+}
+
 function PersonalSettingsAccordion() {
   const [accordionOpen, setAccordionOpen] = useState(false);
 
@@ -1099,16 +1190,12 @@ function PersonalSettingsAccordion() {
               Customize your subtitle translation preferences.
             </p>
 
-            <p className="setting-card__description">
-              Choose which language you want Finnish subtitles to be translated
-              to.
-              <br />
-              <br />
-              💡 Supported languages: English (US), English (UK), and Vietnamese
-              and more
-            </p>
+            <TargetLanguageSettingSection />
 
-            <PersonalSettingsSection />
+            <div style={{ marginTop: "24px", borderTop: "1px solid #e0e0e0", paddingTop: "24px" }}>
+              <TranslatedOnlyModeSettingSection />
+            </div>
+
           </div>
         </div>
       </div>

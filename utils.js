@@ -35,7 +35,7 @@ async function loadSelectedTokenFromChromeStorageSync() {
 }
 
 /**
- * Load all information
+ * Load target language setting
  * @returns {Promise<string>} return target language code (e.g., 'EN-US')
  */
 // eslint-disable-next-line no-unused-vars
@@ -57,5 +57,32 @@ async function loadTargetLanguageFromChromeStorageSync() {
   } catch (error) {
     console.error('YleDualSubExtension: Error loading application settings (to get target language) from storage:', error);
     return DEFAULT_TARGET_LANGUAGE;
+  }
+}
+
+
+/**
+ * Load translated only mode enabled setting
+ * @returns {Promise<boolean>} return translated only mode enabled status
+ */
+// eslint-disable-next-line no-unused-vars
+async function loadTranslatedOnlyModeEnabledFromChromeStorageSync() {
+  try {
+    const storageSyncInformation = await chrome.storage.sync.get("translatedOnlyModeEnabled");
+    if (!storageSyncInformation || typeof storageSyncInformation !== 'object') {
+      console.info('YleDualSubExtension: No settings found in storage');
+      return false;
+    }
+
+    if (storageSyncInformation.translatedOnlyModeEnabled &&
+      typeof storageSyncInformation.translatedOnlyModeEnabled === 'boolean') {
+      return storageSyncInformation.translatedOnlyModeEnabled;
+    } else {
+      console.info('YleDualSubExtension: No translated only mode setting found in storage, using default');
+    }
+    return false;
+  } catch (error) {
+    console.error('YleDualSubExtension: Error loading application settings (to get translated only mode) from storage:', error);
+    return false;
   }
 }
