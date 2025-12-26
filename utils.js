@@ -68,15 +68,15 @@ async function loadTargetLanguageFromChromeStorageSync() {
 // eslint-disable-next-line no-unused-vars
 async function loadTranslatedOnlyModeEnabledFromChromeStorageSync() {
   try {
-    const storageSyncInformation = await chrome.storage.sync.get("translatedOnlyModeEnable");
+    const storageSyncInformation = await chrome.storage.sync.get("translatedOnlyModeEnabled");
     if (!storageSyncInformation || typeof storageSyncInformation !== 'object') {
       console.info('YleDualSubExtension: No settings found in storage');
       return false;
     }
 
-    if (storageSyncInformation.translatedOnlyModeEnable &&
-      typeof storageSyncInformation.translatedOnlyModeEnable === 'boolean') {
-      return storageSyncInformation.translatedOnlyModeEnable;
+    if (storageSyncInformation.translatedOnlyModeEnabled &&
+      typeof storageSyncInformation.translatedOnlyModeEnabled === 'boolean') {
+      return storageSyncInformation.translatedOnlyModeEnabled;
     } else {
       console.info('YleDualSubExtension: No translated only mode setting found in storage, using default');
     }
