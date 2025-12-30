@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Learn Finnish - Dual Sub for YLE Areena",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Learn Finnish with dual language subtitles on YLE Areena. Support translation to English, Vietnamese, German and others.",
   "icons": {
     "16": "icons/icon.png",

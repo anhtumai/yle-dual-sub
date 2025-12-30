@@ -183,5 +183,5 @@
 }
 
 .translated-text-span {
-  font-size: 46px !important;
+  transform: scale(0.875);
 }
