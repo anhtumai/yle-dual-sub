@@ -2,7 +2,7 @@
 // SECTION 1: STATE & INITIALIZATION
 // ==================================
 
-/* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
+/* global loadTranslatedOnlyModeEnabledFromChromeStorageSync, loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
 
 /** @type {Map<string, string>}
@@ -21,7 +21,7 @@ function toTranslationKey(rawSubtitleFinnishText) {
   return rawSubtitleFinnishText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-// State of target_language (cached from chrome storage sync)
+// Personal setting state: target_language (cached from chrome storage sync)
 let targetLanguage = "EN-US";
 loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   targetLanguage = loadedTargetLanguage;
@@ -29,8 +29,19 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   console.error("YleDualSubExtension: Error loading target language from storage:", error);
 });
 
+// Personal setting state: translated_only_mode_enable (cached from chrome storage sync)
+let translatedOnlyModeEnabled = false;
+loadTranslatedOnlyModeEnabledFromChromeStorageSync().then((loadedTranslatedOnlyModeEnabled) => {
+  translatedOnlyModeEnabled = loadedTranslatedOnlyModeEnabled;
+}).catch((error) => {
+  console.error("YleDualSubExtension: Error loading translated only mode from storage:", error);
+});
+
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
+
+// State of Translated Text Only Switch
+let translatedOnlySwitchState = false;
 
 /**
  * @type {string | null}
@@ -215,11 +226,15 @@ function copySubtitlesWrapper(className) {
  * 
  * @param {string} text - text content of the span
  * @param {string} className - class name to set for the span
+ * @param {string|null} spanId - id to set for the span
  * @returns {HTMLSpanElement} - created span element to display
  */
-function createSubtitleSpan(text, className) {
+function createSubtitleSpan(text, className, spanId = null) {
   const span = document.createElement("span");
   span.setAttribute("class", className);
+  if (spanId) {
+    span.setAttribute("id", spanId);
+  }
   span.textContent = text;
   return span;
 }
@@ -287,7 +302,6 @@ function addContentToDisplayedSubtitlesWrapper(
     return;
   }
 
-  const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = toTranslationKey(finnishText);
   const targetLanguageText =
     sharedTranslationMap.get(translationKey) ||
@@ -297,6 +311,10 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span`);
 
+  const finnishSpan = createSubtitleSpan(finnishText, spanClassName, "original-text-span");
+  if (translatedOnlySwitchState) {
+    finnishSpan.style.display = "none";
+  }
   displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
 }
@@ -479,6 +497,9 @@ async function addDualSubExtensionSection() {
         </span>
       </span>
 
+      ${translatedOnlyModeEnabled ? `<span style="margin-left: 12px;">${targetLanguage} Only:</span>
+      <input id="translated-text-only-mode-switch" class="translated-text-only-mode-switch" type="checkbox" ${translatedOnlySwitchState && dualSubEnabled ? 'checked' : ''}>` : ''}
+
       <button aria-label="Open settings" type="button" id="yle-dual-sub-settings-button" style="margin-left: 16px;">
         <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
           <path fill="currentColor" d="M20.207 9.017l-1.845-.424a7.2 7.2 0 0 0-.663-1.6l1.045-1.536a1 1 0 0 0-.121-1.29l-1.398-1.398a1 1 0 0 0-1.29-.121l-1.536 1.045a7.2 7.2 0 0 0-1.6-.663l-.424-1.845A1 1 0 0 0 11.4.75h-1.978a1 1 0 0 0-.975.435l-.424 1.845a7.2 7.2 0 0 0-1.6.663L4.887 2.648a1 1 0 0 0-1.29.121L2.199 4.167a1 1 0 0 0-.121 1.29l1.045 1.536a7.2 7.2 0 0 0-.663 1.6l-1.845.424A1 1 0 0 0 .18 10v1.978a1 1 0 0 0 .435.975l1.845.424a7.2 7.2 0 0 0 .663 1.6l-1.045 1.536a1 1 0 0 0 .121 1.29l1.398 1.398a1 1 0 0 0 1.29.121l1.536-1.045a7.2 7.2 0 0 0 1.6.663l.424 1.845a1 1 0 0 0 .975.435h1.978a1 1 0 0 0 .975-.435l.424-1.845a7.2 7.2 0 0 0 1.6-.663l1.536 1.045a1 1 0 0 0 1.29-.121l1.398-1.398a1 1 0 0 0 .121-1.29l-1.045-1.536a7.2 7.2 0 0 0 .663-1.6l1.845-.424a1 1 0 0 0 .435-.975V10a1 1 0 0 0-.435-.975v-.008zM11 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
@@ -603,6 +624,15 @@ async function addDualSubExtensionSection() {
     }
   }
   rewindForwardLogicHandle();
+
+  if (!dualSubEnabled && translatedOnlyModeEnabled) {
+    const translatedTextOnlyModeSwitch = document.getElementById("translated-text-only-mode-switch");
+    if (translatedTextOnlyModeSwitch) {
+      translatedTextOnlyModeSwitch.disabled = true;
+    } else {
+      console.error("YleDualSubExtension: Cannot find translated text only mode switch");
+    }
+  }
 }
 
 /**
@@ -742,13 +772,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       const hasSelectedToken = !!selectedTokenInfo;
       _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
     }
-  }
-  if (namespace === 'sync' && changes.targetLanguage) {
-    if (changes.targetLanguage.newValue && typeof changes.targetLanguage.newValue === 'string') {
-      alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
-        `We need to reload the page for the change to work.`);
-      location.reload();
-    }
+  } else if (namespace === 'sync' && (changes.translatedOnlyModeEnabled || changes.targetLanguage)) {
+    alert("Your personal setting has changed. We need to reload the page for the change to take effect.")
+    location.reload();
   }
 });
 
@@ -760,6 +786,8 @@ document.addEventListener("change", (e) => {
    */
   if (e.target.id === "dual-sub-switch") {
     dualSubEnabled = e.target.checked;
+
+    const translatedTextOnlyModeSwitch = document.getElementById("translated-text-only-mode-switch");
     if (e.target.checked) {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
@@ -790,6 +818,11 @@ document.addEventListener("change", (e) => {
       translationQueue.processQueue().then(() => { }).catch((error) => {
         console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
+
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = false;
+      }
     }
     else {
       const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
@@ -800,6 +833,27 @@ document.addEventListener("change", (e) => {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (originalSubtitlesWrapper) {
         originalSubtitlesWrapper.style.display = "flex";
+      }
+
+      // handle translated text only mode switch state
+      if (translatedTextOnlyModeSwitch) {
+        translatedTextOnlyModeSwitch.disabled = true;
+        translatedTextOnlyModeSwitch.checked = false;
+        translatedOnlySwitchState = false;
+      }
+    }
+  }
+  /**
+   * Listen for translated text only mode switch change event
+   */
+  if (e.target.id === "translated-text-only-mode-switch") {
+    translatedOnlySwitchState = Boolean(e.target.checked);
+    const originalTextSpan = document.getElementById("original-text-span");
+    if (originalTextSpan) {
+      if (e.target.checked) {
+        originalTextSpan.style.display = "none";
+      } else {
+        originalTextSpan.style.display = "block";
       }
     }
   }

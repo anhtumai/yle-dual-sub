@@ -35,6 +35,7 @@ declare function importScripts(...urls: string[]): void;
 // Utility functions from utils.js
 declare function loadSelectedTokenFromChromeStorageSync(): Promise<{key: string, isPro: boolean} | null>;
 declare function loadTargetLanguageFromChromeStorageSync(): Promise<string>;
+declare function loadTranslatedOnlyModeEnabledFromChromeStorageSync(): Promise<boolean>;
 
 // Database functions from database.js
 declare function openDatabase(): Promise<IDBDatabase>;
