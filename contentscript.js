@@ -488,22 +488,24 @@ async function addDualSubExtensionSection() {
         </div>
       </button>
 
-      <button aria-label="Rewind 1 second" type="button" id="yle-dual-sub-rewind-button">
-        <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
-          <path fill="currentColor" fill-rule="evenodd" d="M16.377 1.375A10.8 10.8 0 0 0 9.579.107 10.87 10.87 0 0 0 3.75 2.876V1.125a.875.875 0 1 0-1.75 0v4c0 .483.392.875.875.875h4a.875.875 0 1 0 0-1.75H5.213a8.86 8.86 0 0 1 4.649-2.162A8.8 8.8 0 0 1 15.4 3.12a8.96 8.96 0 0 1 3.82 4.197A9.1 9.1 0 0 1 19.778 13a9 9 0 0 1-2.933 4.875 8.85 8.85 0 0 1-5.235 2.111 8.83 8.83 0 0 1-5.439-1.49c-1.655-1.113-3.728-3.014-4.179-6.619a1 1 0 1 0-1.984.248c.55 4.395 3.129 6.74 5.047 8.03a10.83 10.83 0 0 0 6.671 1.828 10.85 10.85 0 0 0 6.419-2.588 11 11 0 0 0 3.584-5.955 11.1 11.1 0 0 0-.68-6.931 10.96 10.96 0 0 0-4.672-5.133M11.85 13.957a.456.456 0 0 1-.457.456h-.672a.456.456 0 0 1-.457-.456v-4.21l-.41.325a.456.456 0 0 1-.64-.074l-.366-.461a.457.457 0 0 1 .083-.649L10.538 7.68a.46.46 0 0 1 .275-.092h.581c.252 0 .457.205.457.457z" clip-rule="evenodd"/>
+      <button aria-label="Rewind 3 seconds" type="button" id="yle-dual-sub-rewind-button">
+        <svg width="27" height="27" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+          <path fill-rule="evenodd" d="M256,0C114.625,0,0,114.625,0,256,0,397.391,114.625,512,256,512S512,397.391,512,256C512,114.625,397.375,0,256,0Zm0,448C149.969,448,64,362.031,64,256S149.969,64,256,64s192,85.969,192,192S362.031,448,256,448Z"></path>
+          <path fill-rule="evenodd" d="M128,256l128,96V280l96,72V160l-96,72V160Z"></path>
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_rewind_tooltip">
-          Rewind 1 second.<br />
-          Tip: Click "," (comma) on keyboard can also rewind 1 second.
+          Rewind 3 seconds.<br />
+          Tip: Click "," (comma) on keyboard can also rewind 3 seconds.
         </div>
       </button>
-      <button aria-label="Forward 1 second" type="button" id="yle-dual-sub-forward-button">
-        <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
-          <path fill="currentColor" fill-rule="evenodd" d="M12.42.107a10.8 10.8 0 0 0-6.797 1.268A10.96 10.96 0 0 0 .95 6.508a11.1 11.1 0 0 0-.679 6.93 11 11 0 0 0 3.585 5.956 10.85 10.85 0 0 0 6.418 2.588 10.83 10.83 0 0 0 6.67-1.828c1.92-1.29 4.499-3.635 5.048-8.03a1 1 0 1 0-1.984-.248c-.45 3.605-2.524 5.506-4.18 6.619a8.83 8.83 0 0 1-5.438 1.49 8.85 8.85 0 0 1-5.235-2.111 9 9 0 0 1-2.933-4.875 9.1 9.1 0 0 1 .557-5.68 8.96 8.96 0 0 1 3.82-4.198 8.8 8.8 0 0 1 5.54-1.033 8.85 8.85 0 0 1 4.649 2.162h-1.663a.875.875 0 1 0 0 1.75h4A.875.875 0 0 0 20 5.125v-4a.875.875 0 0 0-1.75 0v1.751A10.86 10.86 0 0 0 12.42.107M11.85 13.963a.456.456 0 0 1-.456.456h-.672a.456.456 0 0 1-.457-.457V9.754l-.41.325a.457.457 0 0 1-.641-.074l-.365-.462a.457.457 0 0 1 .083-.648l1.606-1.21a.46.46 0 0 1 .275-.091h.581c.252 0 .456.204.456.457z" clip-rule="evenodd"/>
+      <button aria-label="Forward 3 seconds" type="button" id="yle-dual-sub-forward-button">
+        <svg width="27" height="27" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+          <path fill-rule="evenodd" d="M256,0C114.625,0,0,114.609,0,256,0,397.375,114.625,512,256,512S512,397.375,512,256C512,114.609,397.375,0,256,0Zm0,448C149.969,448,64,362.031,64,256S149.969,64,256,64s192,85.969,192,192S362.031,448,256,448Z"></path>
+          <path fill-rule="evenodd" d="M384,256,256,160v72l-96-72V352l96-72v72Z"></path>
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_forward_tooltip">
-          Forward 1 second.<br />
-          Tip: Click "." (dot) on keyboard can also forward 1 second.
+          Forward 3 seconds.<br />
+          Tip: Click "." (dot) on keyboard can also forward 3 seconds.
         </div>
       </button>
 
@@ -562,11 +564,11 @@ async function addDualSubExtensionSection() {
     }
 
     function videoForward() {
-      videoElement.currentTime = videoElement.currentTime + 1;
+      videoElement.currentTime = videoElement.currentTime + 3;
     }
 
     function videoRewind() {
-      videoElement.currentTime = Math.max(0, videoElement.currentTime - 1);
+      videoElement.currentTime = Math.max(0, videoElement.currentTime - 3);
     }
 
     document.addEventListener('keydown', (event) => {
