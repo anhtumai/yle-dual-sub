@@ -17,6 +17,12 @@
       "run_at": "document_end",
       "js": ["database.js", "utils.js", "contentscript.js", "inject.js"],
       "css": ["styles.css"]
+    },
+    {
+      "matches": ["https://*.ruutu.fi/*", "https://ruutu.fi/*"],
+      "run_at": "document_end",
+      "js": ["database.js", "utils.js", "contentscript_ruutu.js", "inject.js"],
+      "css": ["styles.css"]
     }
   ],
   "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
@@ -24,7 +30,7 @@
   "web_accessible_resources": [
     {
       "resources": ["injected.js"],
-      "matches": ["https://areena.yle.fi/*"]
+      "matches": ["https://areena.yle.fi/*", "https://*.ruutu.fi/*", "https://ruutu.fi/*"]
     }
   ],
   "action": {
