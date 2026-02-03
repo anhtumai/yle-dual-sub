@@ -459,7 +459,7 @@ async function addDualSubExtensionSection() {
   }
 
   const dualSubExtensionSection = `
-    <div class="dual-sub-extension-section">
+    <div class="dual-sub-extension-section" style="color: white; margin-left: 16px; display: flex; align-items: center;">
       <span>Dual Sub:</span>
       <input id="dual-sub-switch" class="dual-sub-switch" type="checkbox" ${dualSubEnabled ? 'checked' : ''}>
       <span class="dual-sub-warning" style="display: none;">
@@ -480,8 +480,8 @@ async function addDualSubExtensionSection() {
       </span>
 
       <button aria-label="Open settings" type="button" id="yle-dual-sub-settings-button" style="margin-left: 16px;">
-        <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
-          <path fill="currentColor" d="M20.207 9.017l-1.845-.424a7.2 7.2 0 0 0-.663-1.6l1.045-1.536a1 1 0 0 0-.121-1.29l-1.398-1.398a1 1 0 0 0-1.29-.121l-1.536 1.045a7.2 7.2 0 0 0-1.6-.663l-.424-1.845A1 1 0 0 0 11.4.75h-1.978a1 1 0 0 0-.975.435l-.424 1.845a7.2 7.2 0 0 0-1.6.663L4.887 2.648a1 1 0 0 0-1.29.121L2.199 4.167a1 1 0 0 0-.121 1.29l1.045 1.536a7.2 7.2 0 0 0-.663 1.6l-1.845.424A1 1 0 0 0 .18 10v1.978a1 1 0 0 0 .435.975l1.845.424a7.2 7.2 0 0 0 .663 1.6l-1.045 1.536a1 1 0 0 0 .121 1.29l1.398 1.398a1 1 0 0 0 1.29.121l1.536-1.045a7.2 7.2 0 0 0 1.6.663l.424 1.845a1 1 0 0 0 .975.435h1.978a1 1 0 0 0 .975-.435l.424-1.845a7.2 7.2 0 0 0 1.6-.663l1.536 1.045a1 1 0 0 0 1.29-.121l1.398-1.398a1 1 0 0 0 .121-1.29l-1.045-1.536a7.2 7.2 0 0 0 .663-1.6l1.845-.424a1 1 0 0 0 .435-.975V10a1 1 0 0 0-.435-.975v-.008zM11 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+        <svg width="22" height="22" fill="white" viewBox="0 0 22 22" aria-hidden="true">
+          <path fill="white" d="M20.207 9.017l-1.845-.424a7.2 7.2 0 0 0-.663-1.6l1.045-1.536a1 1 0 0 0-.121-1.29l-1.398-1.398a1 1 0 0 0-1.29-.121l-1.536 1.045a7.2 7.2 0 0 0-1.6-.663l-.424-1.845A1 1 0 0 0 11.4.75h-1.978a1 1 0 0 0-.975.435l-.424 1.845a7.2 7.2 0 0 0-1.6.663L4.887 2.648a1 1 0 0 0-1.29.121L2.199 4.167a1 1 0 0 0-.121 1.29l1.045 1.536a7.2 7.2 0 0 0-.663 1.6l-1.845.424A1 1 0 0 0 .18 10v1.978a1 1 0 0 0 .435.975l1.845.424a7.2 7.2 0 0 0 .663 1.6l-1.045 1.536a1 1 0 0 0 .121 1.29l1.398 1.398a1 1 0 0 0 1.29.121l1.536-1.045a7.2 7.2 0 0 0 1.6.663l.424 1.845a1 1 0 0 0 .975.435h1.978a1 1 0 0 0 .975-.435l.424-1.845a7.2 7.2 0 0 0 1.6-.663l1.536 1.045a1 1 0 0 0 1.29-.121l1.398-1.398a1 1 0 0 0 .121-1.29l-1.045-1.536a7.2 7.2 0 0 0 .663-1.6l1.845-.424a1 1 0 0 0 .435-.975V10a1 1 0 0 0-.435-.975v-.008zM11 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_settings_tooltip" style="top: -72px;">
           Open settings
@@ -489,7 +489,7 @@ async function addDualSubExtensionSection() {
       </button>
 
       <button aria-label="Rewind 3 seconds" type="button" id="yle-dual-sub-rewind-button">
-        <svg width="27" height="27" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+        <svg width="27" height="27" fill="white" viewBox="0 0 512 512" aria-hidden="true">
           <path fill-rule="evenodd" d="M256,0C114.625,0,0,114.625,0,256,0,397.391,114.625,512,256,512S512,397.391,512,256C512,114.625,397.375,0,256,0Zm0,448C149.969,448,64,362.031,64,256S149.969,64,256,64s192,85.969,192,192S362.031,448,256,448Z"></path>
           <path fill-rule="evenodd" d="M128,256l128,96V280l96,72V160l-96,72V160Z"></path>
         </svg>
@@ -499,7 +499,7 @@ async function addDualSubExtensionSection() {
         </div>
       </button>
       <button aria-label="Forward 3 seconds" type="button" id="yle-dual-sub-forward-button">
-        <svg width="27" height="27" fill="currentColor" viewBox="0 0 512 512" aria-hidden="true">
+        <svg width="27" height="27" fill="white" viewBox="0 0 512 512" aria-hidden="true">
           <path fill-rule="evenodd" d="M256,0C114.625,0,0,114.609,0,256,0,397.375,114.625,512,256,512S512,397.375,512,256C512,114.609,397.375,0,256,0Zm0,448C149.969,448,64,362.031,64,256S149.969,64,256,64s192,85.969,192,192S362.031,448,256,448Z"></path>
           <path fill-rule="evenodd" d="M384,256,256,160v72l-96-72V352l96-72v72Z"></path>
         </svg>

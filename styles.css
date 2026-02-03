@@ -6,6 +6,12 @@
   justify-content: flex-start;
 }
 
+.dual-sub-extension-section--with-background {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  color: white;
+}
+
 .dual-sub-extension-section .svg {
   display: block;
   margin: 0 auto;
