@@ -616,7 +616,7 @@ async function getVideoTitle() {
   let titleElement = null;
 
   for (let attempt = 0; attempt < 8; attempt++) {
-    titleElement = document.querySelector('[class*="VideoTitle__Titles"]');
+    titleElement = document.getElementById("r-program-name");
     if (titleElement) {
       break;
     };
