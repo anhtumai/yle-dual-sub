@@ -145,7 +145,8 @@
 
 .dual-sub-extension-section_rewind_tooltip,
 .dual-sub-extension-section_forward_tooltip,
-.dual-sub-extension-section_settings_tooltip {
+.dual-sub-extension-section_settings_tooltip,
+.dual-sub-extension-section_blur_tooltip {
   position: absolute;
   padding: 0 8px;
   background-color: rgba(0, 0, 0, 0.79);
@@ -177,11 +178,23 @@
   .dual-sub-extension-section_forward_tooltip,
 .dual-sub-extension-section
   button:hover
-  .dual-sub-extension-section_settings_tooltip {
+  .dual-sub-extension-section_settings_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_blur_tooltip {
   opacity: 1;
   visibility: visible;
 }
 
 .translated-text-span {
   transform: scale(0.875);
+}
+
+.translation-blurred {
+  filter: blur(16px);
+  transition: filter 0.2s ease;
+}
+
+.translation-blurred:hover {
+  filter: blur(0);
 }
