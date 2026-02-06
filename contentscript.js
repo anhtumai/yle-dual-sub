@@ -32,6 +32,9 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
 
+// State of Blur Mode, to blur translation text until hover
+let translationBlurModeEnabled = false;
+
 /**
  * @type {string | null}
  * Memory cached current movie name
@@ -295,7 +298,8 @@ function addContentToDisplayedSubtitlesWrapper(
     "Translating...";
   // TODO: Add retry mechanism if Translation is not found
 
-  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span`);
+  const blurClass = translationBlurModeEnabled ? ' translation-blurred' : '';
+  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span${blurClass}`);
 
   displayedSubtitlesWrapper.appendChild(finnishSpan);
   displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
@@ -514,7 +518,7 @@ async function addDualSubExtensionSection() {
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_blur_tooltip" style="top: -90px;">
           This option blurs the translation text until you hover over it.<br />
-          This helps you focus on reading Finnish first.
+          This forces you to understand Finnish texts, translation is only for difficult cases.<br />
         </div>
       </button>
 
@@ -614,6 +618,23 @@ async function addDualSubExtensionSection() {
     }
   }
   rewindForwardLogicHandle();
+
+  // Blur button logic
+  const blurButton = document.getElementById('yle-dual-sub-blur-button');
+  if (blurButton) {
+    blurButton.addEventListener('click', () => {
+      translationBlurModeEnabled = !translationBlurModeEnabled;
+      if (translationBlurModeEnabled) {
+        blurButton.style.color = 'rgba(236, 72, 153, 1)';
+      } else {
+        blurButton.style.color = '';
+      }
+      // Toggle blur on all existing translation spans
+      document.querySelectorAll('.translated-text-span').forEach(span => {
+        span.classList.toggle('translation-blurred', translationBlurModeEnabled);
+      });
+    });
+  }
 }
 
 /**
