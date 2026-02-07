@@ -754,8 +754,7 @@ function TokenManagementHelpSection() {
         className="token-management-setting-card__help-section-button"
       >
         <span>
-          ℹ️ What is a translation key? How do I get one? (Click to too
-          instruction)
+          ℹ️ What is a translation key? How do I get one? (Click to see instruction)
         </span>
         <span
           className={`token-management-setting-card__help-section-arrow ${
