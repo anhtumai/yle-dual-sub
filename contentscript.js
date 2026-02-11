@@ -195,20 +195,27 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 
 /**
  * Create another div for displaying translated subtitles,
- * which inherits class name from original subtitles wrapper.
+ * which copies class, role, style, and aria-live from the original element.
  * When the extension is turned on, the original subtitles wrapper will stay hidden
  * while this displayed subtitles wrapper will be shown.
- * 
+ *
  * Because, we need to listen to mutations on original subtitles wrapper,
  * so we want to avoid modifying it directly, which can trigger mutation observer recursively.
- * @param {string} className - class name to set for the new div 
- * @returns {HTMLDivElement} - new subtitles wrapper div to be displayed
+ * @param {HTMLElement} originalElement - the original element to copy attributes from
+ * @returns {HTMLElement} - new subtitles wrapper div to be displayed
  */
-function copySubtitlesWrapper(className) {
-  const displayedSubtitlesWrapper = document.createElement("div");
-  displayedSubtitlesWrapper.setAttribute("aria-live", "polite");
-  displayedSubtitlesWrapper.setAttribute("class", className);
+function copySubtitlesWrapper(originalElement) {
+  const displayedSubtitlesWrapper = document.createElement(originalElement.tagName.toLowerCase());
   displayedSubtitlesWrapper.setAttribute("id", "displayed-subtitles-wrapper");
+  for (const attr of ["class", "role", "aria-live", "tabindex"]) {
+    const value = originalElement.getAttribute(attr);
+    if (value) {
+      displayedSubtitlesWrapper.setAttribute(attr, value);
+    }
+  }
+  if (originalElement.style.cssText) {
+    displayedSubtitlesWrapper.style.cssText = originalElement.style.cssText;
+  }
   return displayedSubtitlesWrapper;
 }
 
@@ -252,7 +259,7 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
   let displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
   if (!displayedSubtitlesWrapper) {
     displayedSubtitlesWrapper = copySubtitlesWrapper(
-      originalSubtitlesWrapper.className,
+      originalSubtitlesWrapper,
     );
     originalSubtitlesWrapper.parentNode.insertBefore(
       displayedSubtitlesWrapper,
