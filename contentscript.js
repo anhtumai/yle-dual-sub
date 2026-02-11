@@ -194,7 +194,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 
 
 /**
- * Create another div for displaying translated subtitles,
+ * Create another element for displaying translated subtitles,
  * which copies class, role, style, and aria-live from the original element.
  * When the extension is turned on, the original subtitles wrapper will stay hidden
  * while this displayed subtitles wrapper will be shown.
@@ -202,10 +202,9 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
  * Because, we need to listen to mutations on original subtitles wrapper,
  * so we want to avoid modifying it directly, which can trigger mutation observer recursively.
  * @param {HTMLElement} originalElement - the original element to copy attributes from
- * @returns {HTMLElement} - new subtitles wrapper div to be displayed
+ * @returns {HTMLElement} - new subtitles wrapper element to be displayed
  */
 function copySubtitlesWrapper(originalElement) {
-  console.log("First debuggin", originalElement.innerHTML);
   const displayedSubtitlesWrapper = document.createElement(originalElement.tagName.toLowerCase());
   displayedSubtitlesWrapper.setAttribute("id", "displayed-subtitles-wrapper");
   for (const attr of ["class", "role", "aria-live", "tabindex"]) {
@@ -276,7 +275,6 @@ function addContentToDisplayedSubtitlesWrapper(
   displayedSubtitlesWrapper,
   originalSubtitleRows,
 ) {
-  console.log("I want to debug the input", displayedSubtitlesWrapper, originalSubtitleRows);
   if (!originalSubtitleRows || originalSubtitleRows.length === 0) {
     return;
   }
@@ -290,8 +288,6 @@ function addContentToDisplayedSubtitlesWrapper(
     .trim();
 
 
-  console.log("Hope this Finnish text is correct", finnishText);
-
   if (!finnishText || finnishText.length === 0) {
     return;
   }
@@ -300,7 +296,6 @@ function addContentToDisplayedSubtitlesWrapper(
     /** @type {HTMLElement} */ (firstOriginalSubtitleRow.cloneNode(false));
   finnishSubtitleRowElement.textContent = finnishText
 
-  // const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = toTranslationKey(finnishText);
   const targetLanguageText =
     sharedTranslationMap.get(translationKey) ||
@@ -332,7 +327,7 @@ function addContentToDisplayedSubtitlesWrapper(
  */
 function handleSubtitlesWrapperMutation(mutation) {
   const originalSubtitlesRowsWrapper = mutation.target;
-  const originalSubtitlesWrapper = originalSubtitlesRowsWrapper.parentNode;
+  const originalSubtitlesWrapper = originalSubtitlesRowsWrapper.parentElement;
   originalSubtitlesWrapper.style.display = "none";
 
   const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
@@ -343,12 +338,10 @@ function handleSubtitlesWrapperMutation(mutation) {
   displayedSubtitlesRowsWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
-    console.log("I want to see this mutation", mutation);
     const finnishSubtitleRowDivs = mutation.target.querySelectorAll('[data-testid="subtitle-row"]');
-    console.log("finnish text spans, no div with subtitle-rows", finnishSubtitleRowDivs);
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
-      // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
+      // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLDivElement> at runtime
       finnishSubtitleRowDivs,
     )
   }
@@ -850,7 +843,7 @@ document.addEventListener("change", (e) => {
       if (originalSubtitleRows) {
         addContentToDisplayedSubtitlesWrapper(
           displayedSubtitlesWrapper,
-          // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
+          // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLDivElement> at runtime
           originalSubtitleRows,
         )
       }
