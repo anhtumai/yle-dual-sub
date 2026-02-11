@@ -205,6 +205,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
  * @returns {HTMLElement} - new subtitles wrapper div to be displayed
  */
 function copySubtitlesWrapper(originalElement) {
+  console.log("First debuggin", originalElement.innerHTML);
   const displayedSubtitlesWrapper = document.createElement(originalElement.tagName.toLowerCase());
   displayedSubtitlesWrapper.setAttribute("id", "displayed-subtitles-wrapper");
   for (const attr of ["class", "role", "aria-live", "tabindex"]) {
@@ -216,6 +217,14 @@ function copySubtitlesWrapper(originalElement) {
   if (originalElement.style.cssText) {
     displayedSubtitlesWrapper.style.cssText = originalElement.style.cssText;
   }
+
+  const subtitleRowWrapper = originalElement.querySelector('[class*="Subtitles__LiveRegion"]');
+
+  const displayedRowsWrapper = subtitleRowWrapper.cloneNode(false);
+
+  displayedRowsWrapper.setAttribute("id", "displayed-subtitles-rows-wrapper");
+  displayedSubtitlesWrapper.appendChild(displayedRowsWrapper);
+
   return displayedSubtitlesWrapper;
 }
 
@@ -328,7 +337,8 @@ function handleSubtitlesWrapperMutation(mutation) {
     // @ts-ignore - Node is used as HTMLElement at runtime
     originalSubtitlesWrapper
   );
-  displayedSubtitlesWrapper.innerHTML = "";
+  const displayedSubtitlesRowsWrapper = displayedSubtitlesWrapper.querySelector("#displayed-subtitles-rows-wrapper");
+  displayedSubtitlesRowsWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
     const finnishTextSpans = mutation.target.querySelectorAll("span");
@@ -828,7 +838,8 @@ document.addEventListener("change", (e) => {
         // @ts-ignore - Element is used as HTMLElement at runtime
         originalSubtitlesWrapper
       );
-      displayedSubtitlesWrapper.innerHTML = "";
+      const displayedSubtitlesRowsWrapper = displayedSubtitlesWrapper.querySelector("#displayed-subtitles-rows-wrapper");
+      displayedSubtitlesRowsWrapper.innerHTML = "";
       displayedSubtitlesWrapper.style.display = "flex";
 
       const originalSubtitlesWrapperSpans = originalSubtitlesWrapper.querySelectorAll('span');
@@ -844,10 +855,10 @@ document.addEventListener("change", (e) => {
       });
     }
     else {
-      const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
-      if (displayedSubtitlesWrapper) {
-        displayedSubtitlesWrapper.innerHTML = "";
-        displayedSubtitlesWrapper.style.display = "none";
+      const displayedSubtitlesRowsWrapper = document.getElementById("displayed-subtitles-rows-wrapper");
+      if (displayedSubtitlesRowsWrapper) {
+        displayedSubtitlesRowsWrapper.innerHTML = "";
+        displayedSubtitlesRowsWrapper.style.display = "none";
       }
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (originalSubtitlesWrapper) {
