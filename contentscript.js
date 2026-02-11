@@ -331,7 +331,8 @@ function addContentToDisplayedSubtitlesWrapper(
  * @returns {void}
  */
 function handleSubtitlesWrapperMutation(mutation) {
-  const originalSubtitlesWrapper = mutation.target;
+  const originalSubtitlesRowsWrapper = mutation.target;
+  const originalSubtitlesWrapper = originalSubtitlesRowsWrapper.parentNode;
   originalSubtitlesWrapper.style.display = "none";
 
   const displayedSubtitlesWrapper = createAndPositionDisplayedSubtitlesWrapper(
