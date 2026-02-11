@@ -229,28 +229,14 @@ function copySubtitlesWrapper(originalElement) {
 }
 
 /**
- *
- * Create a span element for subtitle text. 
- * 
- * @param {string} text - text content of the span
- * @param {string} className - class name to set for the span
- * @returns {HTMLSpanElement} - created span element to display
- */
-function createSubtitleSpan(text, className) {
-  const span = document.createElement("span");
-  span.setAttribute("class", className);
-  span.textContent = text;
-  return span;
-}
-
-/**
  * Check if a mutation is related to subtitles wrapper 
  * @param {MutationRecord} mutation
  * @returns {boolean} - true if the mutation is related to subtitles wrapper
  */
 function isMutationRelatedToSubtitlesWrapper(mutation) {
   try {
-    return (mutation?.target?.dataset["testid"] === "subtitles-wrapper");
+    // @ts-ignore - Node is used as HTMLElement at runtime
+    return mutation.target instanceof HTMLElement && mutation.target.id !== "displayed-subtitles-rows-wrapper" && mutation.target.className.includes("Subtitles__LiveRegion");
   } catch (error) {
     console.warn("YleDualSubExtension: Catch error checking mutation related to subtitles wrapper:", error);
     return false;
@@ -283,30 +269,38 @@ function createAndPositionDisplayedSubtitlesWrapper(originalSubtitlesWrapper) {
  * Add both Finnish and target language subtitles to the displayed subtitles wrapper
  *
  * @param {HTMLElement} displayedSubtitlesWrapper
- * @param {NodeListOf<HTMLSpanElement>} originalSubtitlesWrapperSpans
- * original Finnish Subtitles Wrapper Spans
+ * @param {NodeListOf<HTMLDivElement>} originalSubtitleRows
+ * original Finnish subtitle row divs (data-testid="subtitle-row")
  */
 function addContentToDisplayedSubtitlesWrapper(
   displayedSubtitlesWrapper,
-  originalSubtitlesWrapperSpans,
+  originalSubtitleRows,
 ) {
-  if (!originalSubtitlesWrapperSpans || originalSubtitlesWrapperSpans.length === 0) {
+  console.log("I want to debug the input", displayedSubtitlesWrapper, originalSubtitleRows);
+  if (!originalSubtitleRows || originalSubtitleRows.length === 0) {
     return;
   }
-  const spanClassName = originalSubtitlesWrapperSpans[0].className;
+  const firstOriginalSubtitleRow = originalSubtitleRows[0];
 
-  const finnishText = Array.from(originalSubtitlesWrapperSpans).map(
-    span => span.innerText
+  const finnishText = Array.from(originalSubtitleRows).map(
+    subtitleRow => subtitleRow.innerText
   ).join(" ")
     .replace(/\n/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+
+  console.log("Hope this Finnish text is correct", finnishText);
+
   if (!finnishText || finnishText.length === 0) {
     return;
   }
 
-  const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
+  const finnishSubtitleRowElement =
+    /** @type {HTMLElement} */ (firstOriginalSubtitleRow.cloneNode(false));
+  finnishSubtitleRowElement.textContent = finnishText
+
+  // const finnishSpan = createSubtitleSpan(finnishText, spanClassName);
   const translationKey = toTranslationKey(finnishText);
   const targetLanguageText =
     sharedTranslationMap.get(translationKey) ||
@@ -314,11 +308,18 @@ function addContentToDisplayedSubtitlesWrapper(
     "Translating...";
   // TODO: Add retry mechanism if Translation is not found
 
-  const blurClass = translationBlurModeEnabled ? ' translation-blurred' : '';
-  const targetLanguageSpan = createSubtitleSpan(targetLanguageText, `${spanClassName} translated-text-span${blurClass}`);
+  const targetLanguageRowElement =
+    /** @type {HTMLElement} */ (finnishSubtitleRowElement.cloneNode(false));
+  targetLanguageRowElement.textContent = targetLanguageText;
+  targetLanguageRowElement.classList.add("translated-text-span");
+  if (translationBlurModeEnabled) {
+    targetLanguageRowElement.classList.add("translation-blurred");
+  }
 
-  displayedSubtitlesWrapper.appendChild(finnishSpan);
-  displayedSubtitlesWrapper.appendChild(targetLanguageSpan);
+  const displayedSubtitlesRowsWrapper = displayedSubtitlesWrapper.querySelector("#displayed-subtitles-rows-wrapper");
+
+  displayedSubtitlesRowsWrapper.appendChild(finnishSubtitleRowElement);
+  displayedSubtitlesRowsWrapper.appendChild(targetLanguageRowElement);
 }
 
 /**
@@ -341,11 +342,13 @@ function handleSubtitlesWrapperMutation(mutation) {
   displayedSubtitlesRowsWrapper.innerHTML = "";
 
   if (mutation.addedNodes.length > 0) {
-    const finnishTextSpans = mutation.target.querySelectorAll("span");
+    console.log("I want to see this mutation", mutation);
+    const finnishSubtitleRowDivs = mutation.target.querySelectorAll('[data-testid="subtitle-row"]');
+    console.log("finnish text spans, no div with subtitle-rows", finnishSubtitleRowDivs);
     addContentToDisplayedSubtitlesWrapper(
       displayedSubtitlesWrapper,
       // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
-      finnishTextSpans,
+      finnishSubtitleRowDivs,
     )
   }
 }
@@ -842,12 +845,12 @@ document.addEventListener("change", (e) => {
       displayedSubtitlesRowsWrapper.innerHTML = "";
       displayedSubtitlesWrapper.style.display = "flex";
 
-      const originalSubtitlesWrapperSpans = originalSubtitlesWrapper.querySelectorAll('span');
-      if (originalSubtitlesWrapperSpans) {
+      const originalSubtitleRows = originalSubtitlesWrapper.querySelectorAll('[data-testid="subtitle-row"]');
+      if (originalSubtitleRows) {
         addContentToDisplayedSubtitlesWrapper(
           displayedSubtitlesWrapper,
           // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLSpanElement> at runtime
-          originalSubtitlesWrapperSpans,
+          originalSubtitleRows,
         )
       }
       translationQueue.processQueue().then(() => { }).catch((error) => {
@@ -855,10 +858,11 @@ document.addEventListener("change", (e) => {
       });
     }
     else {
-      const displayedSubtitlesRowsWrapper = document.getElementById("displayed-subtitles-rows-wrapper");
+      const displayedSubtitlesWrapper = document.getElementById("displayed-subtitles-wrapper");
+      const displayedSubtitlesRowsWrapper = displayedSubtitlesWrapper?.querySelector("#displayed-subtitles-rows-wrapper");
       if (displayedSubtitlesRowsWrapper) {
         displayedSubtitlesRowsWrapper.innerHTML = "";
-        displayedSubtitlesRowsWrapper.style.display = "none";
+        displayedSubtitlesWrapper.style.display = "none";
       }
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (originalSubtitlesWrapper) {
