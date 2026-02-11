@@ -219,7 +219,14 @@ function copySubtitlesWrapper(originalElement) {
 
   const subtitleRowWrapper = originalElement.querySelector('[class*="Subtitles__LiveRegion"]');
 
-  const displayedRowsWrapper = subtitleRowWrapper.cloneNode(false);
+  let displayedRowsWrapper;
+  if (subtitleRowWrapper) {
+    displayedRowsWrapper = subtitleRowWrapper.cloneNode(false);
+
+  }
+  else {
+    displayedRowsWrapper = document.createElement("div");
+  }
 
   displayedRowsWrapper.setAttribute("id", "displayed-subtitles-rows-wrapper");
   displayedSubtitlesWrapper.appendChild(displayedRowsWrapper);
@@ -294,7 +301,7 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const finnishSubtitleRowElement =
     /** @type {HTMLElement} */ (firstOriginalSubtitleRow.cloneNode(false));
-  finnishSubtitleRowElement.textContent = finnishText
+  finnishSubtitleRowElement.textContent = finnishText;
 
   const translationKey = toTranslationKey(finnishText);
   const targetLanguageText =
