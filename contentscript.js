@@ -2,6 +2,8 @@
 // SECTION 1: STATE & INITIALIZATION
 // ==================================
 
+const BLUR_BUTTON_COLOR_ACTIVE = 'rgba(236, 72, 153, 1)';
+
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
 
@@ -195,34 +197,28 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 
 /**
  * Create another element for displaying translated subtitles,
- * which copies class, role, style, and aria-live from the original element.
+ * which copies every non-identity attributes from the original element.
  * When the extension is turned on, the original subtitles wrapper will stay hidden
  * while this displayed subtitles wrapper will be shown.
  *
  * Because, we need to listen to mutations on original subtitles wrapper,
  * so we want to avoid modifying it directly, which can trigger mutation observer recursively.
- * @param {HTMLElement} originalElement - the original element to copy attributes from
+ * @param {HTMLElement} originalSubtitlesWrapper - the original element to copy attributes from
  * @returns {HTMLElement} - new subtitles wrapper element to be displayed
  */
-function copySubtitlesWrapper(originalElement) {
-  const displayedSubtitlesWrapper = document.createElement(originalElement.tagName.toLowerCase());
+function copySubtitlesWrapper(originalSubtitlesWrapper) {
+  const displayedSubtitlesWrapper =
+    /** @type {HTMLElement} */ (originalSubtitlesWrapper.cloneNode(false));
+  displayedSubtitlesWrapper.removeAttribute("data-testid");
+  displayedSubtitlesWrapper.removeAttribute("aria-label");
   displayedSubtitlesWrapper.setAttribute("id", "displayed-subtitles-wrapper");
-  for (const attr of ["class", "role", "aria-live", "tabindex"]) {
-    const value = originalElement.getAttribute(attr);
-    if (value) {
-      displayedSubtitlesWrapper.setAttribute(attr, value);
-    }
-  }
-  if (originalElement.style.cssText) {
-    displayedSubtitlesWrapper.style.cssText = originalElement.style.cssText;
-  }
 
-  const subtitleRowWrapper = originalElement.querySelector('[class*="Subtitles__LiveRegion"]');
+  const subtitleRowWrapper = originalSubtitlesWrapper.querySelector('[class*="Subtitles__LiveRegion"]');
 
   let displayedRowsWrapper;
   if (subtitleRowWrapper) {
-    displayedRowsWrapper = subtitleRowWrapper.cloneNode(false);
-
+    displayedRowsWrapper =
+      /** @type {HTMLElement} */ (subtitleRowWrapper.cloneNode(false));
   }
   else {
     displayedRowsWrapper = document.createElement("div");
@@ -313,7 +309,7 @@ function addContentToDisplayedSubtitlesWrapper(
   const targetLanguageRowElement =
     /** @type {HTMLElement} */ (finnishSubtitleRowElement.cloneNode(false));
   targetLanguageRowElement.textContent = targetLanguageText;
-  targetLanguageRowElement.classList.add("translated-text-span");
+  targetLanguageRowElement.classList.add("translated-subtitle-row");
   if (translationBlurModeEnabled) {
     targetLanguageRowElement.classList.add("translation-blurred");
   }
@@ -661,7 +657,7 @@ async function addDualSubExtensionSection() {
   // Blur button logic
   const blurButton = document.getElementById('yle-dual-sub-blur-button');
   if (translationBlurModeEnabled) {
-    blurButton.style.color = 'rgba(236, 72, 153, 1)';
+    blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
   } else {
     blurButton.style.color = '';
   }
@@ -669,12 +665,12 @@ async function addDualSubExtensionSection() {
     blurButton.addEventListener('click', () => {
       translationBlurModeEnabled = !translationBlurModeEnabled;
       if (translationBlurModeEnabled) {
-        blurButton.style.color = 'rgba(236, 72, 153, 1)';
+        blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
       } else {
         blurButton.style.color = '';
       }
       // Toggle blur on all existing translation spans
-      document.querySelectorAll('.translated-text-span').forEach(span => {
+      document.querySelectorAll('.translated-subtitle-row').forEach(span => {
         span.classList.toggle('translation-blurred', translationBlurModeEnabled);
       });
     });
@@ -690,7 +686,7 @@ async function getVideoTitle() {
   let titleElement = null;
 
   for (let attempt = 0; attempt < 8; attempt++) {
-    titleElement = document.querySelector('[class*="VideoTitle__Titles"]');
+    titleElement = document.querySelector('[class*="VideoTitle__Titles-"]');
     if (titleElement) {
       break;
     };
