@@ -341,6 +341,11 @@ function handleSubtitlesWrapperMutation(mutation) {
     // @ts-ignore - Node is used as HTMLElement at runtime
     originalSubtitlesWrapper
   );
+  // This case is hit when users move to the next video, regardless of the state of dualsub switch
+  // displayed subtitles wrapper still exists in DOM, but its display is set to none
+  if (displayedSubtitlesWrapper.style.display === "none") {
+    displayedSubtitlesWrapper.style.display = "flex";
+  }
   const displayedSubtitlesRowsWrapper = displayedSubtitlesWrapper.querySelector("#displayed-subtitles-rows-wrapper");
   displayedSubtitlesRowsWrapper.innerHTML = "";
 
@@ -655,6 +660,11 @@ async function addDualSubExtensionSection() {
 
   // Blur button logic
   const blurButton = document.getElementById('yle-dual-sub-blur-button');
+  if (translationBlurModeEnabled) {
+    blurButton.style.color = 'rgba(236, 72, 153, 1)';
+  } else {
+    blurButton.style.color = '';
+  }
   if (blurButton) {
     blurButton.addEventListener('click', () => {
       translationBlurModeEnabled = !translationBlurModeEnabled;
