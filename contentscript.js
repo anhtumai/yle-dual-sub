@@ -656,12 +656,12 @@ async function addDualSubExtensionSection() {
 
   // Blur button logic
   const blurButton = document.getElementById('yle-dual-sub-blur-button');
-  if (translationBlurModeEnabled) {
-    blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
-  } else {
-    blurButton.style.color = '';
-  }
   if (blurButton) {
+    if (translationBlurModeEnabled) {
+      blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
+    } else {
+      blurButton.style.color = '';
+    }
     blurButton.addEventListener('click', () => {
       translationBlurModeEnabled = !translationBlurModeEnabled;
       if (translationBlurModeEnabled) {
