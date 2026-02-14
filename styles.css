@@ -6,7 +6,7 @@
   justify-content: flex-start;
 }
 
-.dual-sub-extension-section .svg {
+.dual-sub-extension-section svg {
   display: block;
   margin: 0 auto;
   align-self: center; /* Ensure SVG is centered vertically */
@@ -59,7 +59,7 @@
   box-shadow: 0 0 0px 8px rgba(236, 72, 153, 0.15);
 }
 
-.dual-sub-switch:checked:before {
+.dual-sub-switch:checked::before {
   transform: translateX(100%);
   border-color: rgba(236, 72, 153, 1);
 }
@@ -102,7 +102,9 @@
   font-size: 14px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   min-width: 300px;
@@ -138,7 +140,6 @@
 .dual-sub-extension-section button {
   position: relative;
   background: transparent;
-  background-color: transparent;
   border: none;
   cursor: pointer;
 }
@@ -161,13 +162,14 @@
   text-align: left;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 1s, visibility 1s;
-  transition-timing-function: ease;
+  transition:
+    opacity 1s,
+    visibility 1s;
   z-index: 99;
   pointer-events: auto;
   top: -90px;
   left: -48px;
-  transform: matrix(1, 0, 0, 1, 0, 6);
+  transform: translateY(6px);
   cursor: pointer;
 }
 
@@ -201,4 +203,61 @@
 
 .translation-blurred:hover {
   filter: blur(0);
+}
+
+.dual-sub-extension-section_blur_mode_menu_container {
+  position: relative;
+  display: inline-block;
+}
+
+.dual-sub-blur-dropdown {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 100%;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  min-width: 170px;
+  background: rgba(28, 28, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  padding: 4px 0;
+  backdrop-filter: blur(8px);
+}
+
+.dual-sub-blur-dropdown.open {
+  display: block;
+}
+
+.dual-sub-blur-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dual-sub-blur-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dual-sub-blur-mode-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dual-sub-blur-mode-label {
+  display: inline-block;
+  width: 110px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
