@@ -166,9 +166,8 @@
     visibility 1s;
   z-index: 99;
   pointer-events: auto;
-  top: -90px;
+  bottom: calc(100% + 16px);
   left: -48px;
-  transform: translateY(6px);
   cursor: pointer;
 }
 
@@ -181,9 +180,6 @@
 .dual-sub-extension-section
   button:hover
   .dual-sub-extension-section_settings_tooltip,
-.dual-sub-extension-section
-  button:hover
-  .dual-sub-extension-section_blur_tooltip,
 .dual-sub-extension-section
   button:hover
   .dual-sub-extension-section_info_tooltip {

@@ -568,7 +568,7 @@ async function addDualSubExtensionSection() {
         <svg width="22" height="22" fill="none" viewBox="0 0 22 22" aria-hidden="true">
           <path fill="currentColor" d="M20.207 9.017l-1.845-.424a7.2 7.2 0 0 0-.663-1.6l1.045-1.536a1 1 0 0 0-.121-1.29l-1.398-1.398a1 1 0 0 0-1.29-.121l-1.536 1.045a7.2 7.2 0 0 0-1.6-.663l-.424-1.845A1 1 0 0 0 11.4.75h-1.978a1 1 0 0 0-.975.435l-.424 1.845a7.2 7.2 0 0 0-1.6.663L4.887 2.648a1 1 0 0 0-1.29.121L2.199 4.167a1 1 0 0 0-.121 1.29l1.045 1.536a7.2 7.2 0 0 0-.663 1.6l-1.845.424A1 1 0 0 0 .18 10v1.978a1 1 0 0 0 .435.975l1.845.424a7.2 7.2 0 0 0 .663 1.6l-1.045 1.536a1 1 0 0 0 .121 1.29l1.398 1.398a1 1 0 0 0 1.29.121l1.536-1.045a7.2 7.2 0 0 0 1.6.663l.424 1.845a1 1 0 0 0 .975.435h1.978a1 1 0 0 0 .975-.435l.424-1.845a7.2 7.2 0 0 0 1.6-.663l1.536 1.045a1 1 0 0 0 1.29-.121l1.398-1.398a1 1 0 0 0 .121-1.29l-1.045-1.536a7.2 7.2 0 0 0 .663-1.6l1.845-.424a1 1 0 0 0 .435-.975V10a1 1 0 0 0-.435-.975v-.008zM11 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
         </svg>
-        <div aria-hidden="true" class="dual-sub-extension-section_settings_tooltip" style="top: -72px;">
+        <div aria-hidden="true" class="dual-sub-extension-section_settings_tooltip">
           Open settings
         </div>
       </button>
@@ -612,7 +612,7 @@ async function addDualSubExtensionSection() {
         <svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
-        <div aria-hidden="true" class="dual-sub-extension-section_info_tooltip" style="top: -90px; left: -200px;">
+        <div aria-hidden="true" class="dual-sub-extension-section_info_tooltip" style="left: -200px;">
           Do you know:<br />
           We can increase/decrease subtitle size by Ctrl + / Ctrl - <br />
           YLE supports changing subtitle styles from here 
@@ -821,7 +821,7 @@ async function loadMovieCacheAndUpdateMetadata() {
   }
 
   const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
-  if (Array.isArray(subtitleRecords) && subtitleRecords.length >= 0) {
+  if (Array.isArray(subtitleRecords)) {
     console.info(`YleDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
   }
   for (const subtitleRecord of subtitleRecords) {
@@ -950,13 +950,11 @@ document.addEventListener("change", (e) => {
       displayedSubtitlesWrapper.style.display = "flex";
 
       const originalSubtitleRows = originalSubtitlesWrapper.querySelectorAll('[data-testid="subtitle-row"]');
-      if (originalSubtitleRows) {
-        addContentToDisplayedSubtitlesWrapper(
-          displayedSubtitlesWrapper,
-          // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLDivElement> at runtime
-          originalSubtitleRows,
-        )
-      }
+      addContentToDisplayedSubtitlesWrapper(
+        displayedSubtitlesWrapper,
+        // @ts-ignore - NodeListOf<Element> is used as NodeListOf<HTMLDivElement> at runtime
+        originalSubtitleRows,
+      )
       translationQueue.processQueue().then(() => { }).catch((error) => {
         console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
