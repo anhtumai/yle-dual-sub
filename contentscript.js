@@ -332,6 +332,8 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const finnishSubtitleRowElement =
     /** @type {HTMLElement} */ (firstOriginalSubtitleRow.cloneNode(false));
+  finnishSubtitleRowElement.removeAttribute("data-testid");
+  finnishSubtitleRowElement.setAttribute("id", "finnish-subtitle-row");
   finnishSubtitleRowElement.textContent = finnishText;
 
   const translationKey = toTranslationKey(finnishText);
@@ -343,6 +345,9 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const targetLanguageRowElement =
     /** @type {HTMLElement} */ (finnishSubtitleRowElement.cloneNode(false));
+  targetLanguageRowElement.removeAttribute("data-testid");
+  targetLanguageRowElement.setAttribute("id", "target-language-subtitle-row");
+
   targetLanguageRowElement.textContent = targetLanguageText;
   targetLanguageRowElement.classList.add("translated-subtitle-row");
 
@@ -736,15 +741,16 @@ async function addDualSubExtensionSection() {
     blurModeDropdown.classList.remove('open');
     updateBlurModeButtonAppearance();
 
-    document.querySelectorAll('.translated-subtitle-row').forEach(el => {
-      el.classList.toggle('translation-blurred', shouldBlurTranslation());
-    });
 
-    document.querySelectorAll('[data-testid="subtitle-row"]').forEach(el => {
-      if (!el.classList.contains('translated-subtitle-row')) {
-        el.classList.toggle('translation-blurred', shouldBlurFinnish());
-      }
-    })
+    const finnishSubtitleRowElement = document.getElementById("finnish-subtitle-row");
+    const targetLanguageSubtitleRowElement = document.getElementById("target-language-subtitle-row");
+    if (finnishSubtitleRowElement) {
+      finnishSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurFinnish());
+    }
+    if (targetLanguageSubtitleRowElement) {
+      targetLanguageSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurTranslation());
+    }
+
   });
 }
 
