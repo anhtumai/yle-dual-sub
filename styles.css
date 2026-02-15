@@ -206,7 +206,6 @@
 }
 
 .dual-sub-blur-dropdown {
-  display: none;
   position: absolute;
   bottom: 100%;
   left: 100%;
@@ -219,10 +218,19 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   padding: 4px 0;
   backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition:
+    opacity 0.2s,
+    visibility 0.2s,
+    transform 0.2s;
 }
 
 .dual-sub-blur-dropdown.open {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .dual-sub-blur-dropdown button {
