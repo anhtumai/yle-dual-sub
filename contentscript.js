@@ -4,6 +4,16 @@
 
 const BLUR_BUTTON_COLOR_ACTIVE = 'rgba(236, 72, 153, 1)';
 
+// Blur mode SVG icons
+const VISIBILITY_ON_SVG = `<svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+</svg>`;
+
+const VISIBILITY_OFF_SVG = `<svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+</svg>`;
+
+
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
 
@@ -34,8 +44,33 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
 let dualSubEnabled = false;
 
-// State of Blur Mode, to blur translation text until hover
-let translationBlurModeEnabled = false;
+/** @enum {string} */
+const BlurMode = Object.freeze({
+  BLUR_TRANSLATION: "blur-translation",
+  BLUR_FINNISH: "blur-finnish",
+  BLUR_BOTH: "blur-both",
+  NO_BLUR: "no-blur",
+});
+const BLUR_MODE_LABELS = {
+  [BlurMode.BLUR_BOTH]: 'Blur both',
+  [BlurMode.BLUR_TRANSLATION]: 'Blur translation',
+  [BlurMode.BLUR_FINNISH]: 'Blur Finnish',
+  [BlurMode.NO_BLUR]: 'No blur',
+};
+/** @type {BlurMode[keyof BlurMode]} */
+let translationBlurMode = BlurMode.NO_BLUR;
+
+/** @returns {boolean} Whether Finnish subtitle text should be blurred */
+function shouldBlurFinnish() {
+  return translationBlurMode === BlurMode.BLUR_BOTH ||
+    translationBlurMode === BlurMode.BLUR_FINNISH;
+}
+
+/** @returns {boolean} Whether translation subtitle text should be blurred */
+function shouldBlurTranslation() {
+  return translationBlurMode === BlurMode.BLUR_BOTH ||
+    translationBlurMode === BlurMode.BLUR_TRANSLATION;
+}
 
 /**
  * @type {string | null}
@@ -310,7 +345,11 @@ function addContentToDisplayedSubtitlesWrapper(
     /** @type {HTMLElement} */ (finnishSubtitleRowElement.cloneNode(false));
   targetLanguageRowElement.textContent = targetLanguageText;
   targetLanguageRowElement.classList.add("translated-subtitle-row");
-  if (translationBlurModeEnabled) {
+
+  if (shouldBlurFinnish()) {
+    finnishSubtitleRowElement.classList.add("translation-blurred");
+  }
+  if (shouldBlurTranslation()) {
     targetLanguageRowElement.classList.add("translation-blurred");
   }
 
@@ -534,15 +573,21 @@ async function addDualSubExtensionSection() {
           Tip: Click "." (dot) on keyboard can also forward 3 seconds.
         </div>
       </button>
-      <button aria-label="Blur translation" type="button" id="yle-dual-sub-blur-button">
-        <svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-        </svg>
-        <div aria-hidden="true" class="dual-sub-extension-section_blur_tooltip" style="top: -90px;">
-          This option blurs the translation text until you hover over it.<br />
-          This forces you to understand Finnish texts, translation is only for difficult cases.<br />
+      
+      <div class="dual-sub-blur-mode-group">
+        <div class="dual-sub-extension-section_blur_mode_menu_container">
+          <button aria-label="Blur translation" type="button" id="yle-dual-sub-blur-mode-menu-btn"></button>
+          <div class="dual-sub-blur-dropdown" id="yle-dual-sub-blur-mode-dropdown">
+            <button data-blur="${BlurMode.BLUR_BOTH}">${BLUR_MODE_LABELS[BlurMode.BLUR_BOTH]}</button>
+            <button data-blur="${BlurMode.BLUR_TRANSLATION}">${BLUR_MODE_LABELS[BlurMode.BLUR_TRANSLATION]}</button>
+            <button data-blur="${BlurMode.BLUR_FINNISH}">${BLUR_MODE_LABELS[BlurMode.BLUR_FINNISH]}</button>
+            <button data-blur="${BlurMode.NO_BLUR}">${BLUR_MODE_LABELS[BlurMode.NO_BLUR]}</button>
+            <div class="dual-sub-blur-dropdown-hint">Hover blurred text to reveal</div>
+          </div>
         </div>
-      </button>
+        <span id="yle-dual-sub-blur-mode-label" class="dual-sub-blur-mode-label"></span>
+      </div>
+
       <button aria-label="Info" type="button" id="yle-dual-sub-info-button">
         <svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
@@ -654,27 +699,53 @@ async function addDualSubExtensionSection() {
   }
   rewindForwardLogicHandle();
 
-  // Blur button logic
-  const blurButton = document.getElementById('yle-dual-sub-blur-button');
-  if (blurButton) {
-    if (translationBlurModeEnabled) {
-      blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
+  // Blur mode menu logic
+  const blurModeMenuButton = document.getElementById('yle-dual-sub-blur-mode-menu-btn');
+  const blurModeDropdown = document.getElementById('yle-dual-sub-blur-mode-dropdown');
+  const blurModeLabel = document.getElementById('yle-dual-sub-blur-mode-label');
+
+  function updateBlurModeButtonAppearance() {
+    if (translationBlurMode === BlurMode.NO_BLUR) {
+      blurModeMenuButton.innerHTML = VISIBILITY_ON_SVG;
+      blurModeMenuButton.style.color = "";
     } else {
-      blurButton.style.color = '';
+      blurModeMenuButton.innerHTML = VISIBILITY_OFF_SVG;
+      blurModeMenuButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
     }
-    blurButton.addEventListener('click', () => {
-      translationBlurModeEnabled = !translationBlurModeEnabled;
-      if (translationBlurModeEnabled) {
-        blurButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
-      } else {
-        blurButton.style.color = '';
-      }
-      // Toggle blur on all existing translation spans
-      document.querySelectorAll('.translated-subtitle-row').forEach(span => {
-        span.classList.toggle('translation-blurred', translationBlurModeEnabled);
-      });
-    });
+    blurModeLabel.textContent = BLUR_MODE_LABELS[translationBlurMode] || 'Unknown';
   }
+  updateBlurModeButtonAppearance();
+
+  blurModeMenuButton.addEventListener('click', () => {
+    blurModeDropdown.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
+      blurModeDropdown.classList.remove('open');
+    }
+  });
+
+  blurModeDropdown.addEventListener('click', (e) => {
+    const blurModeOptionButton = /** @type {HTMLElement} */ (e.target).closest('button[data-blur]');
+    if (!blurModeOptionButton) { return; }
+
+    translationBlurMode = blurModeOptionButton.dataset.blur;
+
+    blurModeDropdown.classList.remove('open');
+    updateBlurModeButtonAppearance();
+
+    document.querySelectorAll('.translated-subtitle-row').forEach(el => {
+      el.classList.toggle('translation-blurred', shouldBlurTranslation());
+    });
+
+    document.querySelectorAll('[data-testid="subtitle-row"]').forEach(el => {
+      if (!el.classList.contains('translated-subtitle-row')) {
+        el.classList.toggle('translation-blurred', shouldBlurFinnish());
+      }
+    })
+  });
 }
 
 /**
