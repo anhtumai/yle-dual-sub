@@ -39,7 +39,8 @@ Demo video:
 - **Smart Caching** — Translations stored locally for 30 days; rewatching uses zero API calls
 - **Multi-Token Support** — Add up to 2 DeepL API tokens with visual usage tracking
 - **One-Click Toggle** — Enable/disable dual subs directly in the video player
-- **Shadowing Tools** — Rewind/forward 1 second buttons + keyboard shortcuts (`,` and `.` keys) for pronunciation practice
+- **Blur Mode** — Hide Finnish, translation, or both subtitles to test yourself — hover to reveal
+- **Shadowing Tools** — Rewind/forward 3 second buttons + keyboard shortcuts (`,` and `.` keys) for listening and pronunciation practice
 - **Privacy-First** — All data stays in your browser. Zero tracking.
 
 ## Why Setup a DeepL API Key?
