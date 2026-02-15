@@ -106,7 +106,7 @@ class DeepLUsageError {
       case 429:
         return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
       case 456:
-        return "Quota exceeded. You've reached your monthly character limit for this key. Please use a different key or upgrade your DeepL plan.";
+        return "Quota exceeded. You've reached your monthly character limit for this key. Please use a different key or consider upgrading to DeepL Pro at https://www.deepl.com/en/pro/change-plan#api";
       case 500:
         return "Internal server error. DeepL is experiencing technical issues. Please try again later.";
       case 504:
@@ -123,14 +123,6 @@ class DeepLUsageError {
  * @typedef {import('../../types.js').DeepLTokenInfoInStorage} DeepLTokenInfoInStorage
  */
 
-/**
- * Sleep for a specified number of milliseconds.
- * @param {number} ms
- * @returns {Promise<void>}
- */
-async function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 class ChromeStorageSyncHandler {
   /**
@@ -246,9 +238,10 @@ async function queryTokenUsageInfo(tokenKey, tokenType) {
     return [true, deepLUsageResponse];
   } catch (error) {
     const errorMessage = `
-      Parsing usage response failed with ${error}.
-      Probably network error or DeepL has changed response format.
-      Please contact extension developers for this issue.
+      Request failed: ${error}.
+      This could be a network error, or the extension may not have permission to send requests to DeepL.
+      Please go to your browser's Extensions page (chrome://extensions), click on this extension's details, and make sure it has the required site access enabled.
+      If the issue persists, please contact the extension developer.
     `;
     console.error("YleDualSubExtension: " + errorMessage);
     return [false, errorMessage];
@@ -368,7 +361,7 @@ function TokenInfoCard(props) {
             <div className="token-card__progress-bar">
               <div
                 className={`token-card__progress-fill ${getProgressBarColorCssClassname(
-                  usagePercentage
+                  usagePercentage,
                 )}`}
                 style={{ width: `${Math.min(usagePercentage, 100)}%` }}
               ></div>
@@ -397,8 +390,8 @@ function TokenInfoCard(props) {
               if (
                 confirm(
                   `Are you sure you want to remove this translation key: ${maskString(
-                    tokenInfo.key
-                  )}?`
+                    tokenInfo.key,
+                  )}?`,
                 )
               ) {
                 handleRemoveToken(tokenInfo.key);
@@ -457,7 +450,7 @@ function TokenInfoCardList(props) {
         try {
           const [isSucceeded, queryResponse] = await queryTokenUsageInfo(
             tokenInfo.key,
-            tokenInfo.type
+            tokenInfo.type,
           );
 
           if (!isSucceeded) {
@@ -465,11 +458,11 @@ function TokenInfoCardList(props) {
               const deeplUsageError = queryResponse;
               if (deeplUsageError.status === 403) {
                 alert(
-                  "This translation key has been deactivated. It will be removed from the list."
+                  "This translation key has been deactivated. It will be removed from the list.",
                 );
                 const wasSelected = tokenInfo.selected;
                 const newTokenInfos = tokenInfos.filter(
-                  (tokenInfo) => tokenInfo.key !== tokenKey
+                  (tokenInfo) => tokenInfo.key !== tokenKey,
                 );
                 if (wasSelected && newTokenInfos.length > 0) {
                   newTokenInfos[0].selected = true;
@@ -509,12 +502,12 @@ function TokenInfoCardList(props) {
    */
   function handleRemoveToken(tokenKey) {
     const removedToken = tokenInfos.find(
-      (tokenInfo) => tokenInfo.key === tokenKey
+      (tokenInfo) => tokenInfo.key === tokenKey,
     );
     const wasSelected = removedToken ? removedToken.selected : false;
 
     const newTokenInfos = tokenInfos.filter(
-      (tokenInfo) => tokenInfo.key !== tokenKey
+      (tokenInfo) => tokenInfo.key !== tokenKey,
     );
 
     if (wasSelected && newTokenInfos.length > 0) {
@@ -527,7 +520,7 @@ function TokenInfoCardList(props) {
           return currentCharacterLeftInUsage > bestCharacterLeftInUsage
             ? current
             : best;
-        }
+        },
       );
       tokenWithMostUsageRemaining.selected = true;
 
@@ -593,7 +586,7 @@ function AddNewTokenForm(props) {
       alert(
         "Please enter a valid DeepL translation key.\n" +
           "Sample key format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx(:fx).\n" +
-          "Note: DeepL Free keys may have ':fx' suffix."
+          "Note: DeepL Free keys may have ':fx' suffix.",
       );
       return;
     }
@@ -603,10 +596,21 @@ function AddNewTokenForm(props) {
       return;
     }
 
+    if (tokenInfos.length >= 2) {
+      alert(
+        "You've reached the limit of 2 translation keys.\n" +
+          "To add a new one, please remove an existing key first.\n\n" +
+          "Need more capacity? Consider upgrading to DeepL Pro!\n" +
+          "DeepL has built an incredible translation technology, " +
+          "and going Pro is a great way to support them.",
+      );
+      return;
+    }
+
     if (tokenKeysSet.has(deepLApiTokenKey)) {
       alert(
         "You have already added this translation key.\n" +
-          "If the key is not visible, please refresh the page."
+          "If the key is not visible, please refresh the page.",
       );
       return;
     }
@@ -678,11 +682,17 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Pro</div>
               <div className="add-token-form__radio-description">
-                Unlimited usage, pay-as-you-go model, ideal for a group of heavy
-                users.
+                Unlimited usage, pay-as-you-go model. A great way to support
+                DeepL's awesome translation technology!
                 <br />
-                <strong>⚠️ Warning: This is expensive!</strong> Consider using
-                the free tier instead.
+                See pricing details and benefits of going Pro{" "}
+                <a
+                  href="https://www.deepl.com/en/pro/change-plan#api"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  in this link
+                </a>
               </div>
             </div>
           </label>
@@ -714,7 +724,7 @@ function TokenManagementSection() {
       .catch((error) => {
         console.error(
           "YleDualSubExtension: Error when getting all DeepL tokens from Chrome storage:",
-          error
+          error,
         );
       });
   }, []);
@@ -725,13 +735,32 @@ function TokenManagementSection() {
     ChromeStorageSyncHandler.setAllDeepLTokens(newTokenInfos).catch((error) => {
       console.error(
         "YleDualSubExtension: Error when setting all DeepL tokens to Chrome storage:",
-        error
+        error,
       );
     });
   }
 
   return (
     <>
+      {tokenInfos.length > 2 && (
+        <div className="token-limit-warning">
+          <TriangleAlert size={18} />
+          <div>
+            <strong>Key limit exceeded:</strong> You have {tokenInfos.length}{" "}
+            translation keys, but the maximum is now 2. Please remove{" "}
+            {tokenInfos.length - 2} key{tokenInfos.length - 2 > 1 ? "s" : ""} to
+            continue adding new ones. If you need more capacity, consider{" "}
+            <a
+              href="https://www.deepl.com/en/pro/change-plan#api"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              upgrading to DeepL Pro
+            </a>
+            .
+          </div>
+        </div>
+      )}
       <TokenInfoCardList
         tokenInfos={tokenInfos}
         setTokenInfos={setTokenInfosAndPersist}
@@ -754,7 +783,8 @@ function TokenManagementHelpSection() {
         className="token-management-setting-card__help-section-button"
       >
         <span>
-          ℹ️ What is a translation key? How do I get one? (Click to see instruction)
+          ℹ️ What is a translation key? How do I get one? (Click to see
+          instruction)
         </span>
         <span
           className={`token-management-setting-card__help-section-arrow ${
@@ -778,7 +808,7 @@ function TokenManagementHelpSection() {
             <br />
             ⚠️ <strong>Important:</strong> You'll need a credit card to sign up
             for DeepL's API, but <strong>the free tier is 100% free</strong> -
-            you won't be charged unless you manually upgrade to a paid plan.
+            you won't be charged unless you choose to upgrade to a paid plan.
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
@@ -961,23 +991,18 @@ function TokenManagementHelpSection() {
           </p>
 
           <p className="token-management-setting-card__help-section-footer">
-            💡 <strong>Pro tip:</strong> Since DeepL Pro uses a pay-as-you-go
-            model, it's recommended to use multiple DeepL API Free keys first.
-            You can add up to 5 keys to this extension for extended usage before
-            considering the Pro tier!
-            <br />
-            For example, in 2025, 500,000 characters/month limit in DeepL Free will cost
-            you 15 euro in DeepL Pro subscription.
-            <br />
-            Read more about DeepL pricing{" "}
+            💡 <strong>Pro tip:</strong> If you need more than 500,000
+            characters/month, consider upgrading to{" "}
             <a
-              href="https://www.deepl.com/pro#developer"
+              href="https://www.deepl.com/en/pro/change-plan#api"
               target="_blank"
               rel="noopener noreferrer"
               className="token-management-setting-card__help-section-link"
             >
-              in official DeepL developer page.
+              DeepL Pro
             </a>
+            ! It's a great way to support DeepL's awesome translation
+            technology.
           </p>
         </div>
       )}
@@ -996,7 +1021,7 @@ function PersonalSettingsSection() {
       .catch((error) => {
         console.error(
           "YleDualSubExtension: Error loading target language from Chrome storage:",
-          error
+          error,
         );
       });
   }, []);
@@ -1014,7 +1039,7 @@ function PersonalSettingsSection() {
     } catch (error) {
       console.error(
         "YleDualSubExtension: Error saving target language to Chrome storage:",
-        error
+        error,
       );
       alert("Failed to save target language. Please try again.");
       return;
@@ -1151,7 +1176,7 @@ function TokenManagementAccordion() {
               to translate subtitles.
               <br />
               <br />
-              💡 You can add up to 5 translation keys for extended usage!
+              💡 You can add up to 2 translation keys.
             </p>
 
             <TokenManagementHelpSection />

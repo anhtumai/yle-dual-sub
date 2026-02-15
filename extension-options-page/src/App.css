@@ -214,6 +214,39 @@
   font-size: 14px;
 }
 
+.add-token-form__radio-description a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.add-token-form__radio-description a:hover {
+  color: #93bbfd;
+}
+
+/* Token Limit Warning Banner */
+.token-limit-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: 8px;
+  color: #facc15;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.token-limit-warning a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+.token-limit-warning a:hover {
+  color: #93bbfd;
+}
+
 /* Token Cards */
 
 .token-card {

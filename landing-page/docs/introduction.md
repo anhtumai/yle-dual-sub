@@ -37,7 +37,7 @@ Demo video:
 - **Multiple Language Support** — Translate to English, Vietnamese, or any language supported by DeepL
 - **High-Quality Translation** — Powered by DeepL, known for accurate and natural translations
 - **Smart Caching** — Translations stored locally for 30 days; rewatching uses zero API calls
-- **Multi-Token Support** — Add up to 5 DeepL API tokens with visual usage tracking
+- **Multi-Token Support** — Add up to 2 DeepL API tokens with visual usage tracking
 - **One-Click Toggle** — Enable/disable dual subs directly in the video player
 - **Shadowing Tools** — Rewind/forward 1 second buttons + keyboard shortcuts (`,` and `.` keys) for pronunciation practice
 - **Privacy-First** — All data stays in your browser. Zero tracking.
@@ -58,6 +58,8 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 ## Completely Free to Use
 
 YLE Areena is free worldwide. DeepL's free API offers 500,000 characters/month. With smart caching, you can learn Finnish without spending a cent.
+
+If you need more capacity, consider upgrading to [DeepL Pro](https://www.deepl.com/en/pro/change-plan#api) — it's a great way to support DeepL's awesome translation technology.
 
 ## Getting Started
 
