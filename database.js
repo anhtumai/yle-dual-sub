@@ -418,23 +418,20 @@ async function cleanupOldMovieData(db, maxAgeDays = 30) {
 
     console.info(`YleDualSubExtension: cleanupOldMovieData: Found ${oldMovieMetadatas.length} movies to clean up`);
 
-    // Delete each old movie's data
-    let cleanedCount = 0;
-    for (const metadata of oldMovieMetadatas) {
-        try {
-            // Delete all subtitles for this movie
-            await clearSubtitlesByMovieName(db, metadata.movieName);
-
-            // Delete the metadata record
-            await deleteMovieMetadata(db, metadata.movieName);
-
-            cleanedCount++;
-            console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
-        } catch (error) {
-            console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
-        }
-    }
-    return cleanedCount;
+    const results = await Promise.all(
+        oldMovieMetadatas.map(async (metadata) => {
+            try {
+                await clearSubtitlesByMovieName(db, metadata.movieName);
+                await deleteMovieMetadata(db, metadata.movieName);
+                console.info(`YleDualSubExtension: cleanupOldMovieData: Cleaned up movie: ${metadata.movieName}`);
+                return 1;
+            } catch (error) {
+                console.warn(`YleDualSubExtension: cleanupOldMovieData: Failed to clean up movie ${metadata.movieName}:`, error);
+                return 0;
+            }
+        })
+    );
+    return results.reduce((sum, val) => sum + val, 0);
 
 }
 
