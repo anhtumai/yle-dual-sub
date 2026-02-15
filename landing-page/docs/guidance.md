@@ -30,7 +30,7 @@ Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) 
 
 A translation key is like a password that allows this extension to use DeepL's translation service. It's completely free for basic usage!
 
-⚠️ **Important:** You'll need a credit card to sign up for DeepL's API, but **the free tier is 100% free** - you won't be charged unless you manually upgrade to a paid plan.
+⚠️ **Important:** You'll need a credit card to sign up for DeepL's API, but **the free tier is 100% free** - you won't be charged unless you choose to upgrade to a paid plan.
 
 #### 🤔 Why do I need to set this up?
 
@@ -90,10 +90,6 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
 📚 Need more help? View the [official DeepL guide](https://support.deepl.com/hc/en-us/articles/360020695820-API-key-for-DeepL-API)
 
-### 💡 Pro Tip: Maximizing Your Free Usage
+### 💡 Pro Tip: Supporting DeepL
 
-Since DeepL Pro uses a pay-as-you-go model, it's recommended to use multiple DeepL API Free keys first. You can add up to 5 keys to this extension for extended usage before considering the Pro tier!
-
-For example, in 2025, 500,000 characters/month limit in DeepL Free will cost you 15 euro in DeepL Pro subscription.
-
-Read more about DeepL pricing in the [official DeepL developer page](https://www.deepl.com/pro#developer).
+If you need more than 500,000 characters/month, consider upgrading to [DeepL Pro](https://www.deepl.com/en/pro/change-plan#api)! It's a great way to support DeepL's awesome translation technology. You can add up to 2 translation keys to this extension.
