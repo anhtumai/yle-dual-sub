@@ -582,6 +582,7 @@ async function addDualSubExtensionSection() {
             <button data-blur="${BlurMode.BLUR_TRANSLATION}">${BLUR_MODE_LABELS[BlurMode.BLUR_TRANSLATION]}</button>
             <button data-blur="${BlurMode.BLUR_FINNISH}">${BLUR_MODE_LABELS[BlurMode.BLUR_FINNISH]}</button>
             <button data-blur="${BlurMode.NO_BLUR}">${BLUR_MODE_LABELS[BlurMode.NO_BLUR]}</button>
+            <div class="dual-sub-blur-dropdown-hint">Hover blurred text to reveal</div>
           </div>
         </div>
         <span id="yle-dual-sub-blur-mode-label" class="dual-sub-blur-mode-label"></span>

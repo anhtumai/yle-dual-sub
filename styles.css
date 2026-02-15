@@ -217,7 +217,7 @@
   left: 100%;
   margin-bottom: 4px;
   margin-left: 4px;
-  min-width: 170px;
+  min-width: 200px;
   background: rgba(28, 28, 28, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -249,6 +249,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.dual-sub-blur-dropdown-hint {
+  padding: 6px 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
 }
 
 .dual-sub-blur-mode-label {
