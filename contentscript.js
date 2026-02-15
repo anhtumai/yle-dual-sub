@@ -332,6 +332,8 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const finnishSubtitleRowElement =
     /** @type {HTMLElement} */ (firstOriginalSubtitleRow.cloneNode(false));
+  finnishSubtitleRowElement.removeAttribute("data-testid");
+  finnishSubtitleRowElement.setAttribute("id", "finnish-subtitle-row");
   finnishSubtitleRowElement.textContent = finnishText;
 
   const translationKey = toTranslationKey(finnishText);
@@ -343,6 +345,9 @@ function addContentToDisplayedSubtitlesWrapper(
 
   const targetLanguageRowElement =
     /** @type {HTMLElement} */ (finnishSubtitleRowElement.cloneNode(false));
+  targetLanguageRowElement.removeAttribute("data-testid");
+  targetLanguageRowElement.setAttribute("id", "target-language-subtitle-row");
+
   targetLanguageRowElement.textContent = targetLanguageText;
   targetLanguageRowElement.classList.add("translated-subtitle-row");
 
@@ -360,14 +365,14 @@ function addContentToDisplayedSubtitlesWrapper(
 }
 
 /**
- * Handle mutation related to subtitles wrapper
+ * Render dual subtitles when there is mutation on original subtitles wrapper
  * Hide the original subtitles wrapper and create another div for displaying translated subtitles
  * along with original Finnish subtitles.
  * 
  * @param {MutationRecord} mutation
  * @returns {void}
  */
-function handleSubtitlesWrapperMutation(mutation) {
+function renderDualSubtitles(mutation) {
   const originalSubtitlesRowsWrapper = mutation.target;
   const originalSubtitlesWrapper = originalSubtitlesRowsWrapper.parentElement;
   originalSubtitlesWrapper.style.display = "none";
@@ -392,6 +397,21 @@ function handleSubtitlesWrapperMutation(mutation) {
       finnishSubtitleRowDivs,
     )
   }
+}
+
+/**
+ * Apply blur effect to original Finnish subtitle rows when dual sub is off.
+ *
+ * @param {MutationRecord} mutation
+ * @returns {void}
+ */
+function applyBlurToOriginalSubtitles(mutation) {
+  const originalSubtitlesWrapper = mutation.target.parentElement;
+  const originalSubtitleRows = originalSubtitlesWrapper.querySelectorAll('[data-testid="subtitle-row"]');
+  const blurFinnish = shouldBlurFinnish();
+  originalSubtitleRows.forEach(row => {
+    row.classList.toggle('translation-blurred', blurFinnish);
+  });
 }
 
 
@@ -621,13 +641,6 @@ async function addDualSubExtensionSection() {
     warningPopover.classList.toggle("active");
   })
 
-  document.addEventListener("click", (e) => {
-    // @ts-ignore - EventTarget is used as Node at runtime
-    if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
-      warningPopover.classList.remove("active");
-    }
-  })
-
   warningPopover.addEventListener("click", (e) => {
     e.stopPropagation();
   })
@@ -720,13 +733,6 @@ async function addDualSubExtensionSection() {
     blurModeDropdown.classList.toggle('open');
   });
 
-  document.addEventListener('click', (e) => {
-    // @ts-ignore - EventTarget is used as Node at runtime
-    if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
-      blurModeDropdown.classList.remove('open');
-    }
-  });
-
   blurModeDropdown.addEventListener('click', (e) => {
     const blurModeOptionButton = /** @type {HTMLElement} */ (e.target).closest('button[data-blur]');
     if (!blurModeOptionButton) { return; }
@@ -736,15 +742,32 @@ async function addDualSubExtensionSection() {
     blurModeDropdown.classList.remove('open');
     updateBlurModeButtonAppearance();
 
-    document.querySelectorAll('.translated-subtitle-row').forEach(el => {
-      el.classList.toggle('translation-blurred', shouldBlurTranslation());
-    });
-
-    document.querySelectorAll('[data-testid="subtitle-row"]').forEach(el => {
-      if (!el.classList.contains('translated-subtitle-row')) {
-        el.classList.toggle('translation-blurred', shouldBlurFinnish());
+    if (dualSubEnabled) {
+      const finnishSubtitleRowElement = document.getElementById("finnish-subtitle-row");
+      const targetLanguageSubtitleRowElement = document.getElementById("target-language-subtitle-row");
+      if (finnishSubtitleRowElement) {
+        finnishSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurFinnish());
       }
-    })
+      if (targetLanguageSubtitleRowElement) {
+        targetLanguageSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurTranslation());
+      }
+    } else {
+      const originalSubtitleRows = document.querySelectorAll('[data-testid="subtitle-row"]');
+      originalSubtitleRows.forEach(row => {
+        row.classList.toggle('translation-blurred', shouldBlurFinnish());
+      });
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
+      warningPopover.classList.remove("active");
+    }
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
+      blurModeDropdown.classList.remove('open');
+    }
   });
 }
 
@@ -818,9 +841,12 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         if (dualSubEnabled) {
-          handleSubtitlesWrapperMutation(mutation);
-          return;
+          renderDualSubtitles(mutation);
         }
+        else {
+          applyBlurToOriginalSubtitles(mutation);
+        }
+        return;
       }
       if (isVideoElementAppearMutation(mutation)) {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
