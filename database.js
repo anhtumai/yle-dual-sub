@@ -169,8 +169,9 @@ async function saveSubtitlesBatch(db, subtitles) {
             transaction.oncomplete = () => {
                 if (errorOccurred) {
                     reject(new Error("One or more errors occurred during batch subtitle save."));
+                } else {
+                    resolve(savedCount);
                 }
-                resolve(savedCount);
             };
 
             transaction.onerror = (_event) => {
