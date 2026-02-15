@@ -1032,29 +1032,31 @@ function PersonalSettingsSection() {
           onChange={handleTargetLanguageChange}
           className="language-select-dropdown"
         >
-          <option value="EN-US">English (US)</option>
-          <option value="EN-GB">English (UK)</option>
+          <option value="EN-US">English (American)</option>
+          <option value="EN-GB">English (British)</option>
           <option value="VI">Vietnamese</option>
           <option value="AR">Arabic</option>
           <option value="BG">Bulgarian</option>
+          <option value="ZH">Chinese (Simplified)</option>
+          <option value="ZH-HANS">Chinese (Simplified)</option>
+          <option value="ZH-HANT">Chinese (Traditional)</option>
           <option value="CS">Czech</option>
           <option value="DA">Danish</option>
-          <option value="DE">German</option>
-          <option value="EL">Greek</option>
-          <option value="ES">Spanish</option>
-          <option value="ES-419">Spanish (Latin American)</option>
+          <option value="NL">Dutch</option>
           <option value="ET">Estonian</option>
           <option value="FI">Finnish</option>
           <option value="FR">French</option>
+          <option value="DE">German</option>
+          <option value="EL">Greek</option>
+          <option value="HE">Hebrew</option>
           <option value="HU">Hungarian</option>
           <option value="ID">Indonesian</option>
           <option value="IT">Italian</option>
           <option value="JA">Japanese</option>
           <option value="KO">Korean</option>
-          <option value="LT">Lithuanian</option>
           <option value="LV">Latvian</option>
+          <option value="LT">Lithuanian</option>
           <option value="NB">Norwegian (Bokmål)</option>
-          <option value="NL">Dutch</option>
           <option value="PL">Polish</option>
           <option value="PT-BR">Portuguese (Brazilian)</option>
           <option value="PT-PT">Portuguese (European)</option>
@@ -1062,11 +1064,12 @@ function PersonalSettingsSection() {
           <option value="RU">Russian</option>
           <option value="SK">Slovak</option>
           <option value="SL">Slovenian</option>
+          <option value="ES">Spanish</option>
+          <option value="ES-419">Spanish (Latin American)</option>
           <option value="SV">Swedish</option>
+          <option value="TH">Thai</option>
           <option value="TR">Turkish</option>
           <option value="UK">Ukrainian</option>
-          <option value="ZH-HANS">Chinese (Simplified)</option>
-          <option value="ZH-HANT">Chinese (Traditional)</option>
         </select>
         <p style={{ fontSize: "14px", color: "#666", margin: "8px 0 0 0" }}>
           <strong>Note:</strong> When you change the target language, you'll
