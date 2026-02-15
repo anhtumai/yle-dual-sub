@@ -626,13 +626,6 @@ async function addDualSubExtensionSection() {
     warningPopover.classList.toggle("active");
   })
 
-  document.addEventListener("click", (e) => {
-    // @ts-ignore - EventTarget is used as Node at runtime
-    if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
-      warningPopover.classList.remove("active");
-    }
-  })
-
   warningPopover.addEventListener("click", (e) => {
     e.stopPropagation();
   })
@@ -725,12 +718,6 @@ async function addDualSubExtensionSection() {
     blurModeDropdown.classList.toggle('open');
   });
 
-  document.addEventListener('click', (e) => {
-    // @ts-ignore - EventTarget is used as Node at runtime
-    if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
-      blurModeDropdown.classList.remove('open');
-    }
-  });
 
   blurModeDropdown.addEventListener('click', (e) => {
     const blurModeOptionButton = /** @type {HTMLElement} */ (e.target).closest('button[data-blur]');
@@ -751,6 +738,17 @@ async function addDualSubExtensionSection() {
       targetLanguageSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurTranslation());
     }
 
+  });
+
+  document.addEventListener('click', (e) => {
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
+      warningPopover.classList.remove("active");
+    }
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
+      blurModeDropdown.classList.remove('open');
+    }
   });
 }
 
