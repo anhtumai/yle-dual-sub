@@ -25,6 +25,20 @@ const COPY_BUTTON_HTML = `
   </button>
 `;
 
+// Reload translation button HTML template for subtitle rows
+const RELOAD_TRANSLATION_BUTTON_HTML = `
+  <span class="subtitle-button-separator"></span>
+  <button type="button" aria-label="Reload translation" class="subtitle-reload-button">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    </svg>
+  </button>
+`;
+
+
 
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
@@ -379,6 +393,14 @@ function addContentToDisplayedSubtitlesWrapper(
   copyFinnishButton.addEventListener("click", (e) => {
     e.stopPropagation();
     navigator.clipboard.writeText(finnishText);
+  });
+
+  targetLanguageRowElement.insertAdjacentHTML("beforeend", RELOAD_TRANSLATION_BUTTON_HTML);
+
+  const reloadTranslationButton = targetLanguageRowElement.querySelector(".subtitle-reload-button");
+  reloadTranslationButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // TODO: Implement translation reload logic
   });
 
   displayedSubtitlesRowsWrapper.appendChild(finnishSubtitleRowElement);

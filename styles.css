@@ -302,3 +302,25 @@
 .subtitle-copy-button:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+
+.subtitle-reload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 9999;
+  vertical-align: middle;
+  transition: background 0.15s;
+}
+
+.subtitle-reload-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
