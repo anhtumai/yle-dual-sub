@@ -375,7 +375,13 @@ function addContentToDisplayedSubtitlesWrapper(
   targetLanguageRowElement.removeAttribute("data-testid");
   targetLanguageRowElement.setAttribute("id", "target-language-subtitle-row");
 
-  targetLanguageRowElement.textContent = targetLanguageText;
+  // Set the translated text content in a separate span so that retry button can modify the text content
+  // without affecting the button element and causing layout shift.
+  const targetLanguageTextSpan = document.createElement("span");
+  targetLanguageTextSpan.setAttribute("id", "target-language-text-span");
+  targetLanguageTextSpan.textContent = targetLanguageText;
+  targetLanguageRowElement.appendChild(targetLanguageTextSpan);
+
   targetLanguageRowElement.classList.add("translated-subtitle-row");
 
   if (shouldBlurFinnish()) {
@@ -398,9 +404,23 @@ function addContentToDisplayedSubtitlesWrapper(
   targetLanguageRowElement.insertAdjacentHTML("beforeend", RELOAD_TRANSLATION_BUTTON_HTML);
 
   const reloadTranslationButton = targetLanguageRowElement.querySelector(".subtitle-reload-button");
-  reloadTranslationButton.addEventListener("click", (e) => {
+  reloadTranslationButton.addEventListener("click", async (e) => {
     e.stopPropagation();
-    // TODO: Implement translation reload logic
+    const originalTranslatedText = targetLanguageTextSpan.textContent;
+    targetLanguageTextSpan.textContent = "Translating...";
+
+    const [isSucceeded, translationResponse] = await fetchTranslation([finnishText]);
+    console.log("Finnish text", finnishText);
+    if (isSucceeded) {
+      console.log("Succeeded");
+      console.log("Translation response", translationResponse);
+      const translatedText = translationResponse[0].trim().replace(/\n/g, ' ');
+      targetLanguageTextSpan.textContent = translatedText;
+      sharedTranslationMap.set(toTranslationKey(finnishText), translatedText);
+    } else {
+      console.log("Failed");
+      targetLanguageTextSpan.textContent = originalTranslatedText;
+    }
   });
 
   displayedSubtitlesRowsWrapper.appendChild(finnishSubtitleRowElement);
