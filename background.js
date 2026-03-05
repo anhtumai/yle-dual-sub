@@ -206,6 +206,7 @@ async function translateTexts(rawSubtitleFinnishTexts, targetLanguage) {
         text: rawSubtitleFinnishTexts,
         source_lang: "FI",
         target_lang: targetLanguage,
+        model_type: "prefer_quality_optimized",
       })
     });
     if (!response.ok) {
