@@ -410,15 +410,23 @@ function addContentToDisplayedSubtitlesWrapper(
     targetLanguageTextSpan.textContent = "Translating...";
 
     const [isSucceeded, translationResponse] = await fetchTranslation([finnishText]);
-    console.log("Finnish text", finnishText);
     if (isSucceeded) {
-      console.log("Succeeded");
-      console.log("Translation response", translationResponse);
       const translatedText = translationResponse[0].trim().replace(/\n/g, ' ');
       targetLanguageTextSpan.textContent = translatedText;
-      sharedTranslationMap.set(toTranslationKey(finnishText), translatedText);
+      const sharedTranslationMapKey = toTranslationKey(finnishText);
+      sharedTranslationMap.set(sharedTranslationMapKey, translatedText);
+      if (globalDatabaseInstance && currentMovieName) {
+        await saveSubtitle(
+          globalDatabaseInstance,
+          currentMovieName,
+          targetLanguage,
+          sharedTranslationMapKey,
+          translatedText
+        );
+      } else {
+        console.warn("YleDualSubExtension: Cannot save translation - missing database instance or movie name");
+      }
     } else {
-      console.log("Failed");
       targetLanguageTextSpan.textContent = originalTranslatedText;
     }
   });
