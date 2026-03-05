@@ -147,7 +147,8 @@
 .dual-sub-extension-section_rewind_tooltip,
 .dual-sub-extension-section_forward_tooltip,
 .dual-sub-extension-section_settings_tooltip,
-.dual-sub-extension-section_info_tooltip {
+.dual-sub-extension-section_info_tooltip,
+.dual-sub-extension-section_reload_subtitle_tooltip {
   position: absolute;
   padding: 0 8px;
   background-color: rgba(0, 0, 0, 0.79);
@@ -182,7 +183,10 @@
   .dual-sub-extension-section_settings_tooltip,
 .dual-sub-extension-section
   button:hover
-  .dual-sub-extension-section_info_tooltip {
+  .dual-sub-extension-section_info_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_reload_subtitle_tooltip {
   opacity: 1;
   visibility: visible;
 }
