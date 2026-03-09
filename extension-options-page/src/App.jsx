@@ -1203,7 +1203,7 @@ function SponsorFooter() {
         Enjoying the extension? Consider supporting its development ☕
       </p>
       <a
-        href="https://ko-fi.com/anhtu53499"
+        href="https://ko-fi.com/anhtu030899"
         target="_blank"
         rel="noopener noreferrer"
         style={{

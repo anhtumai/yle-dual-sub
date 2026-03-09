@@ -94,7 +94,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://ko-fi.com/anhtu53499',
+            href: 'https://ko-fi.com/anhtu030899',
             label: '☕ Sponsor',
             position: 'right',
           },
@@ -134,7 +134,7 @@ const config = {
             items: [
               {
                 label: '☕ Sponsor on Ko-fi',
-                href: 'https://ko-fi.com/anhtu53499',
+                href: 'https://ko-fi.com/anhtu030899',
               },
             ],
           },
