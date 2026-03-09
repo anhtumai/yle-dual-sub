@@ -1189,6 +1189,42 @@ function TokenManagementAccordion() {
   );
 }
 
+function SponsorFooter() {
+  return (
+    <div
+      style={{
+        textAlign: "center",
+        padding: "24px 16px",
+        borderTop: "1px solid #333",
+        marginTop: "auto",
+      }}
+    >
+      <p style={{ color: "#999", fontSize: "13px", margin: "0 0 12px 0" }}>
+        Enjoying the extension? Consider supporting its development ☕
+      </p>
+      <a
+        href="https://ko-fi.com/anhtu53499"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "10px 20px",
+          background: "#FF5E5B",
+          color: "white",
+          borderRadius: "8px",
+          textDecoration: "none",
+          fontWeight: "600",
+          fontSize: "14px",
+        }}
+      >
+        ☕ Support on Ko-fi
+      </a>
+    </div>
+  );
+}
+
 function App() {
   return (
     <>
@@ -1197,6 +1233,7 @@ function App() {
           display: "flex",
           flexDirection: "column",
           width: "100%",
+          minHeight: "100vh",
           overflowX: "hidden",
         }}
       >
@@ -1205,6 +1242,8 @@ function App() {
         <TokenManagementAccordion />
 
         <PersonalSettingsAccordion />
+
+        <SponsorFooter />
       </div>
     </>
   );

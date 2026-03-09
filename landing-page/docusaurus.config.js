@@ -93,6 +93,11 @@ const config = {
             label: 'GitHub',
             position: 'right',
           },
+          {
+            href: 'https://ko-fi.com/anhtu53499',
+            label: '☕ Sponsor',
+            position: 'right',
+          },
         ],
       },
       footer: {
@@ -121,6 +126,15 @@ const config = {
               {
                 label: 'GitHub',
                 href: 'https://github.com/anhtumai/yle-dual-sub',
+              },
+            ],
+          },
+          {
+            title: 'Support',
+            items: [
+              {
+                label: '☕ Sponsor on Ko-fi',
+                href: 'https://ko-fi.com/anhtu53499',
               },
             ],
           },
