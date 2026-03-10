@@ -1,0 +1,280 @@
+.dual-sub-extension-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 8px;
+  justify-content: flex-start;
+  color: white;
+}
+
+.dual-sub-extension-section svg {
+  display: block;
+  margin: 0 auto;
+  align-self: center; /* Ensure SVG is centered vertically */
+  color: white;
+}
+
+/* Switch CSS from https://uiverse.io/Yaya12085/curvy-frog-97 */
+.dual-sub-switch {
+  position: relative;
+  height: 1.5rem;
+  width: 3rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 9999px;
+  background-color: rgba(100, 116, 139, 0.377);
+  transition: all 0.3s ease;
+}
+
+.dual-sub-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.dual-sub-switch:checked {
+  background-color: rgba(236, 72, 153, 1);
+}
+
+.dual-sub-switch::before {
+  position: absolute;
+  content: "";
+  left: calc(1.5rem - 1.6rem);
+  top: calc(1.5rem - 1.6rem);
+  display: block;
+  height: 1.6rem;
+  width: 1.6rem;
+  cursor: pointer;
+  border: 1px solid rgba(100, 116, 139, 0.527);
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 3px 10px rgba(100, 116, 139, 0.327);
+  transition: all 0.3s ease;
+}
+
+.dual-sub-switch:hover::before {
+  box-shadow: 0 0 0px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dual-sub-switch:checked:hover::before {
+  box-shadow: 0 0 0px 8px rgba(236, 72, 153, 0.15);
+}
+
+.dual-sub-switch:checked::before {
+  transform: translateX(100%);
+  border-color: rgba(236, 72, 153, 1);
+}
+
+.dual-sub-warning {
+  position: relative;
+  display: inline-block;
+}
+
+.dual-sub-warning__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background-color: #ff6b6b;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dual-sub-warning__icon:hover {
+  background-color: #ff5252;
+}
+
+.dual-sub-warning__popover {
+  position: absolute;
+  bottom: 100%;
+  left: 100%;
+  margin-bottom: 8px;
+  margin-left: 8px;
+  padding: 12px 16px;
+  background-color: #333;
+  color: white;
+  border-radius: 6px;
+  white-space: normal;
+  font-size: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.dual-sub-warning__popover::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 8px;
+  border: 6px solid transparent;
+  border-top-color: #333;
+}
+
+.dual-sub-warning__popover.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dual-sub-warning__popover a {
+  color: #60a5fa;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dual-sub-warning__popover a:hover {
+  color: #3b82f6;
+}
+
+/* Rewind button styling */
+.dual-sub-extension-section button {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dual-sub-extension-section_rewind_tooltip,
+.dual-sub-extension-section_forward_tooltip,
+.dual-sub-extension-section_settings_tooltip,
+.dual-sub-extension-section_info_tooltip,
+.dual-sub-extension-section_reload_subtitle_tooltip {
+  position: absolute;
+  padding: 0 8px;
+  background-color: rgba(0, 0, 0, 0.79);
+  border-radius: 4px;
+  white-space: normal;
+  width: max-content;
+  max-width: 400px;
+  font-size: 13.3333px;
+  line-height: 28px;
+  color: rgb(248, 249, 250);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 1s,
+    visibility 1s;
+  z-index: 99;
+  pointer-events: auto;
+  bottom: calc(100% + 16px);
+  left: -48px;
+  cursor: pointer;
+}
+
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_rewind_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_forward_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_settings_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_info_tooltip,
+.dual-sub-extension-section
+  button:hover
+  .dual-sub-extension-section_reload_subtitle_tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.translated-subtitle-row {
+  transform: scale(0.875);
+}
+
+.translation-blurred {
+  filter: blur(16px);
+  transition: filter 0.2s ease;
+}
+
+.translation-blurred:hover {
+  filter: blur(0);
+}
+
+.dual-sub-extension-section_blur_mode_menu_container {
+  position: relative;
+  display: inline-block;
+}
+
+.dual-sub-blur-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 100%;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  min-width: 200px;
+  background: rgba(28, 28, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  padding: 4px 0;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition:
+    opacity 0.2s,
+    visibility 0.2s,
+    transform 0.2s;
+}
+
+.dual-sub-blur-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dual-sub-blur-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dual-sub-blur-dropdown button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dual-sub-blur-mode-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dual-sub-blur-dropdown-hint {
+  padding: 6px 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
+}
+
+.dual-sub-blur-mode-label {
+  display: inline-block;
+  width: 110px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
