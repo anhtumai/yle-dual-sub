@@ -87,6 +87,132 @@ openDatabase().then(db => {
     console.error("RuutuDualSub: Failed to established connection to indexDB: ", error);
   })
 
+// ==================================
+// SECTION: TRANSLATION QUEUE
+// ==================================
+
+class TranslationQueue {
+  /* Queue to manage translation requests to avoid hitting rate limits */
+
+  BATCH_MAXIMUM_SIZE = 7;
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  /**
+   * @param {string} rawSubtitleFinnishText - Finnish text to translate
+   * @returns {void}
+   */
+  addToQueue(rawSubtitleFinnishText) {
+    this.queue.push(rawSubtitleFinnishText);
+  }
+
+  /**
+   * Process the translation queue in batches
+   * By sending to background.js to handle translation and store results in
+   * sharedTranslationMap or sharedTranslationErrorMap
+   * @returns {Promise<void>}
+   */
+  async processQueue() {
+    if (this.isProcessing || this.queue.length === 0) { return; }
+
+    while (this.queue.length > 0 && dualSubEnabled) {
+      this.isProcessing = true;
+
+      /** @type {Array<string>} */
+      const toProcessItems = [];
+      for (let i = 0; i < Math.min(this.queue.length, this.BATCH_MAXIMUM_SIZE); i++) {
+        toProcessItems.push(this.queue.shift());
+      }
+
+      try {
+        const [isSucceeded, translationResponse] = await fetchTranslation(toProcessItems);
+
+        if (isSucceeded) {
+          const translatedTexts = translationResponse;
+          /**
+           * @type {Array<SubtitleRecord>}
+           */
+          const toCacheSubtitleRecords = [];
+          for (let i = 0; i < toProcessItems.length; i++) {
+            const translatedText = translatedTexts[i];
+            const rawSubtitleFinnishText = toProcessItems[i];
+            const sharedTranslationMapKey = toTranslationKey(rawSubtitleFinnishText);
+            const sharedTranslationMapValue = translatedText.trim().replace(/\n/g, ' ');
+            sharedTranslationMap.set(
+              sharedTranslationMapKey,
+              sharedTranslationMapValue,
+            );
+            if (currentMovieName) {
+              toCacheSubtitleRecords.push({
+                "movieName": currentMovieName,
+                "originalLanguage": "FI",
+                targetLanguage,
+                "originalText": sharedTranslationMapKey,
+                "translatedText": sharedTranslationMapValue,
+              })
+            }
+          }
+          if (globalDatabaseInstance) {
+            saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
+              .then(() => { })
+              .catch((error) => {
+                console.error("RuutuDualSub: Error saving subtitles batch to cache:", error);
+              });
+          }
+        }
+        else {
+          const translationErrorMessage = translationResponse;
+          for (let i = 0; i < toProcessItems.length; i++) {
+            const rawSubtitleFinnishText = toProcessItems[i];
+            sharedTranslationErrorMap.set(
+              toTranslationKey(rawSubtitleFinnishText),
+              `Error: ${translationErrorMessage}`
+            );
+          }
+        }
+
+      } catch (error) {
+        console.error("RuutuDualSub: System error when translating text:", error);
+      }
+    }
+
+    this.isProcessing = false;
+  }
+}
+
+const translationQueue = new TranslationQueue();
+
+
+/**
+ *
+ * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
+ * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
+ * indicates success and the second is either translated texts or an error message.
+ *
+ */
+async function fetchTranslation(rawSubtitleFinnishTexts) {
+  try {
+    /**
+     * @type {[true, Array<string>] | [false, string]}
+     */
+    const response = await chrome.runtime.sendMessage(
+      {
+        action: 'fetchTranslation',
+        data: { rawSubtitleFinnishTexts, targetLanguage }
+      });
+    return response;
+  } catch (error) {
+    console.error("RuutuDualSub: Error sending message to background for translation:", error);
+    return [false, error.message || String(error)];
+  }
+}
+
+// ==================================
+// END SECTION
+// ==================================
+
 function isVideoLoadedFully() {
   const video = document.querySelector('video');
 
@@ -110,8 +236,8 @@ async function waitForVideoToLoad() {
       throw new Error('RuutuDualSub: video did not load within 10 seconds');
     }
     console.log("Waiting for video to load...");
-    await sleep(1000);
-    elapsed += 1000;
+    await sleep(200);
+    elapsed += 200;
   }
   console.log("Video loaded.");
 }
@@ -433,6 +559,38 @@ async function addDualSubExtensionSection() {
     });
   }
 }
+
+
+document.addEventListener("sendTranslationTextEvent", (e) => {
+  /**
+   * Listening for incoming subtitle texts loaded into video player from injected.js
+   * Send raw Finnish text from subtitle to a translation queue
+   * @param {Event} e
+   */
+
+  /** @type {string} */
+  const rawSubtitleFinnishText = e.detail;
+
+  console.log("Raw subtitle Finnish text", rawSubtitleFinnishText);
+
+  return;
+
+  const translationKey = toTranslationKey(rawSubtitleFinnishText);
+  if (sharedTranslationMap.has(translationKey)) {
+    return;
+  }
+
+  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
+    sharedTranslationMap.set(translationKey, translationKey);
+    return;
+  }
+
+  translationQueue.addToQueue(rawSubtitleFinnishText);
+  translationQueue.processQueue().then(() => {
+  }).catch((error) => {
+    console.error("YleDualSubExtension: Error processing translation queue:", error);
+  });
+});
 
 
 
