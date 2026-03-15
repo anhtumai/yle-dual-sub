@@ -35,7 +35,7 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   console.error("RuutuDualSub: Error loading target language from storage:", error);
 });
 
-const dualSubEnabled = true; // Ruutu supports dual subs by default, so we can keep this always enabled
+let dualSubEnabled = true;
 
 /** @enum {string} */
 const BlurMode = Object.freeze({
@@ -69,7 +69,7 @@ function shouldBlurTranslation() {
  * @type {string | null}
  * Memory cached current movie name
  */
-const currentMovieName = null;
+let currentMovieName = null;
 
 /**
  * @type {IDBDatabase | null}
@@ -595,9 +595,32 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
 
 
 
+/**
+ * Set up TextTrack listeners on the video element.
+ * If dual sub is enabled, hides native subtitle rendering by setting track.mode = 'hidden'.
+ * Also handles tracks added dynamically (HLS adds tracks after video load).
+ * @param {HTMLVideoElement} video
+ */
+function setupTextTrackListeners(video) {
+  function attachTrack(track) {
+    if (dualSubEnabled) {
+      track.mode = 'hidden';
+    }
+  }
+
+  for (const track of video.textTracks) {
+    attachTrack(track);
+  }
+
+  video.textTracks.addEventListener('addtrack', (e) => {
+    attachTrack(e.track);
+  });
+}
+
 waitForVideoToLoad().then(() => {
-  // Notify the background script that the video is ready
   console.log("Video has been fully loaded. Sending message to background script.");
+  const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+  setupTextTrackListeners(video);
   addDualSubExtensionSection().then(() => { }).catch((error) => {
     console.error("Error adding Dual Sub extension section:", error);
   })
