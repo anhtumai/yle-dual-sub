@@ -35,7 +35,7 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   console.error("RuutuDualSub: Error loading target language from storage:", error);
 });
 
-let dualSubEnabled = true;
+const dualSubEnabled = true;
 
 /** @enum {string} */
 const BlurMode = Object.freeze({
@@ -69,7 +69,7 @@ function shouldBlurTranslation() {
  * @type {string | null}
  * Memory cached current movie name
  */
-let currentMovieName = null;
+const currentMovieName = null;
 
 /**
  * @type {IDBDatabase | null}
@@ -213,35 +213,6 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 // END SECTION
 // ==================================
 
-function isVideoLoadedFully() {
-  const video = document.querySelector('video');
-
-  if (!(video && video.readyState === 4)) {
-    return false;
-  }
-
-  const bottomControlBarLeftControl = document.querySelector('.rp-left');
-  return bottomControlBarLeftControl !== null;
-}
-
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function waitForVideoToLoad() {
-  const MAX_WAIT_MS = 10000;
-  let elapsed = 0;
-  while (!isVideoLoadedFully()) {
-    if (elapsed >= MAX_WAIT_MS) {
-      throw new Error('RuutuDualSub: video did not load within 10 seconds');
-    }
-    console.log("Waiting for video to load...");
-    await sleep(200);
-    elapsed += 200;
-  }
-  console.log("Video loaded.");
-}
-
 /**
  * Handle dual sub behaviour based on whether the system has valid key selected.
  * If no key is selected, display warning icon and disable dual sub switch.
@@ -275,17 +246,40 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
 }
 
 /**
+ * Wait for an element to appear in the DOM with a 5-second timeout.
+ * Polls every 100ms.
+ * @param {string} selector - CSS selector to find
+ * @param {number} timeoutMs - Timeout in milliseconds (default 5000)
+ * @returns {Promise<Element | null>}
+ */
+async function waitForElement(selector, timeoutMs = 5000) {
+  const interval = 100;
+  let elapsed = 0;
+
+  while (elapsed < timeoutMs) {
+    const el = document.querySelector(selector);
+    if (el) {
+      console.log(`RuutuDualSub: Found element "${selector}" after ${elapsed}ms`);
+      return el;
+    }
+    await new Promise(r => setTimeout(r, interval));
+    elapsed += interval;
+  }
+
+  console.warn(`RuutuDualSub: Element "${selector}" not found within ${timeoutMs}ms`);
+  return null;
+}
+
+/**
  * Add Dual Sub extension section to the video player's bottom control bar
  * next to the volume control.
  * @returns {Promise<void>}
  */
 async function addDualSubExtensionSection() {
-  let bottomControlBarLeftControls = null;
-
-  bottomControlBarLeftControls = document.querySelector('.rp-left');
+  const bottomControlBarLeftControls = await waitForElement('.rp-left', 5000);
 
   if (!bottomControlBarLeftControls) {
-    console.error("YleDualSubExtension: Cannot find bottom control bar left controls");
+    console.error("YleDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
     return;
   }
 
@@ -617,13 +611,35 @@ function setupTextTrackListeners(video) {
   });
 }
 
-waitForVideoToLoad().then(() => {
-  console.log("Video has been fully loaded. Sending message to background script.");
-  const video = /** @type {HTMLVideoElement} */ (document.querySelector('video'));
+/**
+ * Initialize dual subtitles once video is loaded.
+ */
+async function initializeDualSubForVideo() {
+  const video = document.querySelector('video');
+  if (!video) { return; }
+
   setupTextTrackListeners(video);
-  addDualSubExtensionSection().then(() => { }).catch((error) => {
-    console.error("Error adding Dual Sub extension section:", error);
-  })
-}).catch((error) => {
-  throw error; // crash the script
-});
+  try {
+    await addDualSubExtensionSection();
+  } catch (error) {
+    console.error("RuutuDualSub: Error adding dual sub extension section:", error);
+  }
+}
+
+// Check if video already exists (direct page load at ruutu.fi/video/<id>)
+if (document.querySelector('video')) {
+  console.log("RuutuDualSub: Video detected on page load, initializing");
+  initializeDualSubForVideo();
+}
+
+
+// Periodic check for video (handles SPA navigation where mutations don't fire at body level)
+let lastInitializedVideoElement = null;
+setInterval(() => {
+  const video = document.querySelector('video');
+  if (video && video !== lastInitializedVideoElement) {
+    console.log("RuutuDualSub: Video detected via polling, initializing");
+    lastInitializedVideoElement = video;
+    initializeDualSubForVideo();
+  }
+}, 1000);
