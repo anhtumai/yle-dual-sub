@@ -627,6 +627,30 @@ function initializeSubtitleContainer() {
   subtitleContainer.setAttribute('aria-live', 'polite');
   subtitleContainer.setAttribute('aria-atomic', 'true');
 
+  /**
+   * Update subtitle font size based on video width
+   */
+  function updateSubtitleFontSize() {
+    if (!video || !subtitleContainer) { return; }
+    const videoWidth = video.offsetWidth;
+    // Scale: 2.5% of video width, clamped between 18-32px
+    const fontSize = Math.max(18, Math.min(videoWidth * 0.02, 32));
+    const fontSizeString = String(fontSize);
+    subtitleContainer.style.fontSize = `${fontSizeString}px`;
+  }
+
+  // Set initial font size
+  updateSubtitleFontSize();
+
+  // Update on window resize
+  window.addEventListener('resize', updateSubtitleFontSize);
+
+  // Update on fullscreen change
+  document.addEventListener('fullscreenchange', updateSubtitleFontSize);
+
+  // Update on video loadedmetadata
+  video.addEventListener('loadedmetadata', updateSubtitleFontSize);
+
   // Create Finnish subtitle row
   const finnishSubtitleRow = document.createElement('div');
   finnishSubtitleRow.id = 'finnish-subtitle-row';
