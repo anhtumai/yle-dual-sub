@@ -278,3 +278,31 @@
   text-overflow: ellipsis;
   vertical-align: middle;
 }
+
+/* Dual subtitle container wrapper */
+.dual-sub-subtitle-wrapper {
+  position: absolute;
+  bottom: 80px;
+  width: 100%;
+  margin-bottom: 32px;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Individual subtitle rows */
+.dual-sub-subtitle-row {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  line-height: normal;
+  pointer-events: all;
+  text-align: center;
+  text-shadow: none;
+  transition: bottom 0.3s ease-in-out;
+  white-space: pre-line;
+  padding: 0.05em 0.25em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+}

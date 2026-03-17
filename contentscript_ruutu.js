@@ -39,7 +39,7 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   console.error("RuutuDualSub: Error loading target language from storage:", error);
 });
 
-const dualSubEnabled = false;
+let dualSubEnabled = false;
 
 /** @enum {string} */
 const BlurMode = Object.freeze({
@@ -596,6 +596,61 @@ function setupTextTrackListeners(video) {
   });
 }
 
+/**
+ * Initialize the custom subtitle div container.
+ * This element pre-exists on the page (empty until populated with text).
+ * Follows the same architectural pattern as YLE Areena.
+ * @returns {HTMLElement | null} The subtitle container element, or null if video not found
+ */
+function initializeSubtitleContainer() {
+  const video = document.querySelector('video');
+  if (!video) {
+    console.warn("RuutuDualSub: Could not find video element for subtitle container");
+    return null;
+  }
+
+  const videoContainer = video.parentElement;
+  if (!videoContainer) {
+    console.warn("RuutuDualSub: Could not find video parent element");
+    return null;
+  }
+
+  // Check if container already exists to avoid duplicates
+  let subtitleContainer = document.getElementById('dual-sub-custom-subtitle-container');
+  if (subtitleContainer) {
+    return subtitleContainer;
+  }
+
+  subtitleContainer = document.createElement('div');
+  subtitleContainer.id = 'displayed-subtitles-rows-wrapper';
+  subtitleContainer.className = 'dual-sub-subtitle-wrapper';
+  subtitleContainer.setAttribute('aria-live', 'polite');
+  subtitleContainer.setAttribute('aria-atomic', 'true');
+
+  // Create Finnish subtitle row
+  const finnishSubtitleRow = document.createElement('div');
+  finnishSubtitleRow.id = 'finnish-subtitle-row';
+  finnishSubtitleRow.className = 'dual-sub-subtitle-row';
+  finnishSubtitleRow.textContent = 'Finnish subtitle will appear here';
+
+  // Create translated subtitle row
+  const translatedSubtitleRow = document.createElement('div');
+  translatedSubtitleRow.id = 'target-language-subtitle-row';
+  translatedSubtitleRow.className = 'dual-sub-subtitle-row translated-subtitle-row';
+  translatedSubtitleRow.textContent = 'Translated subtitle will appear here';
+
+  // Append subtitle rows to container
+  subtitleContainer.appendChild(finnishSubtitleRow);
+  subtitleContainer.appendChild(translatedSubtitleRow);
+
+  // Insert into video container with position: relative to be the positioning context
+  videoContainer.style.position = 'relative';
+  videoContainer.appendChild(subtitleContainer);
+
+  console.log("RuutuDualSub: Initialized custom subtitle container");
+  return subtitleContainer;
+}
+
 // ==================================
 // END SECTION
 // ==================================
@@ -612,6 +667,7 @@ async function initializeDualSubForVideo() {
   if (!video) { return; }
 
   setupTextTrackListeners(video);
+  initializeSubtitleContainer();
   try {
     await addDualSubExtensionSection();
   } catch (error) {
@@ -706,6 +762,38 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   }).catch((error) => {
     console.error("YleDualSubExtension: Error processing translation queue:", error);
   });
+});
+
+
+document.addEventListener("change", (e) => {
+  /**
+   * Listen for user interaction events in YLE Areena page,
+   * for example: dual sub switch change event
+   * @param {Event} e
+   */
+  if (e.target.id === "dual-sub-switch") {
+    dualSubEnabled = e.target.checked;
+    if (e.target.checked) {
+      const video = document.querySelector('video');
+      if (video) {
+        for (const track of video.textTracks) {
+          if (track.mode === 'showing') {
+            track.mode = 'hidden';
+          }
+        }
+      }
+    }
+    else {
+      const video = document.querySelector('video');
+      if (video) {
+        for (const track of video.textTracks) {
+          if (track.mode === 'hidden') {
+            track.mode = 'showing';
+          }
+        }
+      }
+    }
+  }
 });
 
 // ==================================
