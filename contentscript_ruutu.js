@@ -3,6 +3,10 @@ console.log("Content script for Ruutu loaded.");
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
 
+// ==================================
+// SECTION 1: STATE & INITIALIZATION
+// ==================================
+
 const BLUR_BUTTON_COLOR_ACTIVE = 'rgba(236, 72, 153, 1)';
 
 // Blur mode SVG icons
@@ -35,7 +39,7 @@ loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   console.error("RuutuDualSub: Error loading target language from storage:", error);
 });
 
-const dualSubEnabled = true;
+const dualSubEnabled = false;
 
 /** @enum {string} */
 const BlurMode = Object.freeze({
@@ -88,7 +92,11 @@ openDatabase().then(db => {
   })
 
 // ==================================
-// SECTION: TRANSLATION QUEUE
+// END SECTION
+// ==================================
+
+// ==================================
+// SECTION 2: TRANSLATION QUEUE
 // ==================================
 
 class TranslationQueue {
@@ -213,6 +221,10 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
 // END SECTION
 // ==================================
 
+// ==================================
+// SECTION 3: UI MANIPULATION UTILS
+// ==================================
+
 /**
  * Handle dual sub behaviour based on whether the system has valid key selected.
  * If no key is selected, display warning icon and disable dual sub switch.
@@ -333,7 +345,7 @@ async function addDualSubExtensionSection() {
           Tip: Click "." (dot) on keyboard can also forward 3 seconds.
         </div>
       </button>
-      
+
       <div class="dual-sub-blur-mode-group">
         <div class="dual-sub-extension-section_blur_mode_menu_container">
           <button aria-label="Blur translation" type="button" id="yle-dual-sub-blur-mode-menu-btn"></button>
@@ -364,7 +376,7 @@ async function addDualSubExtensionSection() {
         <div aria-hidden="true" class="dual-sub-extension-section_info_tooltip" style="left: -200px;">
           Do you know:<br />
           We can increase/decrease subtitle size by Ctrl + / Ctrl - <br />
-          YLE supports changing subtitle styles from here 
+          YLE supports changing subtitle styles from here
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-left: 4px;">
             <path fill="currentColor" fill-rule="evenodd" d="M4 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h3.76a1 1 0 0 1 .65.24l1.638 1.404a3 3 0 0 0 3.904 0l1.637-1.403a1 1 0 0 1 .65-.241H20a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3zM3 6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-3.76a3 3 0 0 0-1.952.722l-1.637 1.403a1 1 0 0 1-1.302 0l-1.636-1.403A3 3 0 0 0 7.76 19H4a1 1 0 0 1-1-1zm16 6a1 1 0 0 1-1 1h-7a1 1 0 1 1 0-2h7a1 1 0 0 1 1 1M8 12a1 1 0 0 1-1 1H6a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1m-3 4a1 1 0 0 1 1-1h7a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1m11 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1" clip-rule="evenodd"/>
           </svg>
@@ -554,40 +566,13 @@ async function addDualSubExtensionSection() {
   }
 }
 
+// ==================================
+// END SECTION
+// ==================================
 
-document.addEventListener("sendTranslationTextEvent", (e) => {
-  /**
-   * Listening for incoming subtitle texts loaded into video player from injected.js
-   * Send raw Finnish text from subtitle to a translation queue
-   * @param {Event} e
-   */
-
-  /** @type {string} */
-  const rawSubtitleFinnishText = e.detail;
-
-  // console.log("Raw subtitle Finnish text", rawSubtitleFinnishText);
-
-  return;
-
-  const translationKey = toTranslationKey(rawSubtitleFinnishText);
-  if (sharedTranslationMap.has(translationKey)) {
-    return;
-  }
-
-  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
-    sharedTranslationMap.set(translationKey, translationKey);
-    return;
-  }
-
-  translationQueue.addToQueue(rawSubtitleFinnishText);
-  translationQueue.processQueue().then(() => {
-  }).catch((error) => {
-    console.error("YleDualSubExtension: Error processing translation queue:", error);
-  });
-});
-
-
-
+// ==================================
+// SECTION 4: TEXT TRACK HANDLING
+// ==================================
 
 /**
  * Set up TextTrack listeners on the video element.
@@ -610,6 +595,14 @@ function setupTextTrackListeners(video) {
     attachTrack(e.track);
   });
 }
+
+// ==================================
+// END SECTION
+// ==================================
+
+// =========================================
+// MAIN SECTION: OBSERVERS & EVENT LISTENERS
+// =========================================
 
 /**
  * Initialize dual subtitles once video is loaded.
@@ -684,3 +677,37 @@ if (document.body instanceof Node) {
     subtree: true,
   });
 }
+
+document.addEventListener("sendTranslationTextEvent", (e) => {
+  /**
+   * Listening for incoming subtitle texts loaded into video player from injected.js
+   * Send raw Finnish text from subtitle to a translation queue
+   * @param {CustomEvent} e
+   */
+
+  // Feature disabled for now - early return to prevent translation processing
+  return;
+
+  // eslint-disable-next-line no-unreachable
+  const rawSubtitleFinnishText = /** @type {CustomEvent} */ (e).detail;
+
+  const translationKey = toTranslationKey(rawSubtitleFinnishText);
+  if (sharedTranslationMap.has(translationKey)) {
+    return;
+  }
+
+  if (translationKey.length <= 1 || !/[a-zäöå]/.test(translationKey)) {
+    sharedTranslationMap.set(translationKey, translationKey);
+    return;
+  }
+
+  translationQueue.addToQueue(rawSubtitleFinnishText);
+  translationQueue.processQueue().then(() => {
+  }).catch((error) => {
+    console.error("YleDualSubExtension: Error processing translation queue:", error);
+  });
+});
+
+// ==================================
+// END SECTION
+// ==================================
