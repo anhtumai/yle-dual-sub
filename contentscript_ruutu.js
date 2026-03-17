@@ -626,6 +626,7 @@ function initializeSubtitleContainer() {
   subtitleContainer.className = 'dual-sub-subtitle-wrapper';
   subtitleContainer.setAttribute('aria-live', 'polite');
   subtitleContainer.setAttribute('aria-atomic', 'true');
+  subtitleContainer.style.display = 'none';
 
   /**
    * Update subtitle font size based on video width
@@ -797,6 +798,7 @@ document.addEventListener("change", (e) => {
    */
   if (e.target.id === "dual-sub-switch") {
     dualSubEnabled = e.target.checked;
+    const subtitleContainer = document.getElementById('displayed-subtitles-rows-wrapper');
     if (e.target.checked) {
       const video = document.querySelector('video');
       if (video) {
@@ -805,6 +807,10 @@ document.addEventListener("change", (e) => {
             track.mode = 'hidden';
           }
         }
+      }
+      // Show subtitle container
+      if (subtitleContainer) {
+        subtitleContainer.style.display = 'flex';
       }
     }
     else {
@@ -815,6 +821,10 @@ document.addEventListener("change", (e) => {
             track.mode = 'showing';
           }
         }
+      }
+      // Hide subtitle container
+      if (subtitleContainer) {
+        subtitleContainer.style.display = 'none';
       }
     }
   }
