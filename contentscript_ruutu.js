@@ -36,7 +36,7 @@ let targetLanguage = "EN-US";
 loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   targetLanguage = loadedTargetLanguage;
 }).catch((error) => {
-  console.error("RuutuDualSub: Error loading target language from storage:", error);
+  console.error("RuutuDualSubExtension: Error loading target language from storage:", error);
 });
 
 let dualSubEnabled = false;
@@ -84,11 +84,11 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 
   cleanupOldMovieData(db).then((cleanCount) => {
-    console.info(`RuutuDualSub: Clean ${cleanCount} movies data`);
-  }).catch(error => { console.error("RuutuDualSub: Error when cleaning old movie data: ", error) });
+    console.info(`RuutuDualSubExtension: Clean ${cleanCount} movies data`);
+  }).catch(error => { console.error("RuutuDualSubExtension: Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
-    console.error("RuutuDualSub: Failed to established connection to indexDB: ", error);
+    console.error("RuutuDualSubExtension: Failed to established connection to indexDB: ", error);
   })
 
 // ==================================
@@ -166,7 +166,7 @@ class TranslationQueue {
             saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
               .then(() => { })
               .catch((error) => {
-                console.error("RuutuDualSub: Error saving subtitles batch to cache:", error);
+                console.error("RuutuDualSubExtension: Error saving subtitles batch to cache:", error);
               });
           }
         }
@@ -182,7 +182,7 @@ class TranslationQueue {
         }
 
       } catch (error) {
-        console.error("RuutuDualSub: System error when translating text:", error);
+        console.error("RuutuDualSubExtension: System error when translating text:", error);
       }
     }
 
@@ -212,7 +212,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
       });
     return response;
   } catch (error) {
-    console.error("RuutuDualSub: Error sending message to background for translation:", error);
+    console.error("RuutuDualSubExtension: Error sending message to background for translation:", error);
     return [false, error.message || String(error)];
   }
 }
@@ -271,14 +271,12 @@ async function waitForElement(selector, timeoutMs = 5000) {
   while (elapsed < timeoutMs) {
     const el = document.querySelector(selector);
     if (el) {
-      console.log(`RuutuDualSub: Found element "${selector}" after ${elapsed}ms`);
+      console.log(`RuutuDualSubExtension: Found element "${selector}" after ${elapsed}ms`);
       return el;
     }
     await new Promise(r => setTimeout(r, interval));
     elapsed += interval;
   }
-
-  console.warn(`RuutuDualSub: Element "${selector}" not found within ${timeoutMs}ms`);
   return null;
 }
 
@@ -291,7 +289,7 @@ async function addDualSubExtensionSection() {
   const bottomControlBarLeftControls = await waitForElement('.rp-left', 5000);
 
   if (!bottomControlBarLeftControls) {
-    console.error("YleDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
+    console.error("RuutuDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
     return;
   }
 
@@ -419,14 +417,14 @@ async function addDualSubExtensionSection() {
     });
   }
   else {
-    console.error("YleDualSubExtension: Cannot find settings button");
+    console.error("RuutuDualSubExtension: Cannot find settings button");
   }
 
   // Rewind and forward button logic
   function rewindForwardLogicHandle() {
     const videoElement = document.querySelector('video');
     if (!videoElement) {
-      console.error("YleDualSubExtension: Cannot find video element");
+      console.error("RuutuDualSubExtension: Cannot find video element");
       return;
     }
 
@@ -459,7 +457,7 @@ async function addDualSubExtensionSection() {
       });
     }
     else {
-      console.error("YleDualSubExtension: Cannot find rewind button");
+      console.error("RuutuDualSubExtension: Cannot find rewind button");
     }
 
     if (forwardButton) {
@@ -468,7 +466,7 @@ async function addDualSubExtensionSection() {
       });
     }
     else {
-      console.error("YleDualSubExtension: Cannot find forward button");
+      console.error("RuutuDualSubExtension: Cannot find forward button");
     }
   }
   rewindForwardLogicHandle();
@@ -545,9 +543,9 @@ async function addDualSubExtensionSection() {
         sharedTranslationMap.clear();
         if (globalDatabaseInstance && currentMovieName) {
           clearSubtitlesByMovieName(globalDatabaseInstance, currentMovieName).then(() => {
-            console.info(`YleDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
+            console.info(`RuutuDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
           }).catch((error) => {
-            console.error("YleDualSubExtension: Error clearing cached subtitles for current movie:", error);
+            console.error("RuutuDualSubExtension: Error clearing cached subtitles for current movie:", error);
             alert(`Error clearing cache: ${error?.message || "Unknown error"}`);
           }).finally(() => {
             alert("We need to reload the page to apply changes.");
@@ -555,7 +553,7 @@ async function addDualSubExtensionSection() {
           });
         } else {
           console.warn(
-            "YleDualSubExtension: No database instance or current movie name found. " +
+            "RuutuDualSubExtension: No database instance or current movie name found. " +
             "Cannot clear cached subtitles from database."
           );
           alert("We need to reload the page to apply changes.");
@@ -605,13 +603,13 @@ function setupTextTrackListeners(video) {
 function initializeSubtitleContainer() {
   const video = document.querySelector('video');
   if (!video) {
-    console.warn("RuutuDualSub: Could not find video element for subtitle container");
+    console.warn("RuutuDualSubExtension: Could not find video element for subtitle container");
     return null;
   }
 
   const videoContainer = video.parentElement;
   if (!videoContainer) {
-    console.warn("RuutuDualSub: Could not find video parent element");
+    console.warn("RuutuDualSubExtension: Could not find video parent element");
     return null;
   }
 
@@ -672,7 +670,7 @@ function initializeSubtitleContainer() {
   videoContainer.style.position = 'relative';
   videoContainer.appendChild(subtitleContainer);
 
-  console.log("RuutuDualSub: Initialized custom subtitle container");
+  console.log("RuutuDualSubExtension: Initialized custom subtitle container");
   return subtitleContainer;
 }
 
@@ -691,12 +689,12 @@ async function initializeDualSubForVideo() {
   const video = document.querySelector('video');
   if (!video) { return; }
 
-  setupTextTrackListeners(video);
+  // setupTextTrackListeners(video);
   initializeSubtitleContainer();
   try {
     await addDualSubExtensionSection();
   } catch (error) {
-    console.error("RuutuDualSub: Error adding dual sub extension section:", error);
+    console.error("RuutuDualSubExtension: Error adding dual sub extension section:", error);
   }
 }
 
@@ -735,7 +733,7 @@ function isVideoElementAppearMutation(mutation) {
 
     return false;
   } catch (error) {
-    console.warn("RuutuDualSub: Error checking video element mutation:", error);
+    console.warn("RuutuDualSubExtension: Error checking video element mutation:", error);
     return false;
   }
 }
@@ -744,7 +742,7 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
-        console.log("RuutuDualSub: Video detected via MutationObserver");
+        console.log("RuutuDualSubExtension: Video detected via MutationObserver");
         initializeDualSubForVideo();
       }
     }
@@ -785,7 +783,7 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   translationQueue.addToQueue(rawSubtitleFinnishText);
   translationQueue.processQueue().then(() => {
   }).catch((error) => {
-    console.error("YleDualSubExtension: Error processing translation queue:", error);
+    console.error("RuutuDualSubExtension: Error processing translation queue:", error);
   });
 });
 
