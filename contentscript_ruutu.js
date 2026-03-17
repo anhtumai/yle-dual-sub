@@ -565,7 +565,7 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   /** @type {string} */
   const rawSubtitleFinnishText = e.detail;
 
-  console.log("Raw subtitle Finnish text", rawSubtitleFinnishText);
+  // console.log("Raw subtitle Finnish text", rawSubtitleFinnishText);
 
   return;
 
@@ -626,20 +626,61 @@ async function initializeDualSubForVideo() {
   }
 }
 
-// Check if video already exists (direct page load at ruutu.fi/video/<id>)
-if (document.querySelector('video')) {
-  console.log("RuutuDualSub: Video detected on page load, initializing");
-  initializeDualSubForVideo();
+// Debounce flag to prevent duplicate initialization during rapid DOM mutations
+let checkVideoAppearMutationDebounceFlag = false;
+
+/**
+ * Detect when a video element appears in the DOM
+ * @param {MutationRecord} mutation
+ * @returns {boolean}
+ */
+function isVideoElementAppearMutation(mutation) {
+  if (checkVideoAppearMutationDebounceFlag) {
+    return false;
+  }
+  try {
+    if (mutation.type !== "childList" || mutation.addedNodes.length === 0) {
+      return false;
+    }
+
+    for (const node of Array.from(mutation.addedNodes)) {
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        continue;
+      }
+
+      const element = /** @type {HTMLElement} */ (node);
+
+      // Check if the added node IS a video element or CONTAINS a video element
+      if (element.tagName === "VIDEO" || element.querySelector?.('video')) {
+        checkVideoAppearMutationDebounceFlag = true;
+        // eslint-disable-next-line no-loop-func
+        setTimeout(() => { checkVideoAppearMutationDebounceFlag = false; }, 5000);
+        return true;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    console.warn("RuutuDualSub: Error checking video element mutation:", error);
+    return false;
+  }
 }
 
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === "childList") {
+      if (isVideoElementAppearMutation(mutation)) {
+        console.log("RuutuDualSub: Video detected via MutationObserver");
+        initializeDualSubForVideo();
+      }
+    }
+  });
+});
 
-// Periodic check for video (handles SPA navigation where mutations don't fire at body level)
-let lastInitializedVideoElement = null;
-setInterval(() => {
-  const video = document.querySelector('video');
-  if (video && video !== lastInitializedVideoElement) {
-    console.log("RuutuDualSub: Video detected via polling, initializing");
-    lastInitializedVideoElement = video;
-    initializeDualSubForVideo();
-  }
-}, 1000);
+// Start observing the document for added nodes
+if (document.body instanceof Node) {
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}

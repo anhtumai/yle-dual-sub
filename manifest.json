@@ -19,7 +19,7 @@
       "css": ["styles.css"]
     },
     {
-      "matches": ["https://www.ruutu.fi/video/*"],
+      "matches": ["https://www.ruutu.fi/*"],
       "run_at": "document_end",
       "js": ["database.js", "utils.js", "contentscript_ruutu.js", "inject.js"],
       "css": ["styles_ruutu.css"]
