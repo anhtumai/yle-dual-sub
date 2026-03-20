@@ -1,4 +1,4 @@
-console.log("Content script for Ruutu loaded.");
+console.log("RuutuDualSubExtension: Content script for Ruutu loaded.");
 
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
@@ -264,7 +264,7 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
  * @param {number} timeoutMs - Timeout in milliseconds (default 5000)
  * @returns {Promise<Element | null>}
  */
-async function waitForElement(selector, timeoutMs = 5000) {
+async function _waitForElement(selector, timeoutMs = 5000) {
   const interval = 100;
   let elapsed = 0;
 
@@ -281,12 +281,12 @@ async function waitForElement(selector, timeoutMs = 5000) {
 }
 
 /**
- * Add Dual Sub extension section to the video player's bottom control bar
- * next to the volume control.
+ * Add extension tool set (containing dualsub switch, rewind/rollback, ...)
+ * next to the video player's bottom control bar, next to volume control
  * @returns {Promise<void>}
  */
-async function addDualSubExtensionSection() {
-  const bottomControlBarLeftControls = await waitForElement('.rp-left', 5000);
+async function addExtensionToolset() {
+  const bottomControlBarLeftControls = await _waitForElement('.rp-left', 5000);
 
   if (!bottomControlBarLeftControls) {
     console.error("RuutuDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
@@ -564,14 +564,6 @@ async function addDualSubExtensionSection() {
   }
 }
 
-// ==================================
-// END SECTION
-// ==================================
-
-// ==================================
-// SECTION 4: TEXT TRACK HANDLING
-// ==================================
-
 /**
  * Set up TextTrack listeners on the video element.
  * If dual sub is enabled, hides native subtitle rendering by setting track.mode = 'hidden'.
@@ -595,22 +587,25 @@ function setupTextTrackListeners(video) {
 }
 
 /**
- * Initialize the custom subtitle div container.
+ * Create a container div to original Finnish subtitle and its translation
  * This element pre-exists on the page (empty until populated with text).
- * Follows the same architectural pattern as YLE Areena.
+ * Reasons for creating div:
+ * - Allows displaying dual subtitles (Finnish + translation) side by side
+ * - Enables custom styling, blur effects, and dynamic font sizing
+ * - Allows hiding native subtitles while showing our custom ones
+ * - Provides full control over subtitle positioning and appearance
  * @returns {HTMLElement | null} The subtitle container element, or null if video not found
  */
-function initializeSubtitleContainer() {
-  console.log("Debugging line: sometime it is not initialized by the user");
+function initializeContainerForSubtitleRows() {
   const video = document.querySelector('video');
   if (!video) {
-    console.warn("RuutuDualSubExtension: Could not find video element for subtitle container");
+    console.error("RuutuDualSubExtension: Could not find video element for subtitle container");
     return null;
   }
 
   const videoContainer = video.parentElement;
   if (!videoContainer) {
-    console.warn("RuutuDualSubExtension: Could not find video parent element");
+    console.error("RuutuDualSubExtension: Could not find video parent element");
     return null;
   }
 
@@ -675,27 +670,16 @@ function initializeSubtitleContainer() {
   return subtitleContainer;
 }
 
-// ==================================
-// END SECTION
-// ==================================
-
-// =========================================
-// MAIN SECTION: OBSERVERS & EVENT LISTENERS
-// =========================================
-
 /**
  * Initialize dual subtitles once video is loaded.
  */
 async function initializeDualSubForVideo() {
-  const video = document.querySelector('video');
-  if (!video) { return; }
-
   // setupTextTrackListeners(video);
-  initializeSubtitleContainer();
+  initializeContainerForSubtitleRows();
   try {
-    await addDualSubExtensionSection();
+    await addExtensionToolset();
   } catch (error) {
-    console.error("RuutuDualSubExtension: Error adding dual sub extension section:", error);
+    console.error("RuutuDualSubExtension: Error adding dual sub toolset:", error);
   }
 }
 
@@ -742,6 +726,14 @@ function isVideoElementAppearMutation(mutation) {
     return false;
   }
 }
+
+// ==================================
+// END SECTION
+// ==================================
+
+// =========================================
+// MAIN SECTION: OBSERVERS & EVENT LISTENERS
+// =========================================
 
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {

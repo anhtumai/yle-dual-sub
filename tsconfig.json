@@ -16,6 +16,7 @@
     "background.js",
     "types.js",
     "contentscript.js",
+    "contentscript_ruutu.js",
     "globals.d.ts",
     "popup.js",
     "extension-options-page/src/App.jsx"
