@@ -601,6 +601,7 @@ function setupTextTrackListeners(video) {
  * @returns {HTMLElement | null} The subtitle container element, or null if video not found
  */
 function initializeSubtitleContainer() {
+  console.log("Debugging line: sometime it is not initialized by the user");
   const video = document.querySelector('video');
   if (!video) {
     console.warn("RuutuDualSubExtension: Could not find video element for subtitle container");
@@ -707,11 +708,15 @@ let checkVideoAppearMutationDebounceFlag = false;
  * @returns {boolean}
  */
 function isVideoElementAppearMutation(mutation) {
+  const currentUrl = window.location.pathname;
+  if (!currentUrl.startsWith("/video/")) {
+    return false;
+  }
   if (checkVideoAppearMutationDebounceFlag) {
     return false;
   }
   try {
-    if (mutation.type !== "childList" || mutation.addedNodes.length === 0) {
+    if (mutation.addedNodes.length === 0) {
       return false;
     }
 
@@ -742,7 +747,7 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
-        console.log("RuutuDualSubExtension: Video detected via MutationObserver");
+        console.log("RuutuDualSubExtension: Video detected via MutationObserver", mutation);
         initializeDualSubForVideo();
       }
     }
