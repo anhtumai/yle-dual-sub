@@ -10,15 +10,11 @@
     "skipLibCheck": true,
     "types": ["chrome"]
   },
+  "references": [
+    { "path": "./tsconfig.contentscript.json" },
+    { "path": "./tsconfig.contentscript_ruutu.json" }
+  ],
   "include": [
-    "database.js",
-    "utils.js",
-    "background.js",
-    "types.js",
-    "contentscript.js",
-    "contentscript_ruutu.js",
-    "globals.d.ts",
-    "popup.js",
     "extension-options-page/src/App.jsx"
   ],
   "exclude": [
@@ -26,3 +22,4 @@
     "extension-options-page"
   ]
 }
+
