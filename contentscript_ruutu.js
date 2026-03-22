@@ -571,19 +571,61 @@ async function addExtensionToolset() {
  * @param {HTMLVideoElement} video
  */
 function setupTextTrackListeners(video) {
-  function attachTrack(track) {
-    if (dualSubEnabled) {
-      track.mode = 'hidden';
+  console.log("Starting setting up text track listeners");
+
+  /**
+   * @param {TextTrack} textTrack 
+   * Add event listener to text track if it is either caption or subtitle
+   * When cue changes, we update `finnish-subtitle-row` and `target-language-subtitle-row` accordingly
+   */
+  function addListenerToTextTrack(textTrack) {
+    if (textTrack.kind === 'captions' || textTrack.kind === 'subtitles') {
+      textTrack.addEventListener('cuechange', () => {
+
+        /** @type string[] */
+        const finnishSubtitles = [];
+        for (const activeCue of Array.from(textTrack.activeCues)) {
+          if (activeCue instanceof VTTCue) {
+            finnishSubtitles.push(activeCue.text);
+          }
+        }
+
+        if (finnishSubtitles.length > 0) {
+          console.log(`Cue appeared: "${finnishSubtitles}"`);
+
+          console.log("Debugging:");
+
+          const displayedFinnishSubtitle = finnishSubtitles.join("0-0");
+
+          // Update Finnish subtitle
+          const finnishSubRow = document.getElementById('finnish-subtitle-row');
+          if (finnishSubRow) {
+            finnishSubRow.textContent = displayedFinnishSubtitle;
+          }
+          const targetLanguageRow = document.getElementById('target-language-subtitle-row');
+          if (targetLanguageRow) {
+            targetLanguageRow.textContent = `Translated: ${displayedFinnishSubtitle}`;
+          }
+        } else {
+          // All cues disappeared
+          console.log('All cues disappeared');
+
+          const finnishSubRow = document.getElementById('finnish-subtitle-row');
+          const targetLanguageRow = document.getElementById('target-language-subtitle-row');
+          if (finnishSubRow) { finnishSubRow.textContent = ''; }
+          if (targetLanguageRow) { targetLanguageRow.textContent = ''; }
+        }
+      });
     }
   }
-
-  for (const track of video.textTracks) {
-    attachTrack(track);
+  for (const track of Array.from(video.textTracks)) {
+    addListenerToTextTrack(track);
   }
 
   video.textTracks.addEventListener('addtrack', (e) => {
-    attachTrack(e.track);
-  });
+    const track = e.track;
+    addListenerToTextTrack(track);
+  })
 }
 
 /**
@@ -671,16 +713,18 @@ function initializeContainerForSubtitleRows() {
 }
 
 /**
- * Initialize dual subtitles once video is loaded.
+ * Initialize dual subtitles features once video is loaded.
  */
 async function initializeDualSubForVideo() {
-  // setupTextTrackListeners(video);
+
   initializeContainerForSubtitleRows();
   try {
     await addExtensionToolset();
   } catch (error) {
     console.error("RuutuDualSubExtension: Error adding dual sub toolset:", error);
   }
+  const video = document.querySelector("video");
+  setupTextTrackListeners(video);
 }
 
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations
@@ -797,7 +841,7 @@ document.addEventListener("change", (e) => {
     if (e.target.checked) {
       const video = document.querySelector('video');
       if (video) {
-        for (const track of video.textTracks) {
+        for (const track of Array.from(video.textTracks)) {
           if (track.mode === 'showing') {
             track.mode = 'hidden';
           }
@@ -811,7 +855,7 @@ document.addEventListener("change", (e) => {
     else {
       const video = document.querySelector('video');
       if (video) {
-        for (const track of video.textTracks) {
+        for (const track of Array.from(video.textTracks)) {
           if (track.mode === 'hidden') {
             track.mode = 'showing';
           }
