@@ -571,8 +571,6 @@ async function addExtensionToolset() {
  * @param {HTMLVideoElement} video
  */
 function setupTextTrackListeners(video) {
-  console.log("Starting setting up text track listeners");
-
   /**
    * @param {TextTrack} textTrack 
    * Add event listener to text track if it is either caption or subtitle
@@ -591,10 +589,6 @@ function setupTextTrackListeners(video) {
         }
 
         if (finnishSubtitles.length > 0) {
-          console.log(`Cue appeared: "${finnishSubtitles}"`);
-
-          console.log("Debugging:");
-
           const displayedFinnishSubtitles = [];
           const targetLanguageSubtitles = [];
           for (const finnishSubtitle of finnishSubtitles) {
@@ -621,9 +615,6 @@ function setupTextTrackListeners(video) {
             targetLanguageRow.textContent = targetLanguageSubtitle;
           }
         } else {
-          // All cues disappeared
-          console.log('All cues disappeared');
-
           const finnishSubRow = document.getElementById('finnish-subtitle-row');
           const targetLanguageRow = document.getElementById('target-language-subtitle-row');
           if (finnishSubRow) { finnishSubRow.textContent = ''; }
@@ -639,6 +630,27 @@ function setupTextTrackListeners(video) {
   video.textTracks.addEventListener('addtrack', (e) => {
     const track = e.track;
     addListenerToTextTrack(track);
+  })
+
+  video.textTracks.addEventListener('change', (e) => {
+    console.log("Text track event change loggin", e);
+    const showingTrack = Array.from(video.textTracks).filter(t => t.mode === "showing")[0];
+    const isHidden = Array.from(video.textTracks).filter(t => t.mode === "hidden").length >= 1;
+    if (showingTrack) {
+      // There is one track in showing mode
+      if (dualSubEnabled) {
+        showingTrack.mode = "hidden";
+      }
+    } else if (isHidden) {
+      // There is one track in hidden mode
+      // Ignore
+    } else {
+      // All tracks are disabled
+      const finnishSubRow = document.getElementById('finnish-subtitle-row');
+      const targetLanguageRow = document.getElementById('target-language-subtitle-row');
+      if (finnishSubRow) { finnishSubRow.textContent = ''; }
+      if (targetLanguageRow) { targetLanguageRow.textContent = ''; }
+    }
   })
 }
 
