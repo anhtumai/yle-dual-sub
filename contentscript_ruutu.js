@@ -632,8 +632,7 @@ function setupTextTrackListeners(video) {
     addListenerToTextTrack(track);
   })
 
-  video.textTracks.addEventListener('change', (e) => {
-    console.log("Text track event change loggin", e);
+  video.textTracks.addEventListener('change', () => {
     const showingTrack = Array.from(video.textTracks).filter(t => t.mode === "showing")[0];
     const isHidden = Array.from(video.textTracks).filter(t => t.mode === "hidden").length >= 1;
     if (showingTrack) {
