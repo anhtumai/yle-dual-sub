@@ -595,7 +595,21 @@ function setupTextTrackListeners(video) {
 
           console.log("Debugging:");
 
-          const displayedFinnishSubtitle = finnishSubtitles.join("0-0");
+          const displayedFinnishSubtitles = [];
+          const targetLanguageSubtitles = [];
+          for (const finnishSubtitle of finnishSubtitles) {
+            const displayedFinnishSubtitle = finnishSubtitle.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            const translationKey = displayedFinnishSubtitle.toLocaleLowerCase();
+            const targetLanguageSubtitle =
+              sharedTranslationMap.get(translationKey)
+              || sharedTranslationErrorMap.get(translationKey)
+              || "Translating ...";
+            displayedFinnishSubtitles.push(displayedFinnishSubtitle);
+            targetLanguageSubtitles.push(targetLanguageSubtitle);
+          }
+
+          const displayedFinnishSubtitle = displayedFinnishSubtitles.join(". ");
+          const targetLanguageSubtitle = targetLanguageSubtitles.join(". ");
 
           // Update Finnish subtitle
           const finnishSubRow = document.getElementById('finnish-subtitle-row');
@@ -604,7 +618,7 @@ function setupTextTrackListeners(video) {
           }
           const targetLanguageRow = document.getElementById('target-language-subtitle-row');
           if (targetLanguageRow) {
-            targetLanguageRow.textContent = `Translated: ${displayedFinnishSubtitle}`;
+            targetLanguageRow.textContent = targetLanguageSubtitle;
           }
         } else {
           // All cues disappeared
@@ -692,13 +706,11 @@ function initializeContainerForSubtitleRows() {
   const finnishSubtitleRow = document.createElement('div');
   finnishSubtitleRow.id = 'finnish-subtitle-row';
   finnishSubtitleRow.className = 'dual-sub-subtitle-row';
-  finnishSubtitleRow.textContent = 'Finnish subtitle will appear here';
 
   // Create translated subtitle row
   const translatedSubtitleRow = document.createElement('div');
   translatedSubtitleRow.id = 'target-language-subtitle-row';
   translatedSubtitleRow.className = 'dual-sub-subtitle-row translated-subtitle-row';
-  translatedSubtitleRow.textContent = 'Translated subtitle will appear here';
 
   // Append subtitle rows to container
   subtitleContainer.appendChild(finnishSubtitleRow);
@@ -805,10 +817,6 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
    * @param {CustomEvent} e
    */
 
-  // Feature disabled for now - early return to prevent translation processing
-  return;
-
-  // eslint-disable-next-line no-unreachable
   const rawSubtitleFinnishText = /** @type {CustomEvent} */ (e).detail;
 
   const translationKey = toTranslationKey(rawSubtitleFinnishText);
