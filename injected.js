@@ -904,7 +904,8 @@ const vttParser = new WebVTTParser();
             }
             /** @type {string} */
             const requestedUrl = this._url.toLowerCase();
-            if (!requestedUrl.endsWith(".vtt")) {
+            const requestedUrlWithoutQuery = requestedUrl.split("?")[0];
+            if (!requestedUrlWithoutQuery.endsWith(".vtt")) {
                 return;
             }
 

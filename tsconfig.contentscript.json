@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "contentscript.js",
+    "database.js",
+    "utils.js",
+    "background.js",
+    "types.js",
+    "globals.d.ts",
+    "popup.js"
+  ]
+}
