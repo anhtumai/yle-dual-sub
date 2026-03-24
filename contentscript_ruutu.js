@@ -91,6 +91,10 @@ openDatabase().then(db => {
     console.error("RuutuDualSubExtension: Failed to established connection to indexDB: ", error);
   })
 
+// Track text tracks hidden by extension so we can restore them when dual sub is disabled
+/** @type {Set<TextTrack>} */
+const tracksHiddenByExtension = new Set();
+
 // ==================================
 // END SECTION
 // ==================================
@@ -635,6 +639,7 @@ function setupTextTrackListeners(video) {
       // There is one track in showing mode
       if (dualSubEnabled) {
         showingTrack.mode = "hidden";
+        tracksHiddenByExtension.add(showingTrack);
       }
     } else if (isHidden) {
       // There is at least one track in hidden mode
@@ -862,7 +867,6 @@ const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
-        console.log("RuutuDualSubExtension: Video detected via MutationObserver", mutation);
         initializeDualSubForVideo().then(() => { }).catch((error) => {
           console.error("RuutuDualSubExtension: Error initializing dual sub for video:", error);
         });
@@ -949,6 +953,7 @@ document.addEventListener("change", (e) => {
         for (const track of Array.from(video.textTracks)) {
           if (track.mode === 'showing') {
             track.mode = 'hidden';
+            tracksHiddenByExtension.add(track);
           }
         }
       }
@@ -961,11 +966,13 @@ document.addEventListener("change", (e) => {
       const video = document.querySelector('video');
       if (video) {
         for (const track of Array.from(video.textTracks)) {
-          if (track.mode === 'hidden') {
+          if (track.mode === 'hidden' && tracksHiddenByExtension.has(track)) {
             track.mode = 'showing';
+            tracksHiddenByExtension.delete(track);
           }
         }
       }
+      tracksHiddenByExtension.clear();
       // Hide subtitle container
       if (subtitleContainer) {
         subtitleContainer.style.display = 'none';
