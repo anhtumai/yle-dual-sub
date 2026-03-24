@@ -73,7 +73,7 @@ function shouldBlurTranslation() {
  * @type {string | null}
  * Memory cached current movie name
  */
-const currentMovieName = null;
+let currentMovieName = null;
 
 /**
  * @type {IDBDatabase | null}
@@ -794,6 +794,36 @@ function isVideoElementAppearMutation(mutation) {
   }
 }
 
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Get video title once the video player is loaded
+ * @returns {Promise<string | null>}
+ */
+async function getVideoTitle() {
+
+  /** @type string | null | undefined */
+  let title = null;
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    title = document.querySelector('[data-item="PlayerSummary"] h1')?.textContent
+      || document.querySelector('h1')?.textContent;
+    if (title) {
+      break;
+    };
+    await sleep(150);
+  }
+
+  if (!title) {
+    console.error("RuutuDualSubExtension: Cannot get movie name. Title Element is null.");
+    return null;
+  }
+
+  return title;
+}
+
 // ==================================
 // END SECTION
 // ==================================
@@ -802,12 +832,47 @@ function isVideoElementAppearMutation(mutation) {
 // MAIN SECTION: OBSERVERS & EVENT LISTENERS
 // =========================================
 
+/**
+ * This function acts as a handler when new movie is played.
+ * It will load that movie's subtitle from database and update metadata.
+ * @returns {Promise<void>}
+ */
+async function loadMovieCacheAndUpdateMetadata() {
+
+  const db = await openDatabase();
+
+  currentMovieName = await getVideoTitle();
+  if (!currentMovieName) {
+    return;
+  }
+
+  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
+  if (Array.isArray(subtitleRecords)) {
+    console.info(`RuutuDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
+  }
+  for (const subtitleRecord of subtitleRecords) {
+    sharedTranslationMap.set(
+      subtitleRecord.originalText,
+      subtitleRecord.translatedText
+    );
+  }
+
+  const lastAccessedDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+
+  await upsertMovieMetadata(db, currentMovieName, lastAccessedDays);
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
         console.log("RuutuDualSubExtension: Video detected via MutationObserver", mutation);
-        initializeDualSubForVideo();
+        initializeDualSubForVideo().then(() => { }).catch((error) => {
+          console.error("RuutuDualSubExtension: Error initializing dual sub for video:", error);
+        });
+        loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
+          console.error("RuutuDualSubExtension: Error populating shared translation map from cache:", error);
+        });
       }
     }
   });
@@ -847,6 +912,31 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   });
 });
 
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  /**
+   * Listen for user setting changes for key selection in Options page
+   * @param {Object} changes
+   * @param {string} namespace
+   */
+  if (namespace === 'sync' && changes.tokenInfos) {
+    if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
+      /**
+       * @type {DeepLTokenInfoInStorage[]}
+       */
+      const deepLTokenInfos = changes.tokenInfos.newValue;
+      const selectedTokenInfo = deepLTokenInfos.find(token => token.selected === true);
+      const hasSelectedToken = !!selectedTokenInfo;
+      _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
+    }
+  }
+  if (namespace === 'sync' && changes.targetLanguage) {
+    if (changes.targetLanguage.newValue && typeof changes.targetLanguage.newValue === 'string') {
+      alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
+        `We need to reload the page for the change to work.`);
+      location.reload();
+    }
+  }
+});
 
 document.addEventListener("change", (e) => {
   /**
