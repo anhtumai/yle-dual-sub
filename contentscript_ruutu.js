@@ -510,12 +510,8 @@ async function addExtensionToolset() {
       if (targetLanguageSubtitleRowElement) {
         targetLanguageSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurTranslation());
       }
-    } else {
-      const originalSubtitleRows = document.querySelectorAll('[data-testid="subtitle-row"]');
-      originalSubtitleRows.forEach(row => {
-        row.classList.toggle('translation-blurred', shouldBlurFinnish());
-      });
     }
+    // Ruutu uses video embedded subtitle. We cannot blur it. Therefore, ignore another branch for now.
   });
 
   document.addEventListener('click', (e) => {
@@ -641,7 +637,7 @@ function setupTextTrackListeners(video) {
         showingTrack.mode = "hidden";
       }
     } else if (isHidden) {
-      // There is one track in hidden mode
+      // There is at least one track in hidden mode
       // Ignore
     } else {
       // All tracks are disabled
