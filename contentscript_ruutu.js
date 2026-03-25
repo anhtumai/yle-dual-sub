@@ -1,5 +1,3 @@
-console.log("RuutuDualSubExtension: Content script for Ruutu loaded.");
-
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
 
@@ -275,7 +273,6 @@ async function _waitForElement(selector, timeoutMs = 5000) {
   while (elapsed < timeoutMs) {
     const el = document.querySelector(selector);
     if (el) {
-      console.log(`RuutuDualSubExtension: Found element "${selector}" after ${elapsed}ms`);
       return el;
     }
     await new Promise(r => setTimeout(r, interval));
@@ -655,8 +652,7 @@ function setupTextTrackListeners(video) {
 }
 
 /**
- * Create a container div to original Finnish subtitle and its translation
- * This element pre-exists on the page (empty until populated with text).
+ * Create a container div to hold Finnish subtitle and its translation.
  * Reasons for creating div:
  * - Allows displaying dual subtitles (Finnish + translation) side by side
  * - Enables custom styling, blur effects, and dynamic font sizing
@@ -678,7 +674,7 @@ function initializeContainerForSubtitleRows() {
   }
 
   // Check if container already exists to avoid duplicates
-  let subtitleContainer = document.getElementById('dual-sub-custom-subtitle-container');
+  let subtitleContainer = document.getElementById('displayed-subtitles-rows-wrapper');
   if (subtitleContainer) {
     return subtitleContainer;
   }
@@ -732,7 +728,6 @@ function initializeContainerForSubtitleRows() {
   videoContainer.style.position = 'relative';
   videoContainer.appendChild(subtitleContainer);
 
-  console.log("RuutuDualSubExtension: Initialized custom subtitle container");
   return subtitleContainer;
 }
 
@@ -748,7 +743,11 @@ async function initializeDualSubForVideo() {
     console.error("RuutuDualSubExtension: Error adding dual sub toolset:", error);
   }
   const video = document.querySelector("video");
-  setupTextTrackListeners(video);
+  if (video) {
+    setupTextTrackListeners(video);
+  } else {
+    console.error("RuutuDualSubExtension: Video element not found during initialization");
+  }
 }
 
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations
@@ -940,7 +939,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
 document.addEventListener("change", (e) => {
   /**
-   * Listen for user interaction events in YLE Areena page,
+   * Listen for user interaction events in Ruutu page,
    * for example: dual sub switch change event
    * @param {Event} e
    */
