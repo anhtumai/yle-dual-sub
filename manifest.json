@@ -34,7 +34,7 @@
     }
   ],
   "action": {
-    "default_title": "YLE Areena Dual Subtitles",
+    "default_title": "YLE Areena & Ruutu Dual Subtitles",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon.png",
