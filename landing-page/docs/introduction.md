@@ -4,9 +4,9 @@ slug: /
 
 # Introduction
 
-**YLE AREENA DUAL SUBTITLES — Learn Finnish Through Immersion**
+**DUAL SUBTITLES FOR FINNISH STREAMING — Learn Finnish Through Immersion**
 
-Master Finnish naturally by watching YLE Areena with dual subtitles. See Finnish and your target language side-by-side in real-time, turning every video into an immersive language learning experience.
+Master Finnish naturally by watching YLE Areena and Ruutu with dual subtitles. See Finnish and your target language side-by-side in real-time, turning every video into an immersive language learning experience.
 
 Demo video:
 
@@ -33,7 +33,7 @@ Demo video:
 
 ## Key Features
 
-- **Dual Subtitle Display** — See Finnish + translated subtitles simultaneously
+- **Dual Subtitle Display** — See Finnish + translated subtitles simultaneously on YLE Areena & Ruutu
 - **Multiple Language Support** — Translate to English, Vietnamese, or any language supported by DeepL
 - **High-Quality Translation** — Powered by DeepL, known for accurate and natural translations
 - **Smart Caching** — Translations stored locally for 30 days; rewatching uses zero API calls

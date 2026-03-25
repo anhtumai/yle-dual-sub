@@ -1,5 +1,3 @@
-console.log("RuutuDualSubExtension: Content script for Ruutu loaded.");
-
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
 
@@ -73,7 +71,7 @@ function shouldBlurTranslation() {
  * @type {string | null}
  * Memory cached current movie name
  */
-const currentMovieName = null;
+let currentMovieName = null;
 
 /**
  * @type {IDBDatabase | null}
@@ -90,6 +88,10 @@ openDatabase().then(db => {
   catch((error) => {
     console.error("RuutuDualSubExtension: Failed to established connection to indexDB: ", error);
   })
+
+// Track text tracks hidden by extension so we can restore them when dual sub is disabled
+/** @type {Set<TextTrack>} */
+const tracksHiddenByExtension = new Set();
 
 // ==================================
 // END SECTION
@@ -271,7 +273,6 @@ async function _waitForElement(selector, timeoutMs = 5000) {
   while (elapsed < timeoutMs) {
     const el = document.querySelector(selector);
     if (el) {
-      console.log(`RuutuDualSubExtension: Found element "${selector}" after ${elapsed}ms`);
       return el;
     }
     await new Promise(r => setTimeout(r, interval));
@@ -510,12 +511,8 @@ async function addExtensionToolset() {
       if (targetLanguageSubtitleRowElement) {
         targetLanguageSubtitleRowElement.classList.toggle('translation-blurred', shouldBlurTranslation());
       }
-    } else {
-      const originalSubtitleRows = document.querySelectorAll('[data-testid="subtitle-row"]');
-      originalSubtitleRows.forEach(row => {
-        row.classList.toggle('translation-blurred', shouldBlurFinnish());
-      });
     }
+    // Ruutu uses video embedded subtitle. We cannot blur it. Therefore, ignore another branch for now.
   });
 
   document.addEventListener('click', (e) => {
@@ -639,9 +636,10 @@ function setupTextTrackListeners(video) {
       // There is one track in showing mode
       if (dualSubEnabled) {
         showingTrack.mode = "hidden";
+        tracksHiddenByExtension.add(showingTrack);
       }
     } else if (isHidden) {
-      // There is one track in hidden mode
+      // There is at least one track in hidden mode
       // Ignore
     } else {
       // All tracks are disabled
@@ -654,8 +652,7 @@ function setupTextTrackListeners(video) {
 }
 
 /**
- * Create a container div to original Finnish subtitle and its translation
- * This element pre-exists on the page (empty until populated with text).
+ * Create a container div to hold Finnish subtitle and its translation.
  * Reasons for creating div:
  * - Allows displaying dual subtitles (Finnish + translation) side by side
  * - Enables custom styling, blur effects, and dynamic font sizing
@@ -677,7 +674,7 @@ function initializeContainerForSubtitleRows() {
   }
 
   // Check if container already exists to avoid duplicates
-  let subtitleContainer = document.getElementById('dual-sub-custom-subtitle-container');
+  let subtitleContainer = document.getElementById('displayed-subtitles-rows-wrapper');
   if (subtitleContainer) {
     return subtitleContainer;
   }
@@ -731,7 +728,6 @@ function initializeContainerForSubtitleRows() {
   videoContainer.style.position = 'relative';
   videoContainer.appendChild(subtitleContainer);
 
-  console.log("RuutuDualSubExtension: Initialized custom subtitle container");
   return subtitleContainer;
 }
 
@@ -747,7 +743,11 @@ async function initializeDualSubForVideo() {
     console.error("RuutuDualSubExtension: Error adding dual sub toolset:", error);
   }
   const video = document.querySelector("video");
-  setupTextTrackListeners(video);
+  if (video) {
+    setupTextTrackListeners(video);
+  } else {
+    console.error("RuutuDualSubExtension: Video element not found during initialization");
+  }
 }
 
 // Debounce flag to prevent duplicate initialization during rapid DOM mutations
@@ -794,6 +794,36 @@ function isVideoElementAppearMutation(mutation) {
   }
 }
 
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Get video title once the video player is loaded
+ * @returns {Promise<string | null>}
+ */
+async function getVideoTitle() {
+
+  /** @type string | null | undefined */
+  let title = null;
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    title = document.querySelector('[data-item="PlayerSummary"] h1')?.textContent
+      || document.querySelector('h1')?.textContent;
+    if (title) {
+      break;
+    };
+    await sleep(150);
+  }
+
+  if (!title) {
+    console.error("RuutuDualSubExtension: Cannot get movie name. Title Element is null.");
+    return null;
+  }
+
+  return title;
+}
+
 // ==================================
 // END SECTION
 // ==================================
@@ -802,12 +832,46 @@ function isVideoElementAppearMutation(mutation) {
 // MAIN SECTION: OBSERVERS & EVENT LISTENERS
 // =========================================
 
+/**
+ * This function acts as a handler when new movie is played.
+ * It will load that movie's subtitle from database and update metadata.
+ * @returns {Promise<void>}
+ */
+async function loadMovieCacheAndUpdateMetadata() {
+
+  const db = await openDatabase();
+
+  currentMovieName = await getVideoTitle();
+  if (!currentMovieName) {
+    return;
+  }
+
+  const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
+  if (Array.isArray(subtitleRecords)) {
+    console.info(`RuutuDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
+  }
+  for (const subtitleRecord of subtitleRecords) {
+    sharedTranslationMap.set(
+      subtitleRecord.originalText,
+      subtitleRecord.translatedText
+    );
+  }
+
+  const lastAccessedDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+
+  await upsertMovieMetadata(db, currentMovieName, lastAccessedDays);
+}
+
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
-        console.log("RuutuDualSubExtension: Video detected via MutationObserver", mutation);
-        initializeDualSubForVideo();
+        initializeDualSubForVideo().then(() => { }).catch((error) => {
+          console.error("RuutuDualSubExtension: Error initializing dual sub for video:", error);
+        });
+        loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
+          console.error("RuutuDualSubExtension: Error populating shared translation map from cache:", error);
+        });
       }
     }
   });
@@ -847,10 +911,35 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   });
 });
 
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  /**
+   * Listen for user setting changes for key selection in Options page
+   * @param {Object} changes
+   * @param {string} namespace
+   */
+  if (namespace === 'sync' && changes.tokenInfos) {
+    if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
+      /**
+       * @type {DeepLTokenInfoInStorage[]}
+       */
+      const deepLTokenInfos = changes.tokenInfos.newValue;
+      const selectedTokenInfo = deepLTokenInfos.find(token => token.selected === true);
+      const hasSelectedToken = !!selectedTokenInfo;
+      _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken);
+    }
+  }
+  if (namespace === 'sync' && changes.targetLanguage) {
+    if (changes.targetLanguage.newValue && typeof changes.targetLanguage.newValue === 'string') {
+      alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
+        `We need to reload the page for the change to work.`);
+      location.reload();
+    }
+  }
+});
 
 document.addEventListener("change", (e) => {
   /**
-   * Listen for user interaction events in YLE Areena page,
+   * Listen for user interaction events in Ruutu page,
    * for example: dual sub switch change event
    * @param {Event} e
    */
@@ -863,6 +952,7 @@ document.addEventListener("change", (e) => {
         for (const track of Array.from(video.textTracks)) {
           if (track.mode === 'showing') {
             track.mode = 'hidden';
+            tracksHiddenByExtension.add(track);
           }
         }
       }
@@ -875,11 +965,13 @@ document.addEventListener("change", (e) => {
       const video = document.querySelector('video');
       if (video) {
         for (const track of Array.from(video.textTracks)) {
-          if (track.mode === 'hidden') {
+          if (track.mode === 'hidden' && tracksHiddenByExtension.has(track)) {
             track.mode = 'showing';
+            tracksHiddenByExtension.delete(track);
           }
         }
       }
+      tracksHiddenByExtension.clear();
       // Hide subtitle container
       if (subtitleContainer) {
         subtitleContainer.style.display = 'none';

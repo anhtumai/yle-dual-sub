@@ -4,7 +4,7 @@ This page provides step-by-step instructions on how to set up and use the extens
 
 ## Installation
 
-1. Go to [YLE Areena Dual Sub on Chrome Extension Webstore](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
+1. Go to [YLE Areena & Ruutu Dual Sub on Chrome Extension Webstore](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
 2. Click "Add to Chrome".
 3. Open Extension popup and click `Settings` button.
 
@@ -16,11 +16,19 @@ This page provides step-by-step instructions on how to set up and use the extens
 
 5. (Optional) Select your preferred translation language from the dropdown (default is English). You can choose from Vietnamese, Japanese, Spanish, and all other languages supported by DeepL.
 
-6. Open [YLE Areena TV](https://areena.yle.fi/tv) and enjoy.
+Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) if you want to see the whole usage flow.
+
+### For YLE Areena:
+
+6. Open [YLE Areena TV](https://areena.yle.fi/tv) and choose your content.
 
 7. Remember to turn on subtitle `Tekstitykset.Ohjelmatekstitys` and toggle on `Dual Sub` switch on the bottom bar.
 
-Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) if you want to see the whole usage flow.
+### For Ruutu:
+
+6. Go to [Ruutu.fi](https://www.ruutu.fi) and select a video with Finnish subtitles.
+
+7. Toggle on `Dual Sub` switch on the bottom control bar to enable dual subtitles.
 
 ## Setting Up Your Translation Key
 
