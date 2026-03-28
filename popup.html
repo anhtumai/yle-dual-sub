@@ -106,6 +106,49 @@
       box-shadow: 0 4px 8px rgba(107, 114, 128, 0.4);
     }
 
+    .button-ghost {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #9ca3af;
+      font-size: 14px;
+      flex-direction: column;
+      gap: 6px;
+      cursor: default;
+    }
+
+    .button-ghost:hover {
+      background: rgba(107, 114, 128, 0.1);
+      color: #d1d5db;
+    }
+
+    .button-ghost .bug-email {
+      font-size: 14px;
+      color: #9ca3af;
+      user-select: text;
+      cursor: text;
+      font-weight: 400;
+    }
+
+    .button-ghost .bug-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 12px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .button-ghost .bug-links a {
+      color: #60a5fa;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button-ghost .bug-links a:hover {
+      color: #93c5fd;
+    }
+
     .note a {
       color: #FF5E5B;
       text-decoration: none;
@@ -128,13 +171,26 @@
       text-align: center;
       font-style: italic;
     }
+
+    .platform-link {
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px dashed #60a5fa;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .platform-link:hover {
+      color: #93c5fd;
+      border-bottom-color: #93c5fd;
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <h1><span class="emoji">🇫🇮</span> Dual Sub <span class="emoji">📺</span></h1>
-    <div class="subtitle">Learn Finnish by watching YLE Areena & Ruutu with dual subtitles</div>
+    <div class="subtitle">Learn Finnish by watching <a href="https://areena.yle.fi" target="_blank" class="platform-link">YLE Areena</a> &amp; <a href="https://www.ruutu.fi" target="_blank" class="platform-link">Ruutu</a> with dual subtitles</div>
     <div class="description">
       Watch Finnish content with both Finnish and target language (English, Vietnamese) subtitles displayed
       simultaneously - the perfect tool for immersive language learning!
@@ -145,7 +201,7 @@
         <li>Finnish + Target language dual subtitles</li>
         <li>Powered by DeepL translation</li>
         <li>Rewind/forward buttons (3 seconds)</li>
-        <li>Works on YLE Areena & Ruutu</li>
+        <li>Works on <a href="https://areena.yle.fi" target="_blank" class="platform-link">YLE Areena</a> &amp; <a href="https://www.ruutu.fi" target="_blank" class="platform-link">Ruutu</a></li>
         <li>Free for basic usage, but requires one-time setup</li>
       </ul>
     </div>
@@ -158,6 +214,15 @@
         <span>⚙️</span>
         <span>Settings</span>
       </a>
+    </div>
+    <div class="buttons">
+      <div class="button button-ghost">
+        <span>Report a Bug / Suggest Improvement</span>
+        <div class="bug-links">
+          <a href="https://github.com/anhtumai/yle-dual-sub/issues" target="_blank">🔗 GitHub Issues</a>
+          <span class="bug-email">✉️ dualsub.finnishstreaming@gmail.com</span>
+        </div>
+      </div>
     </div>
     <div class="note">
       ⚡ First time? Click "Settings" to add your free DeepL translation key

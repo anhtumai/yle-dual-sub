@@ -67,7 +67,7 @@ const config = {
         respectPrefersColorScheme: true,
       },
       navbar: {
-        title: 'YLE Areena Dual Sub Extension',
+        title: 'Finnish Streaming Dual Sub Extension',
         logo: {
           alt: 'Extension Logo',
           src: 'img/logo.png',
@@ -139,7 +139,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} YLE Areena Dual Subtitles.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Finnish Streaming Dual Subtitles.`,
       },
       prism: {
         theme: prismThemes.github,

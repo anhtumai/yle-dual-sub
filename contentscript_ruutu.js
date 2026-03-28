@@ -374,11 +374,12 @@ async function addExtensionToolset() {
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_info_tooltip" style="left: -200px;">
           Do you know:<br />
-          We can increase/decrease subtitle size by Ctrl + / Ctrl - <br />
-          YLE supports changing subtitle styles from here
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-left: 4px;">
-            <path fill="currentColor" fill-rule="evenodd" d="M4 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h3.76a1 1 0 0 1 .65.24l1.638 1.404a3 3 0 0 0 3.904 0l1.637-1.403a1 1 0 0 1 .65-.241H20a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3zM3 6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-3.76a3 3 0 0 0-1.952.722l-1.637 1.403a1 1 0 0 1-1.302 0l-1.636-1.403A3 3 0 0 0 7.76 19H4a1 1 0 0 1-1-1zm16 6a1 1 0 0 1-1 1h-7a1 1 0 1 1 0-2h7a1 1 0 0 1 1 1M8 12a1 1 0 0 1-1 1H6a1 1 0 1 1 0-2h1a1 1 0 0 1 1 1m-3 4a1 1 0 0 1 1-1h7a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1m11 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1" clip-rule="evenodd"/>
+          Remember to enable Ruutu subtitle by selecting <br />
+          "Ohjelmatekstitys" from this icon <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="20" height="20" style="display: inline-block; vertical-align: middle; margin-left: 4px;">
+            <path d="M40,8 L8,8 C5.8,8 4,9.8 4,12 L4,36 C4,38.2 5.8,40 8,40 L40,40 C42.2,40 44,38.2 44,36 L44,12 C44,9.8 42.2,8 40,8 Z M8,24 L16,24 L16,28 L8,28 Z M28,36 L8,36 L8,32 L28,32 Z M40,36 L32,36 L32,32 L40,32 Z M40,28 L20,28 L20,24 L40,24 Z" fill="currentColor"/>
           </svg>
+          <br />If subtitles aren't displaying, try toggling the switch<br />
+          We can increase/decrease subtitle size by Ctrl + / Ctrl - <br />
         </div>
       </button>
 
@@ -590,7 +591,7 @@ function setupTextTrackListeners(video) {
           const targetLanguageSubtitles = [];
           for (const finnishSubtitle of finnishSubtitles) {
             const displayedFinnishSubtitle = finnishSubtitle.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-            const translationKey = displayedFinnishSubtitle.toLocaleLowerCase();
+            const translationKey = displayedFinnishSubtitle.toLowerCase();
             const targetLanguageSubtitle =
               sharedTranslationMap.get(translationKey)
               || sharedTranslationErrorMap.get(translationKey)
