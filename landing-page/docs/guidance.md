@@ -4,7 +4,7 @@ This page provides step-by-step instructions on how to set up and use the extens
 
 ## Installation
 
-1. Go to [YLE Areena & Ruutu Dual Sub on Chrome Extension Webstore](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
+1. Go to [Learn Finnish: Dual Subtitles for Finnish Streaming on Chrome Extension Webstore](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
 2. Click "Add to Chrome".
 3. Open Extension popup and click `Settings` button.
 

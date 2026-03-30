@@ -175,6 +175,10 @@
   cursor: pointer;
 }
 
+.dual-sub-extension-section_info_tooltip {
+  z-index: 1001;
+}
+
 .dual-sub-extension-section
   button:hover
   .dual-sub-extension-section_rewind_tooltip,
