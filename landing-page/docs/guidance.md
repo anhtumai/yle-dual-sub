@@ -24,11 +24,17 @@ Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) 
 
 7. Remember to turn on subtitle `Tekstitykset.Ohjelmatekstitys` and toggle on `Dual Sub` switch on the bottom bar.
 
+   - <img src={require('@site/static/img/turn-on-subtitles-yle-areena.png').default} alt="Turn on YLE Areena default subtitle" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+
 ### For Ruutu:
 
 6. Go to [Ruutu.fi](https://www.ruutu.fi) and select a video with Finnish subtitles.
 
-7. Toggle on `Dual Sub` switch on the bottom control bar to enable dual subtitles.
+7. Remember to turn on subtitle `Ohjelmatekstitys` and toggle on `Dual Sub` switch on the bottom bar.
+
+   - <img src={require('@site/static/img/turn-on-subtitles-ruutu.png').default} alt="Turn on YLE Areena default subtitle" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
+
+8. ⚠️ **If subtitles don't appear:** Try toggling the `Dual Sub` switch off and on again. If that doesn't help, reload the page. Ruutu's subtitle mechanics can sometimes be unpredictable — a quick toggle or refresh usually fixes it.
 
 ## Setting Up Your Translation Key
 
