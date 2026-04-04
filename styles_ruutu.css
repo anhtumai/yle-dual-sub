@@ -108,7 +108,7 @@
   transition:
     opacity 0.2s,
     visibility 0.2s;
-  z-index: 1000;
+  z-index: 1;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   min-width: 300px;
   max-width: 400px;
@@ -168,7 +168,7 @@
   transition:
     opacity 1s,
     visibility 1s;
-  z-index: 99;
+  z-index: 1;
   pointer-events: auto;
   bottom: calc(100% + 16px);
   left: -48px;
@@ -176,7 +176,7 @@
 }
 
 .dual-sub-extension-section_info_tooltip {
-  z-index: 1001;
+  z-index: 1;
 }
 
 .dual-sub-extension-section
@@ -236,7 +236,7 @@
     opacity 0.2s,
     visibility 0.2s,
     transform 0.2s;
-  z-index: 1001;
+  z-index: 2;
 }
 
 .dual-sub-blur-dropdown.open {
@@ -291,7 +291,7 @@
   bottom: 80px;
   width: 100%;
   margin-bottom: 32px;
-  z-index: 1000;
+  z-index: 1;
   pointer-events: none;
   display: flex;
   flex-direction: column;
