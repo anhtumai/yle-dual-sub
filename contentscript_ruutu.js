@@ -685,7 +685,7 @@ function initializeContainerForSubtitleRows() {
   subtitleContainer.className = 'dual-sub-subtitle-wrapper';
   subtitleContainer.setAttribute('aria-live', 'polite');
   subtitleContainer.setAttribute('aria-atomic', 'true');
-  subtitleContainer.style.display = 'none';
+  subtitleContainer.style.display = dualSubEnabled ? 'flex' : 'none';
 
   /**
    * Update subtitle font size based on video width
