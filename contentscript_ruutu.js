@@ -481,7 +481,7 @@ async function addExtensionToolset() {
   function updateBlurModeButtonAppearance() {
     if (translationBlurMode === BlurMode.NO_BLUR) {
       blurModeMenuButton.innerHTML = VISIBILITY_ON_SVG;
-      blurModeMenuButton.style.color = "";
+      blurModeMenuButton.style.color = "white";
     } else {
       blurModeMenuButton.innerHTML = VISIBILITY_OFF_SVG;
       blurModeMenuButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
@@ -685,7 +685,7 @@ function initializeContainerForSubtitleRows() {
   subtitleContainer.className = 'dual-sub-subtitle-wrapper';
   subtitleContainer.setAttribute('aria-live', 'polite');
   subtitleContainer.setAttribute('aria-atomic', 'true');
-  subtitleContainer.style.display = 'none';
+  subtitleContainer.style.display = dualSubEnabled ? 'flex' : 'none';
 
   /**
    * Update subtitle font size based on video width
