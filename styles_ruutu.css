@@ -15,6 +15,16 @@
   color: white;
 }
 
+.dual-sub-extension-section button:not(#yle-dual-sub-blur-mode-menu-btn) svg {
+  color: white;
+}
+
+.dual-sub-extension-section button#yle-dual-sub-blur-mode-menu-btn svg {
+  color: inherit;
+  fill: currentColor;
+}
+
+
 /* Switch CSS from https://uiverse.io/Yaya12085/curvy-frog-97 */
 .dual-sub-switch {
   position: relative;

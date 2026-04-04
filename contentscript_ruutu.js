@@ -481,7 +481,7 @@ async function addExtensionToolset() {
   function updateBlurModeButtonAppearance() {
     if (translationBlurMode === BlurMode.NO_BLUR) {
       blurModeMenuButton.innerHTML = VISIBILITY_ON_SVG;
-      blurModeMenuButton.style.color = "";
+      blurModeMenuButton.style.color = "white";
     } else {
       blurModeMenuButton.innerHTML = VISIBILITY_OFF_SVG;
       blurModeMenuButton.style.color = BLUR_BUTTON_COLOR_ACTIVE;
