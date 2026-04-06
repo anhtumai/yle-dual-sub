@@ -382,13 +382,7 @@ async function addExtensionToolset() {
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
         <div aria-hidden="true" class="dual-sub-extension-section_info_tooltip" style="left: -200px;">
-          Do you know:<br />
-          Remember to enable Ruutu subtitle by selecting <br />
-          "Ohjelmatekstitys" from this icon <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="20" height="20" style="display: inline-block; vertical-align: middle; margin-left: 4px;">
-            <path d="M40,8 L8,8 C5.8,8 4,9.8 4,12 L4,36 C4,38.2 5.8,40 8,40 L40,40 C42.2,40 44,38.2 44,36 L44,12 C44,9.8 42.2,8 40,8 Z M8,24 L16,24 L16,28 L8,28 Z M28,36 L8,36 L8,32 L28,32 Z M40,36 L32,36 L32,32 L40,32 Z M40,28 L20,28 L20,24 L40,24 Z" fill="currentColor"/>
-          </svg>
-          <br />If subtitles aren't displaying, try toggling the switch<br />
-          We can increase/decrease subtitle size by Ctrl + / Ctrl - <br />
+          <a href="https://anhtumai.github.io/yle-dual-sub/guidance#tip_for_ruutu" target="_blank" rel="noopener noreferrer">Tips &amp; tricks</a>
         </div>
       </button>
 

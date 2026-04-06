@@ -26,6 +26,11 @@ Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) 
 
    - <img src={require('@site/static/img/turn-on-subtitles-yle-areena.png').default} alt="Turn on YLE Areena default subtitle" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
+#### Tips for YLE Areena {#tip_for_yle_areena}
+
+- You can increase/decrease subtitle size with `Ctrl +` / `Ctrl -`.
+- YLE Areena supports changing subtitle styles (font, size, color) from the subtitle settings icon in the player controls.
+
 ### For Ruutu:
 
 6. Go to [Ruutu.fi](https://www.ruutu.fi) and select a video with Finnish subtitles.
@@ -35,6 +40,12 @@ Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) 
    - <img src={require('@site/static/img/turn-on-subtitles-ruutu.png').default} alt="Turn on YLE Areena default subtitle" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
 8. ⚠️ **If subtitles don't appear:** Try toggling the `Dual Sub` switch off and on again. If that doesn't help, reload the page. Ruutu's subtitle mechanics can sometimes be unpredictable — a quick toggle or refresh usually fixes it.
+
+#### Tips for Ruutu {#tip_for_ruutu}
+
+- Remember to enable subtitles by selecting `Ohjelmatekstitys` from the subtitle icon in the Ruutu player controls.
+- If subtitles aren't displaying, try toggling the `Dual Sub` switch off and on again.
+- You can increase/decrease subtitle size with `Ctrl +` / `Ctrl -`.
 
 ## Setting Up Your Translation Key
 
