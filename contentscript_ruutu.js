@@ -5,7 +5,7 @@
 // SECTION 1: STATE & INITIALIZATION
 // ==================================
 
-const BLUR_BUTTON_COLOR_ACTIVE = 'rgba(236, 72, 153, 1)';
+const BLUR_BUTTON_COLOR_ACTIVE = '#02ccc6';
 
 // Blur mode SVG icons
 const VISIBILITY_ON_SVG = `<svg width="27" height="27" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

@@ -45,7 +45,7 @@
 }
 
 .dual-sub-switch:checked {
-  background-color: rgba(236, 72, 153, 1);
+  background-color: #02ccc6;
 }
 
 .dual-sub-switch::before {
@@ -69,12 +69,12 @@
 }
 
 .dual-sub-switch:checked:hover::before {
-  box-shadow: 0 0 0px 8px rgba(236, 72, 153, 0.15);
+  box-shadow: 0 0 0px 4px #007a77;
 }
 
 .dual-sub-switch:checked::before {
   transform: translateX(100%);
-  border-color: rgba(236, 72, 153, 1);
+  border-color: #02ccc6;
 }
 
 .dual-sub-warning {
