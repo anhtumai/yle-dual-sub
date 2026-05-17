@@ -199,11 +199,12 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
  * indicates success and the second is either translated texts or an error message.
 
  */
-async function fetchTranslation(rawSubtitleFinnishTexts) {
+async function fetchTranslation(rawSubtitleFinnishTexts, context = "") {
   try {
     /**
      * @type {[true, Array<string>] | [false, string]}
@@ -211,7 +212,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
     const response = await chrome.runtime.sendMessage(
       {
         action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts, targetLanguage }
+        data: { rawSubtitleFinnishTexts, targetLanguage, context }
       });
     return response;
   } catch (error) {
@@ -981,6 +982,26 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         `We need to reload the page for the change to work.`);
       location.reload();
     }
+  }
+});
+
+function splitIntoWords(text) {
+  return text
+    .split(/[\s.,\-?]+/)
+    .filter(word => /^[a-zA-ZÀ-ÿ]+$/.test(word));
+}
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+  if (msg.type === 'lookup') {
+    const selectedText = msg.text;
+    const wholeSentence = document.getElementById('finnish-subtitle-row')?.textContent || '';
+
+    const toTranslateWord = splitIntoWords(selectedText)
+    toTranslateWord.push(selectedText)
+    const response = await fetchTranslation(toTranslateWord, wholeSentence);
+
+    console.log("Debug Response", response);
+
   }
 });
 
