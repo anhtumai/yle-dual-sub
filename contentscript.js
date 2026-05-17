@@ -991,17 +991,74 @@ function splitIntoWords(text) {
     .filter(word => /^[a-zA-ZÀ-ÿ]+$/.test(word));
 }
 
+/**
+ * @param {HTMLElement} anchorElement
+ * @param {Array<{key: string, val: string}>} rows
+ */
+function showLookupPopup(anchorElement, rows) {
+  document.getElementById('dual-sub-lookup-popup')?.remove();
+
+  const rect = anchorElement.getBoundingClientRect();
+
+  const rowsHtml = rows.map(({ key, val }) =>
+    `<div class="dual-sub-lookup-row">
+      <span class="dual-sub-lookup-row-key">${key}</span>
+      <span class="dual-sub-lookup-row-val">${val}</span>
+    </div>`
+  ).join('');
+
+  const popup = document.createElement('div');
+  popup.id = 'dual-sub-lookup-popup';
+  popup.style.left = `${rect.left + rect.width / 2}px`;
+  popup.style.top = `${rect.top - 14}px`;
+
+  popup.innerHTML = `
+    <div class="dual-sub-lookup-header">
+      <div class="dual-sub-lookup-header-left">
+        <span class="dual-sub-lookup-title-icon">ⓘ</span>
+        <span class="dual-sub-lookup-title">Explanation</span>
+      </div>
+      <button class="dual-sub-lookup-close" aria-label="Close">✕</button>
+    </div>
+    <div class="dual-sub-lookup-divider"></div>
+    <div class="dual-sub-lookup-body">${rowsHtml}</div>
+    <div class="dual-sub-lookup-arrow"></div>
+  `;
+
+  const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
+  appendTarget.appendChild(popup);
+
+  popup.addEventListener('click', (e) => e.stopPropagation());
+  popup.querySelector('.dual-sub-lookup-close').addEventListener('click', () => popup.remove());
+
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!popup.contains(/** @type {Node} */ (e.target))) {
+        popup.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 0);
+}
+
 chrome.runtime.onMessage.addListener(async (msg) => {
   if (msg.type === 'lookup') {
     const selectedText = msg.text;
     const wholeSentence = document.getElementById('finnish-subtitle-row')?.textContent || '';
 
-    const toTranslateWord = splitIntoWords(selectedText)
-    toTranslateWord.push(selectedText)
-    const response = await fetchTranslation(toTranslateWord, wholeSentence);
+    const words = splitIntoWords(selectedText);
+    const toTranslate = [...words, selectedText];
+    const [isSucceeded, translations] = await fetchTranslation(toTranslate, wholeSentence);
 
-    console.log("Debug Response", response);
+    const anchorElement = document.getElementById('finnish-subtitle-row');
+    if (!anchorElement) { return; }
 
+    if (isSucceeded) {
+      const rows = toTranslate.map((word, i) => ({ key: word, val: translations[i] }));
+      showLookupPopup(anchorElement, rows);
+    } else {
+      showLookupPopup(anchorElement, [{ key: 'Error', val: String(translations) }]);
+    }
   }
 });
 
