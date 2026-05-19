@@ -237,16 +237,18 @@ async function translateTexts(rawSubtitleFinnishTexts, targetLanguage, context =
 };
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "lookup-word",
-    title: 'Look up "%s"',
-    contexts: ["selection"],
-  })
-})
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "lookup-word",
+      title: 'Look up "%s"',
+      contexts: ["selection"],
+      documentUrlPatterns: ["https://areena.yle.fi/*"],
+    });
+  });
+});
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "lookup-word") {
-    const selectedText = info.selectionText; // only fires when user clicks this item
-    chrome.tabs.sendMessage(tab.id, { type: "lookup", text: selectedText });
+    chrome.tabs.sendMessage(tab.id, { type: "lookup", text: info.selectionText });
   }
 });

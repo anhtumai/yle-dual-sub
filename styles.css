@@ -386,6 +386,7 @@
   border-top: 8px solid #ddd;
   margin: 0 auto;
   position: relative;
+  margin-bottom: 10px;
 }
 
 #dual-sub-lookup-popup .dual-sub-lookup-arrow::after {

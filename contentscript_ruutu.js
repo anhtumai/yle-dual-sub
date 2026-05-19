@@ -1,5 +1,6 @@
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
 /* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
+/* global fetchTranslation, handleLookupMessage */
 
 // ==================================
 // SECTION 1: STATE & INITIALIZATION
