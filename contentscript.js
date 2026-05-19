@@ -199,11 +199,12 @@ const translationQueue = new TranslationQueue();
 /**
  * 
  * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
  * indicates success and the second is either translated texts or an error message.
 
  */
-async function fetchTranslation(rawSubtitleFinnishTexts) {
+async function fetchTranslation(rawSubtitleFinnishTexts, context = "") {
   try {
     /**
      * @type {[true, Array<string>] | [false, string]}
@@ -211,7 +212,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts) {
     const response = await chrome.runtime.sendMessage(
       {
         action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts, targetLanguage }
+        data: { rawSubtitleFinnishTexts, targetLanguage, context }
       });
     return response;
   } catch (error) {
@@ -786,7 +787,12 @@ async function addDualSubExtensionSection() {
     if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
       blurModeDropdown.classList.remove('open');
     }
-  });
+    const lookupPopup = document.getElementById('dual-sub-lookup-popup');
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (lookupPopup && !lookupPopup.contains(e.target)) {
+      lookupPopup.remove();
+    }
+  }, true);
 
   // Copy Finnish subtitle button logic
   const copySubtitleButton = document.getElementById('yle-dual-sub-copy-subtitle-button');
@@ -980,6 +986,103 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       alert(`Your target language has changed to ${changes.targetLanguage.newValue}. ` +
         `We need to reload the page for the change to work.`);
       location.reload();
+    }
+  }
+});
+
+function splitIntoWords(text) {
+  return text
+    .split(/[\s.,\-?]+/)
+    .filter(word => /^[a-zA-ZÀ-ÿ]+$/.test(word));
+}
+
+/**
+ * Show lookup popup on top of displayed subtitles rows wrapper, if it exists and visible
+ *
+ * @param {Array<{key: string, val: string}>} rows
+ * @param {number} selectedTextStartIndex
+ * @param {number} selectedTextEndIndex
+ */
+function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
+
+  document.getElementById('dual-sub-lookup-popup')?.remove();
+
+  const displayedSubtitlesRowsWrapper = document.getElementById("displayed-subtitles-rows-wrapper");
+
+  if (!displayedSubtitlesRowsWrapper) {
+    console.warn("YleDualSubExtension: displayedSubtitlesRowsWrapper not found, skipping lookup popup");
+    return;
+  }
+
+  const display = getComputedStyle(displayedSubtitlesRowsWrapper).display;
+  if (!display || display === 'none') {
+    console.warn(`YleDualSubExtension: displayedSubtitlesRowsWrapper is not visible (display: ${display}), skipping lookup popup`);
+    return;
+  }
+
+  const finnishSubtitleRow = document.getElementById("finnish-subtitle-row");
+
+  if (!finnishSubtitleRow || !finnishSubtitleRow?.firstChild) {
+    console.warn("YleDualSubExtension: finnishSubtitleRow not found, skipping lookup popup");
+    return;
+  }
+
+  const textNode = finnishSubtitleRow.firstChild;
+  const range = document.createRange();
+  range.setStart(textNode, selectedTextStartIndex);
+  range.setStart(textNode, selectedTextEndIndex);
+  const rect = range.getBoundingClientRect();
+
+  const rowsHtml = rows.map(({ key, val }) =>
+    `<div class="dual-sub-lookup-row">
+      <span class="dual-sub-lookup-row-key">${key}</span>
+      <span class="dual-sub-lookup-row-val">${val}</span>
+    </div>`
+  ).join('');
+
+  const popup = document.createElement('div');
+  popup.id = 'dual-sub-lookup-popup';
+  popup.style.left = `${rect.left + rect.width / 2}px`;
+  popup.style.top = `${rect.top - 14}px`;
+
+  popup.innerHTML = `
+    <div class="dual-sub-lookup-header">
+      <div class="dual-sub-lookup-header-left">
+        <span class="dual-sub-lookup-title-icon">ⓘ</span>
+        <span class="dual-sub-lookup-title">Explanation</span>
+      </div>
+      <button class="dual-sub-lookup-close" aria-label="Close">✕</button>
+    </div>
+    <div class="dual-sub-lookup-divider"></div>
+    <div class="dual-sub-lookup-body">${rowsHtml}</div>
+    <div class="dual-sub-lookup-arrow"></div>
+  `;
+
+  const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
+  appendTarget.appendChild(popup);
+
+  popup.addEventListener('click', (e) => e.stopPropagation());
+  popup.querySelector('.dual-sub-lookup-close').addEventListener('click', () => popup.remove());
+}
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+  if (msg.type === 'lookup') {
+    /** @type {string} */
+    const selectedText = msg.text;
+    const wholeSentence = document.getElementById('finnish-subtitle-row')?.textContent || '';
+
+    const words = splitIntoWords(selectedText);
+    const toTranslate = [...words, selectedText];
+    const [isSucceeded, translations] = await fetchTranslation(toTranslate, wholeSentence);
+
+    const selectedTextStartIndex = wholeSentence.indexOf(selectedText);
+    const selectedTextEndIndex = selectedTextStartIndex + selectedText.length / 2;
+
+    if (isSucceeded) {
+      const rows = toTranslate.map((word, i) => ({ key: word, val: translations[i] }));
+      showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex);
+    } else {
+      showLookupPopup([{ key: 'Error', val: String(translations) }], selectedTextStartIndex, selectedTextEndIndex);
     }
   }
 });
