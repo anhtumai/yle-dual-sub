@@ -992,13 +992,41 @@ function splitIntoWords(text) {
 }
 
 /**
- * @param {HTMLElement} anchorElement
+ * Show lookup popup on top of displayed subtitles rows wrapper, if it exists and visible
+ *
  * @param {Array<{key: string, val: string}>} rows
+ * @param {number} selectedTextStartIndex
+ * @param {number} selectedTextEndIndex
  */
-function showLookupPopup(anchorElement, rows) {
+function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
+
   document.getElementById('dual-sub-lookup-popup')?.remove();
 
-  const rect = anchorElement.getBoundingClientRect();
+  const displayedSubtitlesRowsWrapper = document.getElementById("displayed-subtitles-rows-wrapper");
+
+  if (!displayedSubtitlesRowsWrapper) {
+    console.warn("YleDualSubExtension: displayedSubtitlesRowsWrapper not found, skipping lookup popup");
+    return;
+  }
+
+  const display = getComputedStyle(displayedSubtitlesRowsWrapper).display;
+  if (!display || display === 'none') {
+    console.warn(`YleDualSubExtension: displayedSubtitlesRowsWrapper is not visible (display: ${display}), skipping lookup popup`);
+    return;
+  }
+
+  const finnishSubtitleRow = document.getElementById("finnish-subtitle-row");
+
+  if (!finnishSubtitleRow || !finnishSubtitleRow?.firstChild) {
+    console.warn("YleDualSubExtension: finnishSubtitleRow not found, skipping lookup popup");
+    return;
+  }
+
+  const textNode = finnishSubtitleRow.firstChild;
+  const range = document.createRange();
+  range.setStart(textNode, selectedTextStartIndex);
+  range.setStart(textNode, selectedTextEndIndex);
+  const rect = range.getBoundingClientRect();
 
   const rowsHtml = rows.map(({ key, val }) =>
     `<div class="dual-sub-lookup-row">
@@ -1033,7 +1061,7 @@ function showLookupPopup(anchorElement, rows) {
 
   setTimeout(() => {
     document.addEventListener('click', function handler(e) {
-      if (!popup.contains(/** @type {Node} */ (e.target))) {
+      if (!popup.contains(/** @type {Node} */(e.target))) {
         popup.remove();
         document.removeEventListener('click', handler);
       }
@@ -1043,6 +1071,7 @@ function showLookupPopup(anchorElement, rows) {
 
 chrome.runtime.onMessage.addListener(async (msg) => {
   if (msg.type === 'lookup') {
+    /** @type {string} */
     const selectedText = msg.text;
     const wholeSentence = document.getElementById('finnish-subtitle-row')?.textContent || '';
 
@@ -1050,14 +1079,14 @@ chrome.runtime.onMessage.addListener(async (msg) => {
     const toTranslate = [...words, selectedText];
     const [isSucceeded, translations] = await fetchTranslation(toTranslate, wholeSentence);
 
-    const anchorElement = document.getElementById('finnish-subtitle-row');
-    if (!anchorElement) { return; }
+    const selectedTextStartIndex = wholeSentence.indexOf(selectedText);
+    const selectedTextEndIndex = selectedTextStartIndex + selectedText.length / 2;
 
     if (isSucceeded) {
       const rows = toTranslate.map((word, i) => ({ key: word, val: translations[i] }));
-      showLookupPopup(anchorElement, rows);
+      showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex);
     } else {
-      showLookupPopup(anchorElement, [{ key: 'Error', val: String(translations) }]);
+      showLookupPopup([{ key: 'Error', val: String(translations) }], selectedTextStartIndex, selectedTextEndIndex);
     }
   }
 });
