@@ -787,7 +787,12 @@ async function addDualSubExtensionSection() {
     if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
       blurModeDropdown.classList.remove('open');
     }
-  });
+    const lookupPopup = document.getElementById('dual-sub-lookup-popup');
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (lookupPopup && !lookupPopup.contains(e.target)) {
+      lookupPopup.remove();
+    }
+  }, true);
 
   // Copy Finnish subtitle button logic
   const copySubtitleButton = document.getElementById('yle-dual-sub-copy-subtitle-button');
@@ -1058,15 +1063,6 @@ function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
 
   popup.addEventListener('click', (e) => e.stopPropagation());
   popup.querySelector('.dual-sub-lookup-close').addEventListener('click', () => popup.remove());
-
-  setTimeout(() => {
-    document.addEventListener('click', function handler(e) {
-      if (!popup.contains(/** @type {Node} */(e.target))) {
-        popup.remove();
-        document.removeEventListener('click', handler);
-      }
-    });
-  }, 0);
 }
 
 chrome.runtime.onMessage.addListener(async (msg) => {
