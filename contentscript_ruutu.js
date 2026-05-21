@@ -730,6 +730,12 @@ function initializeContainerForSubtitleRows() {
   subtitleContainer.appendChild(finnishSubtitleRow);
   subtitleContainer.appendChild(translatedSubtitleRow);
 
+  for (const eventType of ['mousedown', 'mouseup', 'click']) {
+    subtitleContainer.addEventListener(eventType, (/** @type {Event} */ e) => {
+      e.stopPropagation();
+    });
+  }
+
   // Insert into video container with position: relative to be the positioning context
   videoContainer.style.position = 'relative';
   videoContainer.appendChild(subtitleContainer);
