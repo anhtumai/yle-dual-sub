@@ -101,8 +101,9 @@ function splitIntoWords(text) {
  * @param {Array<{key: string, val: string}>} rows
  * @param {number} selectedTextStartIndex
  * @param {number} selectedTextEndIndex
+ * @param {Element} appendTarget
  */
-function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
+function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex, appendTarget) {
 
   document.getElementById('dual-sub-lookup-popup')?.remove();
 
@@ -157,7 +158,6 @@ function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
     body.appendChild(row);
   });
 
-  const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
   appendTarget.appendChild(popup);
 
   popup.addEventListener('click', (e) => e.stopPropagation());
@@ -167,9 +167,10 @@ function showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex) {
 /**
  * @param {{type: string, text: string}} msg
  * @param {string} targetLanguage
+ * @param {Element} appendTarget
  */
 // eslint-disable-next-line no-unused-vars
-async function handleLookupMessage(msg, targetLanguage) {
+async function handleLookupMessage(msg, targetLanguage, appendTarget) {
   if (msg.type !== 'lookup') { return; }
 
   /** @type {string} */
@@ -200,8 +201,13 @@ async function handleLookupMessage(msg, targetLanguage) {
 
   if (isSucceeded) {
     const rows = toTranslate.map((word, i) => ({ key: word, val: translations[i] }));
-    showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex);
+    showLookupPopup(rows, selectedTextStartIndex, selectedTextEndIndex, appendTarget);
   } else {
-    showLookupPopup([{ key: 'Error', val: String(translations) }], selectedTextStartIndex, selectedTextEndIndex);
+    showLookupPopup(
+      [{ key: 'Error', val: String(translations) }],
+      selectedTextStartIndex,
+      selectedTextEndIndex,
+      appendTarget
+    );
   }
 }

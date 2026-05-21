@@ -970,7 +970,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 chrome.runtime.onMessage.addListener((msg) => {
-  handleLookupMessage(msg, targetLanguage).catch((error) => {
+  const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
+  handleLookupMessage(msg, targetLanguage, appendTarget).catch((error) => {
     console.error("YleDualSubExtension: Error handling lookup message:", error);
   });
 });

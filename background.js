@@ -242,7 +242,7 @@ chrome.runtime.onInstalled.addListener(() => {
       id: "lookup-word",
       title: 'Look up "%s"',
       contexts: ["selection"],
-      documentUrlPatterns: ["https://areena.yle.fi/*"],
+      documentUrlPatterns: ["https://areena.yle.fi/*", "https://www.ruutu.fi/*"],
     });
   });
 });

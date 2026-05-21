@@ -138,7 +138,9 @@ class TranslationQueue {
       }
 
       try {
-        const [isSucceeded, translationResponse] = await fetchTranslation(toProcessItems);
+        const [isSucceeded, translationResponse] = await fetchTranslation(
+          toProcessItems, targetLanguage
+        );
 
         if (isSucceeded) {
           const translatedTexts = translationResponse;
@@ -195,30 +197,6 @@ class TranslationQueue {
 
 const translationQueue = new TranslationQueue();
 
-
-/**
- *
- * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
- * indicates success and the second is either translated texts or an error message.
- *
- */
-async function fetchTranslation(rawSubtitleFinnishTexts) {
-  try {
-    /**
-     * @type {[true, Array<string>] | [false, string]}
-     */
-    const response = await chrome.runtime.sendMessage(
-      {
-        action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts, targetLanguage }
-      });
-    return response;
-  } catch (error) {
-    console.error("RuutuDualSubExtension: Error sending message to background for translation:", error);
-    return [false, error.message || String(error)];
-  }
-}
 
 // ==================================
 // END SECTION
@@ -527,6 +505,11 @@ async function addExtensionToolset() {
   });
 
   document.addEventListener('click', (e) => {
+    const lookupPopup = document.getElementById('dual-sub-lookup-popup');
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (lookupPopup && !lookupPopup.contains(e.target)) {
+      lookupPopup.remove();
+    }
     // @ts-ignore - EventTarget is used as Node at runtime
     if (!warningPopover.contains(e.target) && !warningIcon.contains(e.target)) {
       warningPopover.classList.remove("active");
@@ -535,7 +518,7 @@ async function addExtensionToolset() {
     if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
       blurModeDropdown.classList.remove('open');
     }
-  });
+  }, true);
 
   // Copy Finnish subtitle button logic
   const copySubtitleButton = document.getElementById('ruutu-dual-sub-copy-subtitle-button');
@@ -598,6 +581,7 @@ function setupTextTrackListeners(video) {
   function addListenerToTextTrack(textTrack) {
     if (textTrack.kind === 'captions' || textTrack.kind === 'subtitles') {
       textTrack.addEventListener('cuechange', () => {
+        document.getElementById('dual-sub-lookup-popup')?.remove();
 
         /** @type string[] */
         const finnishSubtitles = [];
@@ -1000,6 +984,13 @@ document.addEventListener("change", (e) => {
       }
     }
   }
+});
+
+chrome.runtime.onMessage.addListener((msg) => {
+  const appendTarget = document.querySelector('[data-test-id="videoContainer"]') || document.body;
+  handleLookupMessage(msg, targetLanguage, appendTarget).catch((error) => {
+    console.error("RuutuDualSubExtension: Error handling lookup message:", error);
+  });
 });
 
 // ==================================
