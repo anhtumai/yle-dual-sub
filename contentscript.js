@@ -15,7 +15,8 @@ const VISIBILITY_OFF_SVG = `<svg width="27" height="27" fill="currentColor" view
 
 
 /* global loadTargetLanguageFromChromeStorageSync, loadSelectedTokenFromChromeStorageSync */
-/* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData */
+/* global openDatabase, saveSubtitlesBatch, loadSubtitlesByMovieName, upsertMovieMetadata, cleanupOldMovieData, clearSubtitlesByMovieName */
+/* global fetchTranslation, handleLookupMessage */
 
 /** @type {Map<string, string>}
  * Shared translation map, with key is normalized Finnish text, and value is translated text
@@ -138,7 +139,9 @@ class TranslationQueue {
       }
 
       try {
-        const [isSucceeded, translationResponse] = await fetchTranslation(toProcessItems);
+        const [isSucceeded, translationResponse] = await fetchTranslation(
+          toProcessItems, targetLanguage
+        );
 
         if (isSucceeded) {
           const translatedTexts = translationResponse;
@@ -195,30 +198,6 @@ class TranslationQueue {
 
 const translationQueue = new TranslationQueue();
 
-
-/**
- * 
- * @param {Array<string>} rawSubtitleFinnishTexts - Finnish text to translate
- * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
- * indicates success and the second is either translated texts or an error message.
-
- */
-async function fetchTranslation(rawSubtitleFinnishTexts) {
-  try {
-    /**
-     * @type {[true, Array<string>] | [false, string]}
-     */
-    const response = await chrome.runtime.sendMessage(
-      {
-        action: 'fetchTranslation',
-        data: { rawSubtitleFinnishTexts, targetLanguage }
-      });
-    return response;
-  } catch (error) {
-    console.error("YleDualSubExtension: Error sending message to background for translation:", error);
-    return [false, error.message || String(error)];
-  }
-}
 
 // ==================================
 // END SECTION
@@ -786,7 +765,12 @@ async function addDualSubExtensionSection() {
     if (!blurModeMenuButton.contains(e.target) && !blurModeDropdown.contains(e.target)) {
       blurModeDropdown.classList.remove('open');
     }
-  });
+    const lookupPopup = document.getElementById('dual-sub-lookup-popup');
+    // @ts-ignore - EventTarget is used as Node at runtime
+    if (lookupPopup && !lookupPopup.contains(e.target)) {
+      lookupPopup.remove();
+    }
+  }, true);
 
   // Copy Finnish subtitle button logic
   const copySubtitleButton = document.getElementById('yle-dual-sub-copy-subtitle-button');
@@ -904,6 +888,7 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       if (isMutationRelatedToSubtitlesWrapper(mutation)) {
         if (dualSubEnabled) {
+          document.getElementById('dual-sub-lookup-popup')?.remove();
           renderDualSubtitles(mutation);
         }
         else {
@@ -982,6 +967,13 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       location.reload();
     }
   }
+});
+
+chrome.runtime.onMessage.addListener((msg) => {
+  const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
+  handleLookupMessage(msg, targetLanguage, appendTarget).catch((error) => {
+    console.error("YleDualSubExtension: Error handling lookup message:", error);
+  });
 });
 
 document.addEventListener("change", (e) => {

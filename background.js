@@ -45,9 +45,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const rawSubtitleFinnishTexts = request.data.rawSubtitleFinnishTexts;
     /** @type {string} */
     const targetLanguage = request.data.targetLanguage;
+    /** @type {string} */
+    const context = request.data.context || "";
     translateTextsWithErrorHandling(
       rawSubtitleFinnishTexts,
-      targetLanguage
+      targetLanguage,
+      context,
     ).then((translationResult) => {
       sendResponse(translationResult);
     }).catch((error) => {
@@ -140,16 +143,22 @@ function getErrorMessageFromStatus(status) {
  *
  * @param {string[]} rawSubtitleFinnishTexts
  * @param {string} targetLanguage (exp, "EN-US", "VI")
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, Array<string>]|[false, string]>} - Returns a tuple where the first element
  * indicates success and the second is either translated texts or an error message.
  */
-async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts, targetLanguage) {
+async function translateTextsWithErrorHandling(
+  rawSubtitleFinnishTexts,
+  targetLanguage,
+  context = ""
+) {
   const MAX_RETRIES = 3;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     const [isSucceeded, translationResponse] = await translateTexts(
       rawSubtitleFinnishTexts,
-      targetLanguage
+      targetLanguage,
+      context,
     );
 
     if (isSucceeded) {
@@ -186,10 +195,11 @@ async function translateTextsWithErrorHandling(rawSubtitleFinnishTexts, targetLa
  * Translate text using DeepL API
  * @param {Array<string>} rawSubtitleFinnishTexts - Array of Finnish texts to translate
  * @param {string} targetLanguage - target language code (exp: "EN-US", "VI", "GE", ...)
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, Array<string>]|[false, DeepLTranslationError]|[false, string]>} -
  * Returns a tuple where the first element indicates success and the second is either translated texts, translation error or an error message.
  */
-async function translateTexts(rawSubtitleFinnishTexts, targetLanguage) {
+async function translateTexts(rawSubtitleFinnishTexts, targetLanguage, context = "") {
   const apiKey = deeplTokenKey;
   const url = isDeepLPro ?
     'https://api.deepl.com/v2/translate' :
@@ -207,6 +217,7 @@ async function translateTexts(rawSubtitleFinnishTexts, targetLanguage) {
         source_lang: "FI",
         target_lang: targetLanguage,
         model_type: "prefer_quality_optimized",
+        context,
       })
     });
     if (!response.ok) {
@@ -224,3 +235,20 @@ async function translateTexts(rawSubtitleFinnishTexts, targetLanguage) {
     return [false, errorMessage];
   }
 };
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: "lookup-word",
+      title: 'Look up "%s"',
+      contexts: ["selection"],
+      documentUrlPatterns: ["https://areena.yle.fi/*", "https://www.ruutu.fi/*"],
+    });
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "lookup-word") {
+    chrome.tabs.sendMessage(tab.id, { type: "lookup", text: info.selectionText });
+  }
+});

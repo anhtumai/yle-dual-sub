@@ -325,3 +325,121 @@
   padding: 0.05em 0.25em;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+@keyframes dualSubLookupPopIn {
+  from { opacity: 0; transform: translate(-50%, calc(-100% + 6px)); }
+  to   { opacity: 1; transform: translate(-50%, -100%); }
+}
+
+#dual-sub-lookup-popup {
+  animation: dualSubLookupPopIn .15s ease;
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background: #fff;
+  border: 0.5px solid #ddd;
+  border-radius: 12px;
+  min-width: 300px;
+  max-width: 500px;
+  box-sizing: border-box;
+  z-index: 99999;
+  font-family: sans-serif;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  overflow: visible;
+}
+
+.dual-sub-lookup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem .5rem;
+  background: #fff;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+.dual-sub-lookup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dual-sub-lookup-title-icon {
+  font-size: 18px;
+  color: #555;
+}
+
+.dual-sub-lookup-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #111;
+}
+
+.dual-sub-lookup-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 0.5px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.dual-sub-lookup-close:hover {
+  background: #f5f5f5;
+  color: #111;
+}
+
+.dual-sub-lookup-divider {
+  height: 0.5px;
+  background: #e8e8e8;
+}
+
+.dual-sub-lookup-body {
+  padding: .75rem 1rem 1rem;
+  background: #fff;
+}
+
+.dual-sub-lookup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: .75rem;
+  padding: 5px 0;
+}
+
+.dual-sub-lookup-row-key {
+  font-size: 16px;
+  color: #555;
+}
+
+.dual-sub-lookup-row-val {
+  font-size: 16px;
+  color: #111;
+  text-align: right;
+}
+
+.dual-sub-lookup-arrow {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #ddd;
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+#dual-sub-lookup-popup .dual-sub-lookup-arrow::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #fff;
+}
