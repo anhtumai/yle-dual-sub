@@ -79,6 +79,11 @@ const config = {
             position: 'left',
           },
           {
+            to: '/features',
+            label: 'Features',
+            position: 'left',
+          },
+          {
             to: '/guidance',
             label: 'Guidance',
             position: 'left',
@@ -109,6 +114,10 @@ const config = {
               {
                 label: 'Introduction',
                 to: '/',
+              },
+              {
+                label: 'Features',
+                to: '/features',
               },
               {
                 label: 'Guidance',

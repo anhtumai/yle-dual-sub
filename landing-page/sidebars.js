@@ -8,6 +8,7 @@
 const sidebars = {
   docsSidebar: [
     'introduction',
+    'features',
     'guidance',
     'support',
   ],
