@@ -672,7 +672,7 @@ function AddNewTokenForm(props) {
             <div className="add-token-form__radio-content">
               <div className="add-token-form__radio-title">DeepL Free</div>
               <div className="add-token-form__radio-description">
-                500,000 characters/month, perfect for casual use.
+                1 million characters/month, perfect for casual use.
               </div>
             </div>
           </label>
@@ -837,7 +837,7 @@ function TokenManagementHelpSection() {
             ♻️ <strong>Sustainability</strong> – No active maintenance burden on
             my end
             <br />
-            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 500,000
+            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 1 million
             characters/month!
             <br />
             <br />
@@ -896,8 +896,7 @@ function TokenManagementHelpSection() {
                 DeepL Developer Page
               </a>
               , look for <strong>"Find your perfect plan"</strong>, then click
-              the <strong>"DeepL API"</strong> tab. Select either Free or Pro
-              plan depending on your needs.
+              the <strong>"DeepL API"</strong> tab. Select plan depending on your needs.
               <br />
               <br />
               <img
@@ -969,7 +968,7 @@ function TokenManagementHelpSection() {
               <strong>Paste it below</strong>
               <br />
               Copy the entire key and paste it in the form below, select your
-              account type (Free/Pro), and click "Add new translation key"
+              account type (Free/Paid), and click "Add new translation key"
             </li>
           </ol>
 
@@ -991,18 +990,21 @@ function TokenManagementHelpSection() {
           </p>
 
           <p className="token-management-setting-card__help-section-footer">
-            💡 <strong>Pro tip:</strong> If you need more than 500,000
-            characters/month, consider upgrading to{" "}
+            💡 <strong>Note:</strong> The free DeepL Developer plan includes a
+            one-time credit of 1 million characters. Once used up, consider
+            upgrading to{" "}
             <a
               href="https://www.deepl.com/en/pro/change-plan#api"
               target="_blank"
               rel="noopener noreferrer"
               className="token-management-setting-card__help-section-link"
             >
-              DeepL Pro
-            </a>
-            ! It's a great way to support DeepL's awesome translation
-            technology.
+              DeepL Growth
+            </a>{" "}
+            (1M characters/month) to keep translations running. If that feels
+            expensive, share one key with friends or fellow Finnish learners and
+            split the cost! Pricing may change — always check DeepL&apos;s
+            latest plans for up-to-date details.
           </p>
         </div>
       )}
