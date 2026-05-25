@@ -106,7 +106,7 @@ class DeepLUsageError {
       case 429:
         return "Too many requests. You're hitting the API too frequently. Please wait a moment and try again.";
       case 456:
-        return "Quota exceeded. You've reached your monthly character limit for this key. Please use a different key or consider upgrading to DeepL Pro at https://www.deepl.com/en/pro/change-plan#api";
+        return "Quota exceeded. You've used up the character limit for this key. Please use a different key or check DeepL's current plans at https://www.deepl.com/en/pro/change-plan#api";
       case 500:
         return "Internal server error. DeepL is experiencing technical issues. Please try again later.";
       case 504:
@@ -600,9 +600,7 @@ function AddNewTokenForm(props) {
       alert(
         "You've reached the limit of 2 translation keys.\n" +
           "To add a new one, please remove an existing key first.\n\n" +
-          "Need more capacity? Consider upgrading to DeepL Pro!\n" +
-          "DeepL has built an incredible translation technology, " +
-          "and going Pro is a great way to support them.",
+          "Need more capacity? Check DeepL's current plans at https://www.deepl.com/en/pro/change-plan#api",
       );
       return;
     }
@@ -670,9 +668,9 @@ function AddNewTokenForm(props) {
           <label className="add-token-form__radio-option">
             <input type="radio" name="apiTokenType" value="free" />
             <div className="add-token-form__radio-content">
-              <div className="add-token-form__radio-title">DeepL Free</div>
+              <div className="add-token-form__radio-title">Free</div>
               <div className="add-token-form__radio-description">
-                1 million characters/month, perfect for casual use.
+                Free tier key (ends with :fx).
               </div>
             </div>
           </label>
@@ -680,19 +678,17 @@ function AddNewTokenForm(props) {
           <label className="add-token-form__radio-option">
             <input type="radio" name="apiTokenType" value="pro" />
             <div className="add-token-form__radio-content">
-              <div className="add-token-form__radio-title">DeepL Pro</div>
+              <div className="add-token-form__radio-title">Paid</div>
               <div className="add-token-form__radio-description">
-                Unlimited usage, pay-as-you-go model. A great way to support
-                DeepL's awesome translation technology!
-                <br />
-                See pricing details and benefits of going Pro{" "}
+                Paid tier key (no :fx suffix). See{" "}
                 <a
                   href="https://www.deepl.com/en/pro/change-plan#api"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  in this link
+                  DeepL's current plans
                 </a>
+                .
               </div>
             </div>
           </label>
@@ -755,7 +751,7 @@ function TokenManagementSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              upgrading to DeepL Pro
+              upgrading your DeepL plan
             </a>
             .
           </div>
@@ -837,8 +833,8 @@ function TokenManagementHelpSection() {
             ♻️ <strong>Sustainability</strong> – No active maintenance burden on
             my end
             <br />
-            🆓 <strong>Truly free</strong> – DeepL's free tier gives you 1 million
-            characters/month!
+            🆓 <strong>Truly free</strong> – DeepL offers a free tier to get
+            you started
             <br />
             <br />
             Yes, it takes 5-10 minutes for one-time setup, but you get premium
@@ -990,21 +986,18 @@ function TokenManagementHelpSection() {
           </p>
 
           <p className="token-management-setting-card__help-section-footer">
-            💡 <strong>Note:</strong> The free DeepL Developer plan includes a
-            one-time credit of 1 million characters. Once used up, consider
-            upgrading to{" "}
+            💡 DeepL offers a free tier to get you started. Once you run out of
+            characters, check{" "}
             <a
               href="https://www.deepl.com/en/pro/change-plan#api"
               target="_blank"
               rel="noopener noreferrer"
               className="token-management-setting-card__help-section-link"
             >
-              DeepL Growth
+              DeepL&apos;s current plans
             </a>{" "}
-            (1M characters/month) to keep translations running. If that feels
-            expensive, share one key with friends or fellow Finnish learners and
-            split the cost! Pricing may change — always check DeepL&apos;s
-            latest plans for up-to-date details.
+            for upgrade options. If that feels expensive, share one key with
+            friends or fellow Finnish learners and split the cost!
           </p>
         </div>
       )}

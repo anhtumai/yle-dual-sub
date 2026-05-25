@@ -57,7 +57,7 @@ Here's the truth: Free services either use low-quality translation APIs, run at 
 - ✨ **Best-in-class translations** – DeepL provides high-quality translations to 30+ languages including English, Vietnamese, Japanese, and more
 - 🔒 **Complete privacy** – No data collection, no ads, no tracking
 - ♻️ **Sustainability** – No active maintenance burden on my end
-- 🆓 **Truly free** – DeepL's free tier gives you 1 million characters/month!
+- 🆓 **Truly free** – DeepL offers a free tier to get you started
 
 Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without compromise. Worth it? I think so! 😊
 
@@ -73,7 +73,7 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
 2. **Select your DeepL API plan**
 
-   Go to [DeepL Developer Page](https://www.deepl.com/en/pro#developer), look for **"Find your perfect plan"**, then click the **"DeepL API"** tab. Select either Free or Pro plan depending on your needs.
+   Go to [DeepL Developer Page](https://www.deepl.com/en/pro#developer), look for **"Find your perfect plan"**, then click the **"DeepL API"** tab. Select the plan that suits your needs.
 
    <img src={require('@site/static/img/find_your_perfect_plan.png').default} alt="Find your perfect plan section" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
@@ -106,6 +106,4 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
 ### 💡 Note: DeepL Character Limits
 
-The free DeepL Developer plan includes a one-time credit of 1 million characters. Once used up, consider upgrading to [DeepL Growth](https://www.deepl.com/en/pro/change-plan#api) (1M characters/month) to keep translations running. If that feels expensive, share one key with friends or fellow Finnish learners and split the cost! You can add up to 2 translation keys to this extension.
-
-> ⚠️ DeepL pricing may change at any time — please check [DeepL's latest plans](https://www.deepl.com/en/pro/change-plan#api) for up-to-date details.
+DeepL offers a free tier to get started. Once you run out of characters, check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for upgrade options. If that feels expensive, share one key with friends or fellow Finnish learners and split the cost! You can add up to 2 translation keys to this extension.
