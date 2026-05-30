@@ -534,7 +534,7 @@ async function addDualSubExtensionSection() {
           No translation key selected!<br>
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
-          <a href="https://anhtumai.github.io/yle-dual-sub"
+          <a href="https://finnish-streaming-dual-sub.netlify.app"
              target="_blank"
              rel="noopener noreferrer">
             this guide
@@ -614,7 +614,7 @@ async function addDualSubExtensionSection() {
         </div>
       </button>
 
-      <a href="https://anhtumai.github.io/yle-dual-sub/features/#word-lookup" target="_blank" rel="noopener noreferrer" style="color: #e00; font-size: 12px; font-weight: 700; white-space: nowrap; align-self: center; text-decoration: none; line-height: 1.3;">New feature<br/>Word Lookup</a>
+      <a href="https://finnish-streaming-dual-sub.netlify.app/features/#word-lookup" target="_blank" rel="noopener noreferrer" style="color: #e00; font-size: 12px; font-weight: 700; white-space: nowrap; align-self: center; text-decoration: none; line-height: 1.3;">New feature<br/>Word Lookup</a>
 
     </div>
   `
@@ -784,7 +784,7 @@ async function addDualSubExtensionSection() {
   const infoButton = document.getElementById('yle-dual-sub-info-button');
   if (infoButton) {
     infoButton.addEventListener('click', () => {
-      window.open('https://anhtumai.github.io/yle-dual-sub/features', '_blank', 'noopener,noreferrer');
+      window.open('https://finnish-streaming-dual-sub.netlify.app/features', '_blank', 'noopener,noreferrer');
     });
   }
 

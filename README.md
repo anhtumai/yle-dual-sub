@@ -36,7 +36,7 @@ This extension is my plan to reach the next level, where you can expose to authe
 
 Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/yle-areena-dual-subtitles/olmapcjpickcoabnjleheppoignffpdd)
 
-See the [documentation site](https://anhtumai.github.io/yle-dual-sub/) for setup instructions and usage guide.
+See the [documentation site](https://finnish-streaming-dual-sub.netlify.app/) for setup instructions and usage guide.
 
 ## Technology Stack
 
