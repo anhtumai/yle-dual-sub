@@ -2,7 +2,7 @@ FINNISH STREAMING DUAL SUBTITLES — Learn Finnish Through YLE Areena & Ruutu.fi
 
 Master Finnish naturally by watching YLE Areena & Ruutu.fi with dual subtitles. See Finnish and your target language side-by-side in real-time, turning every video into an immersive language learning experience. 📺✨
 
-Check the extension landing page: https://anhtumai.github.io/yle-dual-sub/
+Check the extension landing page: https://finnish-streaming-dual-sub.netlify.app/
 
 YLE Areena website: https://areena.yle.fi/tv
 Ruutu website: https://www.ruutu.fi
