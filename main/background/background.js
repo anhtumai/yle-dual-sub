@@ -1,5 +1,6 @@
 /* global importScripts, loadSelectedTokenFromChromeStorageSync */
 /* global translateTextsWithErrorHandlingWithDeepL */
+/* global translateTextsWithErrorHandlingWithGoogleTranslate */
 importScripts('../utils/utils.js');
 importScripts('../translation/shared.js');
 importScripts('../translation/deepl_api.js');
@@ -51,17 +52,28 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const targetLanguage = request.data.targetLanguage;
     /** @type {string} */
     const context = request.data.context || "";
-    translateTextsWithErrorHandlingWithDeepL(
-      deeplTokenKey,
-      isDeepLPro,
-      rawSubtitleFinnishTexts,
-      targetLanguage,
-      context,
-    ).then((translationResult) => {
-      sendResponse(translationResult);
-    }).catch((error) => {
-      sendResponse([false, error.message || String(error)]);
-    });
+    if (deeplTokenKey) {
+      translateTextsWithErrorHandlingWithDeepL(
+        deeplTokenKey,
+        isDeepLPro,
+        rawSubtitleFinnishTexts,
+        targetLanguage,
+        context,
+      ).then((translationResult) => {
+        sendResponse(translationResult);
+      }).catch((error) => {
+        sendResponse([false, error.message || String(error)]);
+      });
+    } else {
+      translateTextsWithErrorHandlingWithGoogleTranslate(
+        rawSubtitleFinnishTexts,
+        targetLanguage
+      ).then((translationResult) => {
+        sendResponse(translationResult);
+      }).catch((error) => {
+        sendResponse([false, error.message || String(error)]);
+      });
+    }
     return true;
   }
 

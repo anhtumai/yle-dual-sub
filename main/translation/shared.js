@@ -1,3 +1,5 @@
+/* exported sleep, calculateBackoffDelay */
+
 /**
  * @param {number} ms
  * @returns {Promise<void>}

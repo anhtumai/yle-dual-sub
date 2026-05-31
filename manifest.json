@@ -25,7 +25,7 @@
       "css": ["main/platform/ruutu/styles_ruutu.css"]
     }
   ],
-  "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
+  "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*", "https://translate.googleapis.com/*"],
   "permissions": ["storage", "contextMenus"],
   "web_accessible_resources": [
     {

@@ -1,4 +1,5 @@
 /* global sleep, calculateBackoffDelay */ // defined in shared.js
+/* exported translateTextsWithErrorHandlingWithDeepL */
 
 const DEEPL_PAID_ENDPOINT = 'https://api.deepl.com/v2/translate';
 const DEEPL_FREE_ENDPOINT = 'https://api-free.deepl.com/v2/translate';

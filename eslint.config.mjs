@@ -56,11 +56,13 @@ export default [
     },
 
     {
-        // Translation files define globals consumed by background.js via importScripts
+        // Translation files are loaded via importScripts (script mode, not ES modules).
+        // sourceType: 'script' enables /* exported */ hints so ESLint knows which
+        // top-level names are intentionally consumed by background.js externally.
         files: ['main/translation/**/*.js'],
-        rules: {
-            'no-unused-vars': 'off',
-        }
+        languageOptions: {
+            sourceType: 'script',
+        },
     },
 
     {
