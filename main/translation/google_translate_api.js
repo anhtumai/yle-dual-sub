@@ -1,4 +1,4 @@
-/* global sleep, calculateBackoffDelay */
+/* global sleep, calculateBackoffDelay */ // defined in shared.js
 
 class GoogleTranslateError {
     /**

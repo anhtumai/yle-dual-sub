@@ -56,6 +56,14 @@ export default [
     },
 
     {
+        // Translation files define globals consumed by background.js via importScripts
+        files: ['main/translation/**/*.js'],
+        rules: {
+            'no-unused-vars': 'off',
+        }
+    },
+
+    {
         // Test files configuration
         files: ['tests/**/*.js', 'tests/**/*.test.js'],
         languageOptions: {
