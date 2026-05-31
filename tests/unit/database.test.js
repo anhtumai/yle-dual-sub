@@ -22,7 +22,7 @@ const {
     getAllMovieMetadata,
     deleteMovieMetadata,
     cleanupOldMovieData
-} = require('../../database.js');
+} = require('../../main/utils/database.js');
 
 // Helper function to delete database
 function deleteDB(name) {
