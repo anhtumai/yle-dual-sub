@@ -56,6 +56,14 @@ export default [
     },
 
     {
+        // Translation files define globals consumed by background.js via importScripts
+        files: ['main/translation/**/*.js'],
+        rules: {
+            'no-unused-vars': 'off',
+        }
+    },
+
+    {
         // Test files configuration
         files: ['tests/**/*.js', 'tests/**/*.test.js'],
         languageOptions: {
@@ -83,9 +91,9 @@ export default [
             '**/.docusaurus/**',
             '**/dist/**',
             '**/build/**',
-            // Legacy injected scripts
-            'injected.js',
-            'inject.js'
+            // Injected page scripts (XHR interceptor + script loader)
+            'main/background/injected.js',
+            'main/background/inject.js'
         ]
     }
 ];

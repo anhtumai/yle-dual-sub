@@ -9,33 +9,33 @@
     "128": "icons/icon.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "main/background/background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://areena.yle.fi/*"],
       "run_at": "document_end",
-      "js": ["database.js", "utils.js", "contentscript.js", "inject.js"],
-      "css": ["styles.css"]
+      "js": ["main/utils/database.js", "main/utils/utils.js", "main/platform/yle/contentscript.js", "main/background/inject.js"],
+      "css": ["main/platform/yle/styles.css"]
     },
     {
       "matches": ["https://www.ruutu.fi/*"],
       "run_at": "document_end",
-      "js": ["database.js", "utils.js", "contentscript_ruutu.js", "inject.js"],
-      "css": ["styles_ruutu.css"]
+      "js": ["main/utils/database.js", "main/utils/utils.js", "main/platform/ruutu/contentscript_ruutu.js", "main/background/inject.js"],
+      "css": ["main/platform/ruutu/styles_ruutu.css"]
     }
   ],
   "host_permissions": ["https://api-free.deepl.com/*", "https://api.deepl.com/*"],
   "permissions": ["storage", "contextMenus"],
   "web_accessible_resources": [
     {
-      "resources": ["injected.js"],
+      "resources": ["main/background/injected.js"],
       "matches": ["https://areena.yle.fi/*", "https://www.ruutu.fi/*"]
     }
   ],
   "action": {
-    "default_title": "YLE Areena & Ruutu Dual Subtitles",
-    "default_popup": "popup.html",
+    "default_title": "Learn Finnish - Dual Subtitles for Finnish Streaming",
+    "default_popup": "extension-popup/popup.html",
     "default_icon": {
       "16": "icons/icon.png",
       "48": "icons/icon.png",
