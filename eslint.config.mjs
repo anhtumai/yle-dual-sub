@@ -83,9 +83,9 @@ export default [
             '**/.docusaurus/**',
             '**/dist/**',
             '**/build/**',
-            // Legacy injected scripts
-            'injected.js',
-            'inject.js'
+            // Injected page scripts (XHR interceptor + script loader)
+            'main/background/injected.js',
+            'main/background/inject.js'
         ]
     }
 ];

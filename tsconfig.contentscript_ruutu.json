@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "contentscript_ruutu.js",
-    "database.js",
-    "utils.js",
-    "background.js",
-    "types.js",
+    "main/platform/ruutu/contentscript_ruutu.js",
+    "main/utils/database.js",
+    "main/utils/utils.js",
+    "main/background/background.js",
+    "main/types.js",
     "globals.d.ts",
-    "popup.js"
+    "extension-popup/popup.js"
   ]
 }

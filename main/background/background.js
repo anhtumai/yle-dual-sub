@@ -1,5 +1,5 @@
 /* global importScripts, loadSelectedTokenFromChromeStorageSync */
-importScripts('utils.js');
+importScripts('main/utils/utils.js');
 
 // Load selected DeepL key from Chrome storage sync
 /**
