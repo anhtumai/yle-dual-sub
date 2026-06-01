@@ -11,6 +11,7 @@ const sidebars = {
     'features',
     'guidance',
     'support',
+    'privacy',
   ],
 };
 
