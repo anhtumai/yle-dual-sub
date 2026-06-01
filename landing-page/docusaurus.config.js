@@ -65,7 +65,6 @@ const config = {
       image: 'img/yle-areena-dual-sub-social-card.jpg',
       colorMode: {
         defaultMode: 'dark',
-        respectPrefersColorScheme: true,
       },
       navbar: {
         title: 'Finnish Streaming Dual Sub Extension',
@@ -92,6 +91,11 @@ const config = {
           {
             to: '/support',
             label: 'Support',
+            position: 'left',
+          },
+          {
+            to: '/privacy',
+            label: 'Privacy',
             position: 'left',
           },
           {
@@ -127,6 +131,10 @@ const config = {
               {
                 label: 'Support',
                 to: '/support',
+              },
+              {
+                label: 'Privacy',
+                to: '/privacy',
               },
             ],
           },
