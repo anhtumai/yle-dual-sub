@@ -208,30 +208,15 @@ const translationQueue = new TranslationQueue();
 
 /**
  * Handle dual sub behaviour based on whether the system has valid key selected.
- * If no key is selected, display warning icon and disable dual sub switch.
+ * If no key is selected, display warning icon.
  * @param {boolean} hasSelectedToken
  */
 function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
   const warningSection = document.querySelector(".dual-sub-warning");
-  const dualSubSwitch = document.getElementById("dual-sub-switch");
-  if (hasSelectedToken) {
-    if (warningSection) {
-      warningSection.style.display = "none";
-    }
-    if (dualSubSwitch) {
-      dualSubSwitch.disabled = false;
-    }
-  } else {
-    if (warningSection) {
-      warningSection.style.display = "inline-block";
-    }
-    if (dualSubSwitch) {
-      if (dualSubSwitch.checked) {
-        dualSubSwitch.click();
-      }
-      dualSubSwitch.disabled = true;
-    }
+  if (warningSection) {
+    warningSection.style.display = hasSelectedToken ? "none" : "inline-block";
   }
+
   const warningPopover = document.querySelector(".dual-sub-warning__popover");
   if (warningPopover) {
     warningPopover.classList.remove("active");
@@ -282,7 +267,9 @@ async function addExtensionToolset() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          No translation key selected!<br>
+          You haven't selected a translation key yet!<br>
+          The system will use the unofficial Google Translate endpoint instead.<br>
+          Please note that this may not be as reliable or accurate as using the official DeepL API with a valid key.
           Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
           <a href="https://finnish-streaming-dual-sub.netlify.app"
