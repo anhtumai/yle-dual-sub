@@ -81,16 +81,22 @@ function getGoogleTranslateErrorMessage(status) {
  * Translate texts using Google Translate API
  * @param {string[]} rawSubtitleFinnishTexts
  * @param {string} targetLanguage - target language code (e.g. "EN-US", "VI")
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, string[]]|[false, GoogleTranslateError]|[false, string]>}
  */
-async function translateTextsWithGoogleTranslate(rawSubtitleFinnishTexts, targetLanguage) {
+async function translateTextsWithGoogleTranslate(
+  rawSubtitleFinnishTexts,
+  targetLanguage,
+  context = ""
+) {
   const apiUrl = "https://translate.googleapis.com/translate_a/single";
   const tl = toGoogleLangCode(targetLanguage);
 
   try {
     const results = await Promise.all(
       rawSubtitleFinnishTexts.map(async (text) => {
-        const searchParams = new URLSearchParams({ client: "gtx", q: text, sl: "fi", tl, dj: "1", hl: tl });
+        const textWithContext = context ? `<span>${text}</span>${context}` : text;
+        const searchParams = new URLSearchParams({ client: "gtx", q: textWithContext, sl: "fi", tl, dj: "1", hl: tl });
         searchParams.append("dt", "rm");
         searchParams.append("dt", "bd");
         searchParams.append("dt", "t");
@@ -99,10 +105,13 @@ async function translateTextsWithGoogleTranslate(rawSubtitleFinnishTexts, target
           throw new GoogleTranslateError(response.status);
         }
         const data = await response.json();
-        return (data.sentences
+        const translationWithContext = (data.sentences
           ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
           .filter((/** @type {string | undefined} */ t) => t)
           .join(" ") ?? "").replace(/\n /g, "\n");
+
+        const result = context ? translationWithContext.replace(/<span>.*?<\/span>/g, "<unknown>").trim() : translationWithContext;
+        return result;
       })
     );
     return [true, results];
@@ -119,11 +128,13 @@ async function translateTextsWithGoogleTranslate(rawSubtitleFinnishTexts, target
  * Translate texts using Google Translate with retry/error handling
  * @param {string[]} rawSubtitleFinnishTexts
  * @param {string} targetLanguage
+ * @param {string} context - context for more accurate translation
  * @returns {Promise<[true, string[]]|[false, string]>}
  */
 async function translateTextsWithErrorHandlingWithGoogleTranslate(
   rawSubtitleFinnishTexts,
   targetLanguage,
+  context = "",
 ) {
   const MAX_RETRIES = 3;
 
@@ -131,6 +142,7 @@ async function translateTextsWithErrorHandlingWithGoogleTranslate(
     const [isSucceeded, translationResponse] = await translateTextsWithGoogleTranslate(
       rawSubtitleFinnishTexts,
       targetLanguage,
+      context,
     );
 
     if (isSucceeded) {
