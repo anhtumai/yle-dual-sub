@@ -1,10 +1,10 @@
-# Privacy Policy - YLE Dual Subtitles Extension
+# Privacy Policy
 
-**Last updated:** November 2025
+**Last updated:** June 2026
 
 ## Overview
 
-YLE Dual Subtitles Extension is committed to protecting your privacy. This extension does not collect, store, or transmit any personal data to our servers.
+Learn Finnish - Dual Subtitles for Finnish Streaming Extension is committed to protecting your privacy. This extension does not collect, store, or transmit any personal data to our servers.
 
 ## Data Storage
 
@@ -45,4 +45,4 @@ Any changes to this privacy policy will be reflected in this document with an up
 
 ## Contact
 
-If you have questions about this privacy policy, please open an issue on our GitHub repository.
+If you have questions about this privacy policy, please send an email to `dualsub.finnishstreaming@gmail.com`
