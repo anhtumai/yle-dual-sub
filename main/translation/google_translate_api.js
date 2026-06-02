@@ -82,15 +82,16 @@ function getGoogleTranslateErrorMessage(status) {
  * @param {string[]} rawSubtitleFinnishTexts
  * @param {string} targetLanguage - target language code (e.g. "EN-US", "VI")
  * @param {string} context - context for more accurate translation
- * @returns {Promise<[true, string[]]|[false, GoogleTranslateError]|[false, string]>}
+ * @returns {Promise<[true, string[]]|[false, string]>}
  */
-async function translateTextsWithGoogleTranslate(
+async function translateTextsWithErrorHandlingWithGoogleTranslate(
   rawSubtitleFinnishTexts,
   targetLanguage,
   context = ""
 ) {
   const apiUrl = "https://translate.googleapis.com/translate_a/single";
   const tl = toGoogleLangCode(targetLanguage);
+  const MAX_RETRIES = 3;
 
   try {
     const results = await Promise.all(
@@ -100,75 +101,39 @@ async function translateTextsWithGoogleTranslate(
         searchParams.append("dt", "rm");
         searchParams.append("dt", "bd");
         searchParams.append("dt", "t");
-        const response = await fetch(`${apiUrl}?${searchParams.toString()}`);
-        if (!response.ok) {
-          throw new GoogleTranslateError(response.status);
-        }
-        const data = await response.json();
-        const translationWithContext = (data.sentences
-          ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
-          .filter((/** @type {string | undefined} */ t) => t)
-          .join(" ") ?? "").replace(/\n /g, "\n");
 
-        if (!context) {
-          return translationWithContext;
+        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+          const response = await fetch(`${apiUrl}?${searchParams.toString()}`);
+          if (!response.ok) {
+            const retryable = response.status === 429 || response.status >= 500;
+            if (retryable && attempt < MAX_RETRIES - 1) {
+              await sleep(calculateBackoffDelay(attempt));
+              continue;
+            }
+            throw new GoogleTranslateError(response.status);
+          }
+          const data = await response.json();
+          const translationWithContext = (data.sentences
+            ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
+            .filter((/** @type {string | undefined} */ t) => t)
+            .join(" ") ?? "").replace(/\n /g, "\n");
+
+          if (!context) {
+            // add `(approximate)` after to show that Google Translate has low accuracy and should not be trusted.
+            return `${translationWithContext} (approximate)`;
+          }
+          const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
+          return match ? match[1].trim() : "<unknown>";
         }
-        const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
-        const result = match ? match[1].trim() : "<unknown>";
-        return result;
+        throw new GoogleTranslateError(429)
       })
     );
     return [true, results];
   } catch (error) {
     if (error instanceof GoogleTranslateError) {
-      return [false, error];
+      return [false, getGoogleTranslateErrorMessage(error.status)];
     }
     console.error('YleDualSubExtension: Google Translate failed:', error);
     return [false, 'Translation failed. Please check network or contact developers.'];
   }
-}
-
-/**
- * Translate texts using Google Translate with retry/error handling
- * @param {string[]} rawSubtitleFinnishTexts
- * @param {string} targetLanguage
- * @param {string} context - context for more accurate translation
- * @returns {Promise<[true, string[]]|[false, string]>}
- */
-async function translateTextsWithErrorHandlingWithGoogleTranslate(
-  rawSubtitleFinnishTexts,
-  targetLanguage,
-  context = "",
-) {
-  const MAX_RETRIES = 3;
-
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const [isSucceeded, translationResponse] = await translateTextsWithGoogleTranslate(
-      rawSubtitleFinnishTexts,
-      targetLanguage,
-      context,
-    );
-
-    if (isSucceeded) {
-      return [true, translationResponse];
-    }
-
-    if (translationResponse instanceof GoogleTranslateError) {
-      const errorStatusCode = translationResponse.status;
-      if ([429].includes(errorStatusCode) || errorStatusCode >= 500) {
-        if (attempt < MAX_RETRIES - 1) {
-          const backoffDelay = calculateBackoffDelay(attempt);
-          await sleep(backoffDelay);
-          continue;
-        } else {
-          return [false, getGoogleTranslateErrorMessage(errorStatusCode)];
-        }
-      } else {
-        return [false, getGoogleTranslateErrorMessage(errorStatusCode)];
-      }
-    } else {
-      return [false, String(translationResponse)];
-    }
-  }
-  return [false, "Translation failed after 3 retry attempts."];
 }
