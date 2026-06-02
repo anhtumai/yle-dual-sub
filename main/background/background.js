@@ -7,6 +7,8 @@ importScripts('../translation/deepl_api.js');
 importScripts('../translation/google_translate_api.js');
 
 // Load selected DeepL key from Chrome storage sync
+// Assume that deeplTokenKey with empty string means no key selected
+// and we will fallback to Unofficial Google Translate API
 /**
  * @type {string}
  */
@@ -39,6 +41,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
         console.info('YleDualSubExtension: No selected key found in updated storage');
+        deeplTokenKey = "";
+        isDeepLPro = false;
       }
     }
   }
@@ -67,7 +71,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     } else {
       translateTextsWithErrorHandlingWithGoogleTranslate(
         rawSubtitleFinnishTexts,
-        targetLanguage
+        targetLanguage,
+        context,
       ).then((translationResult) => {
         sendResponse(translationResult);
       }).catch((error) => {

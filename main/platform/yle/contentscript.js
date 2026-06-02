@@ -452,7 +452,7 @@ async function sleep(ms) {
 
 /**
  * Handle dual sub behaviour based on whether the system has valid key selected.
- * If no key is selected, display warning icon .
+ * If no key is selected, display warning icon.
  * @param {boolean} hasSelectedToken
  */
 function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
@@ -516,10 +516,10 @@ async function addDualSubExtensionSection() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          You haven't selected a translation key yet!<br>
-          The system will use the unofficial Google Translate endpoint instead.<br>
-          Please note that this may not be as reliable or accurate as using the official DeepL API with a valid key.
-          Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
+          No DeepL key has been registered — using Unofficial Google Translate Service for now.<br>
+          It's free but can break without warning, and is significantly less accurate than DeepL for Finnish — especially spoken language.<br>
+          Good enough for casual viewing, but strongly discouraged for language learning.
+          Configure it in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
           <a href="https://finnish-streaming-dual-sub.netlify.app"
              target="_blank"

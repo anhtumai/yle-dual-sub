@@ -110,7 +110,11 @@ async function translateTextsWithGoogleTranslate(
           .filter((/** @type {string | undefined} */ t) => t)
           .join(" ") ?? "").replace(/\n /g, "\n");
 
-        const result = context ? translationWithContext.replace(/<span>.*?<\/span>/g, "<unknown>").trim() : translationWithContext;
+        if (!context) {
+          return translationWithContext;
+        }
+        const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
+        const result = match ? match[1].trim() : "<unknown>";
         return result;
       })
     );
@@ -151,7 +155,7 @@ async function translateTextsWithErrorHandlingWithGoogleTranslate(
 
     if (translationResponse instanceof GoogleTranslateError) {
       const errorStatusCode = translationResponse.status;
-      if ([429].includes(errorStatusCode)) {
+      if ([429].includes(errorStatusCode) || errorStatusCode >= 500) {
         if (attempt < MAX_RETRIES - 1) {
           const backoffDelay = calculateBackoffDelay(attempt);
           await sleep(backoffDelay);

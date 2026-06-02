@@ -267,12 +267,12 @@ async function addExtensionToolset() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          You haven't selected a translation key yet!<br>
-          The system will use the unofficial Google Translate endpoint instead.<br>
-          Please note that this may not be as reliable or accurate as using the official DeepL API with a valid key.
-          Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
+          No DeepL key has been registered — using Unofficial Google Translate Service for now.<br>
+          It's free but can break without warning, and is significantly less accurate than DeepL for Finnish — especially spoken language.<br>
+          Good enough for casual viewing, but strongly discouraged for language learning.
+          Configure it in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
-          <a href="https://finnish-streaming-dual-sub.netlify.app"
+          <a href="https://finnish-streaming-dual-sub.netlify.app/guidance#setting-up-your-translation-key"
              target="_blank"
              rel="noopener noreferrer">
             this guide
