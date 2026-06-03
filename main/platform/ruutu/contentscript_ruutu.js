@@ -35,7 +35,7 @@ let targetLanguage = "EN-US";
 loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   targetLanguage = loadedTargetLanguage;
 }).catch((error) => {
-  console.error("RuutuDualSubExtension: Error loading target language from storage:", error);
+  console.error("FinnishStreamingDualSubExtension: Error loading target language from storage:", error);
 });
 
 let dualSubEnabled = false;
@@ -83,11 +83,11 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 
   cleanupOldMovieData(db).then((cleanCount) => {
-    console.info(`RuutuDualSubExtension: Clean ${cleanCount} movies data`);
-  }).catch(error => { console.error("RuutuDualSubExtension: Error when cleaning old movie data: ", error) });
+    console.info(`FinnishStreamingDualSubExtension: Clean ${cleanCount} movies data`);
+  }).catch(error => { console.error("FinnishStreamingDualSubExtension: Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
-    console.error("RuutuDualSubExtension: Failed to established connection to indexDB: ", error);
+    console.error("FinnishStreamingDualSubExtension: Failed to established connection to indexDB: ", error);
   })
 
 // Track text tracks hidden by extension so we can restore them when dual sub is disabled
@@ -171,7 +171,7 @@ class TranslationQueue {
             saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
               .then(() => { })
               .catch((error) => {
-                console.error("RuutuDualSubExtension: Error saving subtitles batch to cache:", error);
+                console.error("FinnishStreamingDualSubExtension: Error saving subtitles batch to cache:", error);
               });
           }
         }
@@ -187,7 +187,7 @@ class TranslationQueue {
         }
 
       } catch (error) {
-        console.error("RuutuDualSubExtension: System error when translating text:", error);
+        console.error("FinnishStreamingDualSubExtension: System error when translating text:", error);
       }
     }
 
@@ -254,7 +254,7 @@ async function addExtensionToolset() {
   const bottomControlBarLeftControls = await _waitForElement('.rp-left', 5000);
 
   if (!bottomControlBarLeftControls) {
-    console.error("RuutuDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
+    console.error("FinnishStreamingDualSubExtension: Cannot find bottom control bar left controls after 5 seconds");
     return;
   }
 
@@ -390,14 +390,14 @@ async function addExtensionToolset() {
     });
   }
   else {
-    console.error("RuutuDualSubExtension: Cannot find settings button");
+    console.error("FinnishStreamingDualSubExtension: Cannot find settings button");
   }
 
   // Rewind and forward button logic
   function rewindForwardLogicHandle() {
     const videoElement = document.querySelector('video');
     if (!videoElement) {
-      console.error("RuutuDualSubExtension: Cannot find video element");
+      console.error("FinnishStreamingDualSubExtension: Cannot find video element");
       return;
     }
 
@@ -430,7 +430,7 @@ async function addExtensionToolset() {
       });
     }
     else {
-      console.error("RuutuDualSubExtension: Cannot find rewind button");
+      console.error("FinnishStreamingDualSubExtension: Cannot find rewind button");
     }
 
     if (forwardButton) {
@@ -439,7 +439,7 @@ async function addExtensionToolset() {
       });
     }
     else {
-      console.error("RuutuDualSubExtension: Cannot find forward button");
+      console.error("FinnishStreamingDualSubExtension: Cannot find forward button");
     }
   }
   rewindForwardLogicHandle();
@@ -536,9 +536,9 @@ async function addExtensionToolset() {
         sharedTranslationMap.clear();
         if (globalDatabaseInstance && currentMovieName) {
           clearSubtitlesByMovieName(globalDatabaseInstance, currentMovieName).then(() => {
-            console.info(`RuutuDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
+            console.info(`FinnishStreamingDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
           }).catch((error) => {
-            console.error("RuutuDualSubExtension: Error clearing cached subtitles for current movie:", error);
+            console.error("FinnishStreamingDualSubExtension: Error clearing cached subtitles for current movie:", error);
             alert(`Error clearing cache: ${error?.message || "Unknown error"}`);
           }).finally(() => {
             alert("We need to reload the page to apply changes.");
@@ -546,7 +546,7 @@ async function addExtensionToolset() {
           });
         } else {
           console.warn(
-            "RuutuDualSubExtension: No database instance or current movie name found. " +
+            "FinnishStreamingDualSubExtension: No database instance or current movie name found. " +
             "Cannot clear cached subtitles from database."
           );
           alert("We need to reload the page to apply changes.");
@@ -660,13 +660,13 @@ function setupTextTrackListeners(video) {
 function initializeContainerForSubtitleRows() {
   const video = document.querySelector('video');
   if (!video) {
-    console.error("RuutuDualSubExtension: Could not find video element for subtitle container");
+    console.error("FinnishStreamingDualSubExtension: Could not find video element for subtitle container");
     return null;
   }
 
   const videoContainer = video.parentElement;
   if (!videoContainer) {
-    console.error("RuutuDualSubExtension: Could not find video parent element");
+    console.error("FinnishStreamingDualSubExtension: Could not find video parent element");
     return null;
   }
 
@@ -743,13 +743,13 @@ async function initializeDualSubForVideo() {
   try {
     await addExtensionToolset();
   } catch (error) {
-    console.error("RuutuDualSubExtension: Error adding dual sub toolset:", error);
+    console.error("FinnishStreamingDualSubExtension: Error adding dual sub toolset:", error);
   }
   const video = document.querySelector("video");
   if (video) {
     setupTextTrackListeners(video);
   } else {
-    console.error("RuutuDualSubExtension: Video element not found during initialization");
+    console.error("FinnishStreamingDualSubExtension: Video element not found during initialization");
   }
 }
 
@@ -792,7 +792,7 @@ function isVideoElementAppearMutation(mutation) {
 
     return false;
   } catch (error) {
-    console.warn("RuutuDualSubExtension: Error checking video element mutation:", error);
+    console.warn("FinnishStreamingDualSubExtension: Error checking video element mutation:", error);
     return false;
   }
 }
@@ -820,7 +820,7 @@ async function getVideoTitle() {
   }
 
   if (!title) {
-    console.error("RuutuDualSubExtension: Cannot get movie name. Title Element is null.");
+    console.error("FinnishStreamingDualSubExtension: Cannot get movie name. Title Element is null.");
     return null;
   }
 
@@ -851,7 +851,7 @@ async function loadMovieCacheAndUpdateMetadata() {
 
   const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
   if (Array.isArray(subtitleRecords)) {
-    console.info(`RuutuDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
+    console.info(`FinnishStreamingDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
   }
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
@@ -870,10 +870,10 @@ const observer = new MutationObserver((mutations) => {
     if (mutation.type === "childList") {
       if (isVideoElementAppearMutation(mutation)) {
         initializeDualSubForVideo().then(() => { }).catch((error) => {
-          console.error("RuutuDualSubExtension: Error initializing dual sub for video:", error);
+          console.error("FinnishStreamingDualSubExtension: Error initializing dual sub for video:", error);
         });
         loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
-          console.error("RuutuDualSubExtension: Error populating shared translation map from cache:", error);
+          console.error("FinnishStreamingDualSubExtension: Error populating shared translation map from cache:", error);
         });
       }
     }
@@ -910,7 +910,7 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   translationQueue.addToQueue(rawSubtitleFinnishText);
   translationQueue.processQueue().then(() => {
   }).catch((error) => {
-    console.error("RuutuDualSubExtension: Error processing translation queue:", error);
+    console.error("FinnishStreamingDualSubExtension: Error processing translation queue:", error);
   });
 });
 
@@ -986,7 +986,7 @@ document.addEventListener("change", (e) => {
 chrome.runtime.onMessage.addListener((msg) => {
   const appendTarget = document.querySelector('[data-test-id="videoContainer"]') || document.body;
   handleLookupMessage(msg, targetLanguage, appendTarget).catch((error) => {
-    console.error("RuutuDualSubExtension: Error handling lookup message:", error);
+    console.error("FinnishStreamingDualSubExtension: Error handling lookup message:", error);
   });
 });
 

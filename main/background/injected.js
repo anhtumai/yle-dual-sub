@@ -928,7 +928,7 @@ const vttParser = new WebVTTParser();
                     }
                 }
             } catch (e) {
-                console.error("YleDualSubExtension: Failed to parse VTT file:", e);
+                console.error("FinnishStreamingDualSubExtension: Failed to parse VTT file:", e);
             }
         });
 

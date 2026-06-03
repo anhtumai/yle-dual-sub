@@ -93,7 +93,7 @@ async function translateTextsWithDeepL(apiKey, isDeepLPro, rawSubtitleFinnishTex
     return [true, translatedTexts];
 
   } catch (error) {
-    console.error('YleDualSubExtension: Translation failed:', error);
+    console.error('FinnishStreamingDualSubExtension: Translation failed:', error);
     const errorMessage = 'Translation failed. Please check network or contact developers.';
     return [false, errorMessage];
   }
