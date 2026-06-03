@@ -54,6 +54,13 @@ If translations look off, click the reload icon to clear the cached translations
 
 <img src={require('@site/static/img/features/reload-subtitles.png').default} alt="Reload subtitles" style={{maxWidth: '100%', borderRadius: '8px', border: '1px solid #404040'}} />
 
+## Translation Sources
+
+The extension supports two translation services:
+
+- **Google Translate** — works immediately with no setup. Translations are labeled `(approximate)` to remind you that accuracy is limited. Good enough for casual viewing, but strongly discouraged for language learning — Finnish words with multiple meanings and spoken-language slang are frequently mistranslated.
+- **DeepL** — significantly more accurate for Finnish. Requires a free one-time setup (5–10 minutes). Recommended for anyone seriously learning Finnish.
+
 ## Privacy
 
-All data stays in your browser. No analytics, no tracking, no external servers beyond the DeepL API call itself.
+All data stays in your browser. No analytics, no tracking, no external servers beyond the translation API call itself.
