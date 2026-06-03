@@ -1,6 +1,9 @@
 /* global sleep, calculateBackoffDelay */ // defined in shared.js
 /* exported translateTextsWithErrorHandlingWithGoogleTranslate */
 
+const UNOFFICIAL_GOOGLE_TRANSLATE_ENDPOINT = "https://translate.googleapis.com/translate_a/single";
+const MAX_RETRIES = 3;
+
 class GoogleTranslateError {
   /**
    * @param {number} status - The HTTP status code from the failed request
@@ -78,6 +81,45 @@ function getGoogleTranslateErrorMessage(status) {
 }
 
 /**
+ * @param {string} text
+ * @param {string} tl - Google Translate language code
+ * @param {string} context
+ * @returns {Promise<string>}
+ */
+async function translateTextWithGoogleTranslate(text, tl, context) {
+  const textWithContext = context ? `<span>${text}</span>${context}` : text;
+  const searchParams = new URLSearchParams({ client: "gtx", q: textWithContext, sl: "fi", tl, dj: "1", hl: tl });
+  searchParams.append("dt", "rm");
+  searchParams.append("dt", "bd");
+  searchParams.append("dt", "t");
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const response = await fetch(`${UNOFFICIAL_GOOGLE_TRANSLATE_ENDPOINT}?${searchParams.toString()}`);
+    if (!response.ok) {
+      const retryable = response.status === 429 || response.status >= 500;
+      if (retryable && attempt < MAX_RETRIES - 1) {
+        await sleep(calculateBackoffDelay(attempt));
+        continue;
+      }
+      throw new GoogleTranslateError(response.status);
+    }
+    const data = await response.json();
+    const translationWithContext = (data.sentences
+      ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
+      .filter((/** @type {string | undefined} */ t) => t)
+      .join(" ") ?? "").replace(/\n /g, "\n");
+
+    if (!context) {
+      // add `(approximate)` after to show that Google Translate has low accuracy and should not be trusted.
+      return `${translationWithContext} (approximate)`;
+    }
+    const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
+    return match ? match[1].trim() : "<unknown>";
+  }
+  throw new GoogleTranslateError(429);
+}
+
+/**
  * Translate texts using Google Translate API
  * @param {string[]} rawSubtitleFinnishTexts
  * @param {string} targetLanguage - target language code (e.g. "EN-US", "VI")
@@ -89,44 +131,11 @@ async function translateTextsWithErrorHandlingWithGoogleTranslate(
   targetLanguage,
   context = ""
 ) {
-  const apiUrl = "https://translate.googleapis.com/translate_a/single";
   const tl = toGoogleLangCode(targetLanguage);
-  const MAX_RETRIES = 3;
 
   try {
     const results = await Promise.all(
-      rawSubtitleFinnishTexts.map(async (text) => {
-        const textWithContext = context ? `<span>${text}</span>${context}` : text;
-        const searchParams = new URLSearchParams({ client: "gtx", q: textWithContext, sl: "fi", tl, dj: "1", hl: tl });
-        searchParams.append("dt", "rm");
-        searchParams.append("dt", "bd");
-        searchParams.append("dt", "t");
-
-        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-          const response = await fetch(`${apiUrl}?${searchParams.toString()}`);
-          if (!response.ok) {
-            const retryable = response.status === 429 || response.status >= 500;
-            if (retryable && attempt < MAX_RETRIES - 1) {
-              await sleep(calculateBackoffDelay(attempt));
-              continue;
-            }
-            throw new GoogleTranslateError(response.status);
-          }
-          const data = await response.json();
-          const translationWithContext = (data.sentences
-            ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
-            .filter((/** @type {string | undefined} */ t) => t)
-            .join(" ") ?? "").replace(/\n /g, "\n");
-
-          if (!context) {
-            // add `(approximate)` after to show that Google Translate has low accuracy and should not be trusted.
-            return `${translationWithContext} (approximate)`;
-          }
-          const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
-          return match ? match[1].trim() : "<unknown>";
-        }
-        throw new GoogleTranslateError(429)
-      })
+      rawSubtitleFinnishTexts.map((text) => translateTextWithGoogleTranslate(text, tl, context))
     );
     return [true, results];
   } catch (error) {
