@@ -1,4 +1,5 @@
 /* global sleep, calculateBackoffDelay */ // defined in shared.js
+/* exported translateTextsWithErrorHandlingWithDeepL */
 
 const DEEPL_PAID_ENDPOINT = 'https://api.deepl.com/v2/translate';
 const DEEPL_FREE_ENDPOINT = 'https://api-free.deepl.com/v2/translate';
@@ -36,19 +37,19 @@ function getDeepLErrorMessage(status) {
     case 404:
       return "Cannot connect to DeepL. Please contact the extension developer. Consider reloading the page.";
     case 413:
-      return "Subtitle text is too large. Please contact the extension developer. Consider reloading the page.";
+      return "Subtitle text is too large. Please contact the extension developer.";
     case 414:
-      return "Request URL is too long. Please contact the extension developer. Consider reloading the page.";
+      return "Request URL is too long. Please contact the extension developer.";
     case 429:
       return "You're translating too quickly. Please wait a moment and try again. Consider reloading the page.";
     case 456:
-      return "Monthly character limit reached. Please use a different translation key or upgrade your plan. Consider reloading the page.";
+      return "Monthly character limit reached. Please use a different translation key or upgrade your plan.";
     case 500:
-      return "DeepL is having technical problems. Please try again in a few minutes. Consider reloading the page.";
+      return "DeepL is having technical problems. Please try again in a few minutes.";
     case 504:
-      return "DeepL is temporarily unavailable. Please try again in a few minutes. Consider reloading the page.";
+      return "DeepL is temporarily unavailable. Please try again in a few minutes.";
     case 529:
-      return "You're translating too quickly. Please wait a moment and try again. Consider reloading the page.";
+      return "You're translating too quickly. Please wait a moment and try again.";
     default:
       return `Translation failed (error ${status}). Please try again later. Consider reloading the page.`;
   }

@@ -452,30 +452,15 @@ async function sleep(ms) {
 
 /**
  * Handle dual sub behaviour based on whether the system has valid key selected.
- * If no key is selected, display warning icon and disable dual sub switch.
+ * If no key is selected, display warning icon.
  * @param {boolean} hasSelectedToken
  */
 function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
   const warningSection = document.querySelector(".dual-sub-warning");
-  const dualSubSwitch = document.getElementById("dual-sub-switch");
-  if (hasSelectedToken) {
-    if (warningSection) {
-      warningSection.style.display = "none";
-    }
-    if (dualSubSwitch) {
-      dualSubSwitch.disabled = false;
-    }
-  } else {
-    if (warningSection) {
-      warningSection.style.display = "inline-block";
-    }
-    if (dualSubSwitch) {
-      if (dualSubSwitch.checked) {
-        dualSubSwitch.click();
-      }
-      dualSubSwitch.disabled = true;
-    }
+  if (warningSection) {
+    warningSection.style.display = hasSelectedToken ? "none" : "inline-block";
   }
+
   const warningPopover = document.querySelector(".dual-sub-warning__popover");
   if (warningPopover) {
     warningPopover.classList.remove("active");
@@ -531,8 +516,10 @@ async function addDualSubExtensionSection() {
           !
         </span>
         <span class="dual-sub-warning__popover">
-          No translation key selected!<br>
-          Please select one in <a href="#" id="open-options-link">the option page</a>.<br>
+          No DeepL key has been registered — using Unofficial Google Translate Service for now.<br>
+          It's free but can break without warning, and is significantly less accurate than DeepL for Finnish — especially spoken language.<br>
+          Good enough for casual viewing, but strongly discouraged for language learning.
+          Configure it in <a href="#" id="open-options-link">the option page</a>.<br>
           Follow
           <a href="https://finnish-streaming-dual-sub.netlify.app"
              target="_blank"

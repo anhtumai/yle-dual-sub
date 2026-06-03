@@ -1,11 +1,14 @@
 /* global importScripts, loadSelectedTokenFromChromeStorageSync */
 /* global translateTextsWithErrorHandlingWithDeepL */
+/* global translateTextsWithErrorHandlingWithGoogleTranslate */
 importScripts('../utils/utils.js');
 importScripts('../translation/shared.js');
 importScripts('../translation/deepl_api.js');
 importScripts('../translation/google_translate_api.js');
 
 // Load selected DeepL key from Chrome storage sync
+// Assume that deeplTokenKey with empty string means no key selected
+// and we will fallback to Unofficial Google Translate API
 /**
  * @type {string}
  */
@@ -38,6 +41,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
         console.info('YleDualSubExtension: No selected key found in updated storage');
+        deeplTokenKey = "";
+        isDeepLPro = false;
       }
     }
   }
@@ -51,17 +56,29 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const targetLanguage = request.data.targetLanguage;
     /** @type {string} */
     const context = request.data.context || "";
-    translateTextsWithErrorHandlingWithDeepL(
-      deeplTokenKey,
-      isDeepLPro,
-      rawSubtitleFinnishTexts,
-      targetLanguage,
-      context,
-    ).then((translationResult) => {
-      sendResponse(translationResult);
-    }).catch((error) => {
-      sendResponse([false, error.message || String(error)]);
-    });
+    if (deeplTokenKey) {
+      translateTextsWithErrorHandlingWithDeepL(
+        deeplTokenKey,
+        isDeepLPro,
+        rawSubtitleFinnishTexts,
+        targetLanguage,
+        context,
+      ).then((translationResult) => {
+        sendResponse(translationResult);
+      }).catch((error) => {
+        sendResponse([false, error.message || String(error)]);
+      });
+    } else {
+      translateTextsWithErrorHandlingWithGoogleTranslate(
+        rawSubtitleFinnishTexts,
+        targetLanguage,
+        context,
+      ).then((translationResult) => {
+        sendResponse(translationResult);
+      }).catch((error) => {
+        sendResponse([false, error.message || String(error)]);
+      });
+    }
     return true;
   }
 

@@ -409,6 +409,43 @@ function TokenInfoCard(props) {
 }
 
 /**
+ * @typedef {Object} DefaultGoogleTranslateCardProps
+ * @property {boolean} isSelected - Whether the default Google Translate option is active.
+ * @property {() => void} onSelect - Function to call when this card is clicked to activate it.
+ */
+
+/**
+ * @param {DefaultGoogleTranslateCardProps} props
+ */
+function DefaultGoogleTranslateCard(props) {
+  const { isSelected, onSelect } = props;
+  return (
+    <div
+      onClick={onSelect}
+      className={`token-card ${isSelected ? "token-card-selected" : ""}`}
+    >
+      <div className="token-card__content">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="token-card__header">
+            <div
+              className={`token-card__checkbox ${
+                isSelected ? "token-card__checkbox-selected" : ""
+              }`}
+            >
+              {isSelected && <Check size={14} className="check-icon" />}
+            </div>
+            <div className="token-card__details">
+              <h3 className="token-card__token-type">Unofficial Google Translate</h3>
+              <p className="token-card__token-key">Default option &mdash; no API key required</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * @typedef {Object} TokenInfoCardListProps
  * @property {DeepLTokenInfoInStorage[]} tokenInfos - An array of DeepL token information.
  * @property {(newTokenInfos: DeepLTokenInfoInStorage[]) => void} setTokenInfos - A function to update the tokenInfos.
@@ -420,6 +457,16 @@ function TokenInfoCard(props) {
  */
 function TokenInfoCardList(props) {
   const { tokenInfos, setTokenInfos } = props;
+
+  const isGoogleTranslateSelected = tokenInfos.every((t) => !t.selected);
+
+  function handleSelectGoogleTranslate() {
+    const newTokenInfos = structuredClone(tokenInfos);
+    for (const tokenInfo of newTokenInfos) {
+      tokenInfo.selected = false;
+    }
+    setTokenInfos(newTokenInfos);
+  }
 
   /**
    * Handle select token
@@ -545,6 +592,10 @@ function TokenInfoCardList(props) {
           marginTop: "20px",
         }}
       >
+        <DefaultGoogleTranslateCard
+          isSelected={isGoogleTranslateSelected}
+          onSelect={handleSelectGoogleTranslate}
+        />
         {tokenInfos.map((tokenInfo) => {
           return (
             <TokenInfoCard
