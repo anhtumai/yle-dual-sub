@@ -11,6 +11,8 @@ This extension integrates with YLE Areena and Ruutu.fi video players to show dua
 ## Key Features
 
 - **Dual Subtitle Display** — Finnish + translated subtitles shown simultaneously
+- **Works Without Setup** — Google Translate fallback lets you try the extension immediately; translations labeled `(approximate)` to set expectations
+- **DeepL Support** — Significantly more accurate for Finnish; recommended for language learners (free one-time setup)
 - **Multiple Language Support** — Translate to English, Vietnamese, Japanese, Spanish, or any of 30+ languages supported by DeepL
 - **Smart Caching** — Translations stored locally for 30 days; rewatching videos uses zero API calls
 - **Multi-Token Support** — Add multiple DeepL API tokens with visual usage tracking
@@ -32,7 +34,7 @@ This extension is my plan to reach the next level, where you can expose to authe
 
 1. You watch videos on YLE Areena or Ruutu.fi with Finnish subtitles enabled
 2. The extension intercepts Finnish subtitle text
-3. Text is translated via DeepL API using your personal API key
+3. Text is translated — via DeepL if you have a key set up, otherwise via Google Translate (labeled `(approximate)`)
 4. Translations are cached locally in IndexedDB for 30 days
 5. Both Finnish and translated subtitles display in the video player
 
@@ -45,7 +47,8 @@ See the [documentation site](https://finnish-streaming-dual-sub.netlify.app/) fo
 ## Technology Stack
 
 - **Manifest V3** Chrome Extension
-- **DeepL API** for high-quality translations
+- **DeepL API** for high-quality translations (recommended)
+- **Google Translate** as a zero-setup fallback
 - **IndexedDB** for local caching with multi-language support
 - **Chrome Storage Sync** for cross-device settings persistence
 - **React** for the settings UI (options page)

@@ -16,8 +16,9 @@ Learning Finnish is challenging — spoken Finnish differs drastically from writ
 KEY FEATURES ⭐
 
 ✓ Dual Subtitle Display — See Finnish + translated subtitles simultaneously 📝
+✓ Works Instantly — Google Translate fallback requires zero setup; translations labeled (approximate) so you know what to expect 🚀
+✓ High-Quality Translation — Set up DeepL for significantly more accurate Finnish translations (recommended for learners) 🎯
 ✓ Multiple Language Support — Translate to English, Vietnamese, Japanese, Spanish, or any of 30+ languages supported by DeepL 🌍
-✓ High-Quality Translation — Powered by DeepL, known for accurate and natural translations 🎯
 ✓ Smart Caching — Translations stored locally for 30 days, rewatching uses zero API calls 💾
 ✓ Multi-Token Support — Add up to 2 DeepL API tokens with visual usage tracking 🔑
 ✓ One-Click Toggle — Enable/disable dual subs directly in the video player 🎛️
@@ -31,7 +32,8 @@ KEY FEATURES ⭐
 
 HOW TO USE 🚀
 
-Install the extension and add your free DeepL API token in settings ⚙️
+Install the extension — it works immediately using Google Translate 🚀
+(Recommended) Add your free DeepL API key in settings for much more accurate Finnish translations ⚙️
 (Optional) Select your preferred translation language from the dropdown (default is English) 🌐
 Open any video on YLE Areena and Ruutu.fi 🎥
 Click the "Dual Sub" toggle in the player 🎛️
@@ -104,7 +106,8 @@ YLE Areena is free worldwide. 🌍 DeepL offers a free tier to get started. With
 
 TECHNICAL NOTES 🔧
 
-Requires a free DeepL API key (get yours at https://www.deepl.com/pro-api) 🔑
+Works out of the box with Google Translate — no setup required 🌐
+DeepL API key optional but recommended for language learners (get yours at https://www.deepl.com/pro-api) 🔑
 Works on YLE Areena (https://areena.yle.fi/tv) and Ruutu (https://www.ruutu.fi) 📺
 No external servers — all processing happens locally 💻
 Open source on GitHub:  https://github.com/anhtumai/yle-dual-sub 💙

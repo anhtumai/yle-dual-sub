@@ -10,7 +10,7 @@ This page provides step-by-step instructions on how to set up and use the extens
 
    - <img src={require('@site/static/img/extension-popup-page.png').default} alt="Extension popup page" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
-4. Add your `DeepL Translation Key`.
+4. (Optional but recommended) Add your `DeepL Translation Key`. Without it, the extension falls back to Google Translate, which is less accurate for Finnish — especially spoken language. See the setup instructions below.
 
    - <img src={require('@site/static/img/add-new-deepl-translation-key.png').default} alt="Add new DeepL translation key" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
