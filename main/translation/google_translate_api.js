@@ -94,27 +94,37 @@ async function translateTextWithGoogleTranslate(text, tl, context) {
   searchParams.append("dt", "t");
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const response = await fetch(`${UNOFFICIAL_GOOGLE_TRANSLATE_ENDPOINT}?${searchParams.toString()}`);
-    if (!response.ok) {
-      const retryable = response.status === 429 || response.status >= 500;
-      if (retryable && attempt < MAX_RETRIES - 1) {
+    try {
+      const response = await fetch(`${UNOFFICIAL_GOOGLE_TRANSLATE_ENDPOINT}?${searchParams.toString()}`);
+      if (!response.ok) {
+        const retryable = response.status === 429 || response.status >= 500;
+        if (retryable && attempt < MAX_RETRIES - 1) {
+          await sleep(calculateBackoffDelay(attempt));
+          continue;
+        }
+        throw new GoogleTranslateError(response.status);
+      }
+
+      const data = await response.json();
+      const translationWithContext = (data.sentences
+        ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
+        .filter((/** @type {string | undefined} */ t) => t)
+        .join(" ") ?? "").replace(/\s+/g, " ").trim();
+
+      if (!context) {
+        // add `(approximate)` after to show that Google Translate has low accuracy and should not be trusted.
+        return `${translationWithContext} (approximate)`;
+      }
+      const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
+      return match ? match[1].trim() : "<unknown>";
+    } catch (e) {
+      if (e instanceof GoogleTranslateError) {throw e;}
+      if (attempt < MAX_RETRIES - 1) {
         await sleep(calculateBackoffDelay(attempt));
         continue;
       }
-      throw new GoogleTranslateError(response.status);
+      throw e;
     }
-    const data = await response.json();
-    const translationWithContext = (data.sentences
-      ?.map((/** @type {{ trans?: string }} */ s) => s.trans)
-      .filter((/** @type {string | undefined} */ t) => t)
-      .join(" ") ?? "").replace(/\n /g, "\n");
-
-    if (!context) {
-      // add `(approximate)` after to show that Google Translate has low accuracy and should not be trusted.
-      return `${translationWithContext} (approximate)`;
-    }
-    const match = translationWithContext.match(/<span>(.*?)<\/span>/s);
-    return match ? match[1].trim() : "<unknown>";
   }
   throw new GoogleTranslateError(429);
 }

@@ -221,6 +221,15 @@ function _handleDualSubBehaviourBasedOnSelectedToken(hasSelectedToken) {
   if (warningPopover) {
     warningPopover.classList.remove("active");
   }
+
+  // DeepL can handle a large batch size per request
+  // Meanwhile, Unofficial Google Translate rate-limit is very sensitive
+  // so we limit batch size to 3 items per request
+  if (hasSelectedToken) {
+    translationQueue.BATCH_MAXIMUM_SIZE = 7;
+  } else {
+    translationQueue.BATCH_MAXIMUM_SIZE = 3;
+  }
 }
 
 /**

@@ -859,27 +859,23 @@ function TokenManagementHelpSection() {
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
-            <strong>🤔 Why do I need to set this up?</strong>
+            <strong>🤔 Why set up DeepL?</strong>
             <br />
             <br />
-            You might wonder: "Other dual-sub extensions like Language Reactor,
-            Trancy, and InterSub work instantly—why not this one?"
+            The extension works out of the box using Google Translate — no setup
+            required. But DeepL is strongly recommended if you're actually
+            learning Finnish.
             <br />
             <br />
-            Here's the truth: Free services either use low-quality translation
-            APIs, run at a loss (subsidized by premium users), or monetize your
-            data. 💰
+            Finnish has many words with multiple meanings and a spoken form
+            (puhekieli) that differs significantly from written Finnish. Google
+            Translate often gets these wrong. DeepL handles them much better.
             <br />
             <br />
-            <strong>
-              I built this extension differently because I believe you deserve:
-            </strong>
+            <strong>With DeepL you also get:</strong>
             <br />
-            <br />✨ <strong>Best-in-class translations</strong> – DeepL is
-            objectively the best for Finnish (especially puhekieli!)
-            <br />
-            🔒 <strong>Complete privacy</strong> – No data collection, no ads,
-            no tracking
+            <br />🔒 <strong>Complete privacy</strong> – No data collection, no
+            ads, no tracking
             <br />
             ♻️ <strong>Sustainability</strong> – No active maintenance burden on
             my end
@@ -888,8 +884,8 @@ function TokenManagementHelpSection() {
             you started
             <br />
             <br />
-            Yes, it takes 5-10 minutes for one-time setup, but you get premium
-            quality without compromise. Worth it? I think so! 😊
+            It takes 5-10 minutes for one-time setup. Worth it for serious
+            learners! 😊
           </p>
 
           <p>
