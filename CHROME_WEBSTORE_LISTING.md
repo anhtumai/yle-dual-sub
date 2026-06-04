@@ -18,7 +18,7 @@ KEY FEATURES ⭐
 ✓ Dual Subtitle Display — See Finnish + translated subtitles simultaneously 📝
 ✓ Multiple Language Support — Translate to English, Vietnamese, Japanese, Spanish, or any of 30+ languages supported by DeepL 🌍
 ✓ High-Quality Translation — Powered by DeepL, known for accurate and natural translations 🎯
-✓ Smart Caching — Translations stored locally for 30 days, rewatching uses zero API calls (extends your free allowance) 💾
+✓ Smart Caching — Translations stored locally for 365 days, rewatching uses zero API calls (extends your free allowance) 💾
 ✓ Multi-Token Support — Add up to 2 DeepL API tokens with visual usage tracking 🔑
 ✓ One-Click Toggle — Enable/disable dual subs directly in the video player 🎛️
 ✓ Shadowing Tools — Rewind/forward 3 seconds buttons + keyboard shortcuts (, and . keys) for pronunciation practice 🔄⏱️

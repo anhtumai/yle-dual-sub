@@ -12,7 +12,7 @@ This extension integrates with YLE Areena and Ruutu.fi video players to show dua
 
 - **Dual Subtitle Display** — Finnish + translated subtitles shown simultaneously
 - **Multiple Language Support** — Translate to English, Vietnamese, Japanese, Spanish, or any of 30+ languages supported by DeepL
-- **Smart Caching** — Translations stored locally for 30 days; rewatching videos uses zero API calls
+- **Smart Caching** — Translations stored locally for 365 days; rewatching videos uses zero API calls
 - **Multi-Token Support** — Add multiple DeepL API tokens with visual usage tracking
 - **One-Click Toggle** — Enable/disable dual subtitles directly in the video player
 - **Blur Mode** — Hide Finnish, translation, or both subtitles to test yourself — hover to reveal
@@ -33,7 +33,7 @@ This extension is my plan to reach the next level, where you can expose to authe
 1. You watch videos on YLE Areena or Ruutu.fi with Finnish subtitles enabled
 2. The extension intercepts Finnish subtitle text
 3. Text is translated via DeepL API using your personal API key
-4. Translations are cached locally in IndexedDB for 30 days
+4. Translations are cached locally in IndexedDB for 365 days
 5. Both Finnish and translated subtitles display in the video player
 
 ## Installation
