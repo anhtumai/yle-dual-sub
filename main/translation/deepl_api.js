@@ -42,7 +42,7 @@ function getDeepLErrorMessage(status) {
     case 429:
       return "You're translating too quickly. Please wait a moment and try again. Consider reloading the page.";
     case 456:
-      return "Monthly character limit reached. Please use a different translation key or upgrade your plan.";
+      return "Character limit reached. Please use a different translation key or check DeepL's current plans at https://www.deepl.com/en/pro/change-plan#api";
     case 500:
       return "DeepL is having technical problems. Please try again in a few minutes.";
     case 504:

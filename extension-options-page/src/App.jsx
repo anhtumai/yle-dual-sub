@@ -55,12 +55,12 @@ class DeepLUsageResponse {
 
     /**
      * @type {number}
-     * @description The number of characters already translated in the month
+     * @description The number of characters already translated
      */
     this.characterCount = usageResponse.character_count;
     /**
      * @type {number}
-     * @description The character limit for the current month
+     * @description The total character limit for this token
      */
     this.characterLimit = usageResponse.character_limit;
   }
@@ -798,13 +798,22 @@ function TokenManagementHelpSection() {
           <p className="token-management-setting-card__help-section-paragraph">
             <strong>📖 What is a translation key (API key)?</strong>
             <br />A translation key is like a password that allows this
-            extension to use DeepL's translation service. It's completely free
-            for basic usage!
+            extension to use DeepL's translation service.
             <br />
             <br />
-            ⚠️ <strong>Important:</strong> You'll need a credit card to sign up
-            for DeepL's API, but <strong>the free tier is 100% free</strong> -
-            you won't be charged unless you choose to upgrade to a paid plan.
+            ⚠️ <strong>Important:</strong> DeepL's free tier gives a character
+            allowance to try out, but <strong>it does not reset each month</strong>.
+            A credit card is required to sign up. Once the allowance runs out, you'll
+            need a paid plan. Check{" "}
+            <a
+              href="https://www.deepl.com/en/pro/change-plan#api"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="token-management-setting-card__help-section-link"
+            >
+              DeepL&apos;s current plans
+            </a>{" "}
+            for up-to-date pricing.
           </p>
 
           <p className="token-management-setting-card__help-section-paragraph">
@@ -833,8 +842,8 @@ function TokenManagementHelpSection() {
             ♻️ <strong>Sustainability</strong> – No active maintenance burden on
             my end
             <br />
-            🆓 <strong>Truly free</strong> – DeepL offers a free tier to get
-            you started
+            🚀 <strong>Try it out</strong> – DeepL's free tier gives a
+            character allowance to get started (one-time, not recurring)
             <br />
             <br />
             Yes, it takes 5-10 minutes for one-time setup, but you get premium
@@ -843,7 +852,7 @@ function TokenManagementHelpSection() {
 
           <p>
             <strong>
-              🔑 How to get your free translation key (one-time setup):
+              🔑 How to get your translation key (one-time setup):
             </strong>
           </p>
 
@@ -907,14 +916,22 @@ function TokenManagementHelpSection() {
             </li>
 
             <li>
-              <strong>Create your free subscription</strong>
+              <strong>Create your subscription</strong>
               <br />
-              Click <strong>"Sign up for free"</strong> under the DeepL API Free
-              plan (for Pro users, click <strong>"Buy now"</strong>).
+              Choose the free tier to try it out, or a paid plan for recurring
+              monthly access. See{" "}
+              <a
+                href="https://www.deepl.com/en/pro/change-plan#api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="token-management-setting-card__help-section-link"
+              >
+                DeepL's current plans
+              </a>{" "}
+              for details.
               <br />
               <small>
-                💳 You'll be asked for a credit card, but it won't be charged
-                for the free plan
+                💳 A credit card is required even for the free tier
               </small>
             </li>
 
@@ -954,7 +971,7 @@ function TokenManagementHelpSection() {
                 • Free tier:{" "}
                 <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2:fx</code> (ends with
                 :fx)
-                <br />• Pro tier:{" "}
+                <br />• Paid tier:{" "}
                 <code>fcb8779e-4837-4e2f-99ef-1ac7255d2ed2</code> (no :fx
                 suffix)
               </small>
@@ -986,8 +1003,8 @@ function TokenManagementHelpSection() {
           </p>
 
           <p className="token-management-setting-card__help-section-footer">
-            💡 DeepL offers a free tier to get you started. Once you run out of
-            characters, check{" "}
+            💡 DeepL's free tier gives a character allowance to get started
+            (one-time, does not reset monthly). Once you run out, check{" "}
             <a
               href="https://www.deepl.com/en/pro/change-plan#api"
               target="_blank"
@@ -996,7 +1013,7 @@ function TokenManagementHelpSection() {
             >
               DeepL&apos;s current plans
             </a>{" "}
-            for upgrade options. If that feels expensive, share one key with
+            for paid options. If that feels expensive, share one key with
             friends or fellow Finnish learners and split the cost!
           </p>
         </div>
@@ -1162,7 +1179,7 @@ function TokenManagementAccordion() {
             <p className="setting-card__description">
               This extension uses{" "}
               <a
-                href="https://www.deepl.com/pro-api"
+                href="https://www.deepl.com/en/pro/change-plan#api"
                 target="_blank"
                 rel="noopener noreferrer"
               >

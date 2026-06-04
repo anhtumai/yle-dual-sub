@@ -51,16 +51,16 @@ This extension takes a different approach because you deserve:
 
 - **Best-in-class translations** — DeepL provides high-quality translations for Finnish to 30+ languages
 - **Complete privacy** — No data collection, no ads, no tracking
-- **Truly free** — DeepL offers a free tier to get you started
+- **Try it out** — DeepL's free tier gives a character allowance to get started (one-time, not recurring)
 - **Sustainable** — No hidden costs or monetization of your data
 
 Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without compromise.
 
-## Completely Free to Use
+## Cost
 
-YLE Areena is free worldwide. DeepL offers a free tier to get started. With smart caching, you can learn Finnish without spending a cent.
+YLE Areena is free worldwide. DeepL's free tier gives a character allowance to get started (one-time, does not reset monthly). With smart caching, you can go a long way on the free allowance.
 
-If you need more capacity, check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api). If that feels expensive, share one key with friends or fellow Finnish learners and split the cost!
+Once the allowance runs out, check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for paid options. If that feels expensive, share one key with friends or fellow Finnish learners and split the cost!
 
 ## Getting Started
 
