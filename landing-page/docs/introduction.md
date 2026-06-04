@@ -36,7 +36,7 @@ Demo video:
 - **Dual Subtitle Display** — See Finnish + translated subtitles simultaneously on YLE Areena & Ruutu
 - **Multiple Language Support** — Translate to English, Vietnamese, or any language supported by DeepL
 - **High-Quality Translation** — Powered by DeepL, known for accurate and natural translations
-- **Smart Caching** — Translations stored locally for 30 days; rewatching uses zero API calls
+- **Smart Caching** — Translations stored locally for 365 days; rewatching uses zero API calls
 - **Multi-Token Support** — Add up to 2 DeepL API tokens with visual usage tracking
 - **One-Click Toggle** — Enable/disable dual subs directly in the video player
 - **Blur Mode** — Hide Finnish, translation, or both subtitles to test yourself — hover to reveal

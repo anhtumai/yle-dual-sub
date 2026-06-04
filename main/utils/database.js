@@ -400,10 +400,10 @@ async function deleteMovieMetadata(db, movieName) {
  * Clean up old movie data that hasn't been accessed recently
  * @param {IDBDatabase} db - Opening database instance
  * @param {number} maxAgeDays - Maximum age in days (movies older than this will be deleted).
- * Default is 30 days
+ * Default is 365 days
  * @returns {Promise<number>} Number of movies cleaned up
  */
-async function cleanupOldMovieData(db, maxAgeDays = 30) {
+async function cleanupOldMovieData(db, maxAgeDays = 365) {
     const nowDays = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
     const cutoffDays = nowDays - maxAgeDays;
 
