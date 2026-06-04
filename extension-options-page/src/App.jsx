@@ -243,7 +243,7 @@ async function queryTokenUsageInfo(tokenKey, tokenType) {
       Please go to your browser's Extensions page (chrome://extensions), click on this extension's details, and make sure it has the required site access enabled.
       If the issue persists, please contact the extension developer.
     `;
-    console.error("YleDualSubExtension: " + errorMessage);
+    console.error("FinnishStreamingDualSubExtension: " + errorMessage);
     return [false, errorMessage];
   }
 }
@@ -719,7 +719,7 @@ function TokenManagementSection() {
       })
       .catch((error) => {
         console.error(
-          "YleDualSubExtension: Error when getting all DeepL tokens from Chrome storage:",
+          "FinnishStreamingDualSubExtension: Error when getting all DeepL tokens from Chrome storage:",
           error,
         );
       });
@@ -730,7 +730,7 @@ function TokenManagementSection() {
 
     ChromeStorageSyncHandler.setAllDeepLTokens(newTokenInfos).catch((error) => {
       console.error(
-        "YleDualSubExtension: Error when setting all DeepL tokens to Chrome storage:",
+        "FinnishStreamingDualSubExtension: Error when setting all DeepL tokens to Chrome storage:",
         error,
       );
     });
@@ -1015,7 +1015,7 @@ function PersonalSettingsSection() {
       })
       .catch((error) => {
         console.error(
-          "YleDualSubExtension: Error loading target language from Chrome storage:",
+          "FinnishStreamingDualSubExtension: Error loading target language from Chrome storage:",
           error,
         );
       });
@@ -1033,7 +1033,7 @@ function PersonalSettingsSection() {
       setTargetLanguage(newTargetLanguage);
     } catch (error) {
       console.error(
-        "YleDualSubExtension: Error saving target language to Chrome storage:",
+        "FinnishStreamingDualSubExtension: Error saving target language to Chrome storage:",
         error,
       );
       alert("Failed to save target language. Please try again.");
