@@ -614,7 +614,7 @@ async function addDualSubExtensionSection() {
         </div>
       </button>
 
-      <a href="https://finnish-streaming-dual-sub.netlify.app/features/#word-lookup" target="_blank" rel="noopener noreferrer" style="color: #e00; font-size: 12px; font-weight: 700; white-space: nowrap; align-self: center; text-decoration: none; line-height: 1.3;">New feature<br/>Word Lookup</a>
+      <a href="https://finnish-streaming-dual-sub.netlify.app/updates" target="_blank" rel="noopener noreferrer" style="color: #f59e0b; font-size: 12px; font-weight: 700; white-space: nowrap; align-self: center; text-decoration: none; line-height: 1.3;">🔔 DeepL pricing<br/>update</a>
 
     </div>
   `

@@ -94,6 +94,11 @@ const config = {
             position: 'left',
           },
           {
+            to: '/updates',
+            label: 'Updates',
+            position: 'left',
+          },
+          {
             to: '/privacy',
             label: 'Privacy',
             position: 'left',
@@ -131,6 +136,10 @@ const config = {
               {
                 label: 'Support',
                 to: '/support',
+              },
+              {
+                label: 'Updates',
+                to: '/updates',
               },
               {
                 label: 'Privacy',
