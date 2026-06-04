@@ -42,9 +42,9 @@ Here is the [extension demo video](https://www.youtube.com/watch?v=O3B7BCvd99Y) 
 
 #### 📖 What is a translation key (API key)?
 
-A translation key is like a password that allows this extension to use DeepL's translation service. It's completely free for basic usage!
+A translation key is like a password that allows this extension to use DeepL's translation service.
 
-⚠️ **Important:** You'll need a credit card to sign up for DeepL's API, but **the free tier is 100% free** - you won't be charged unless you choose to upgrade to a paid plan.
+⚠️ **Important:** DeepL's free tier gives a character allowance to try out, but **it does not reset each month**. A credit card is required to sign up. Once the allowance runs out, you'll need a paid plan. Check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for up-to-date pricing.
 
 #### 🤔 Why do I need to set this up?
 
@@ -57,11 +57,11 @@ Here's the truth: Free services either use low-quality translation APIs, run at 
 - ✨ **Best-in-class translations** – DeepL provides high-quality translations to 30+ languages including English, Vietnamese, Japanese, and more
 - 🔒 **Complete privacy** – No data collection, no ads, no tracking
 - ♻️ **Sustainability** – No active maintenance burden on my end
-- 🆓 **Truly free** – DeepL offers a free tier to get you started
+- 🚀 **Try it out** – DeepL's free tier gives a character allowance to get started (one-time, not recurring)
 
 Yes, it takes 5-10 minutes for one-time setup, but you get premium quality without compromise. Worth it? I think so! 😊
 
-#### 🔑 How to get your free translation key (one-time setup):
+#### 🔑 How to get your translation key (one-time setup):
 
 **📺 Video walkthrough (recommended):** [Watch 1 min tutorial from Youtube](https://www.youtube.com/watch?v=VgpxUH7SbSY)
 
@@ -77,11 +77,11 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
    <img src={require('@site/static/img/find_your_perfect_plan.png').default} alt="Find your perfect plan section" style={{maxWidth: '75%', borderRadius: '8px', border: '1px solid #404040'}} />
 
-3. **Create your free subscription**
+3. **Create your subscription**
 
-   Click **"Sign up for free"** under the DeepL API Free plan (for Pro users, click **"Buy now"**).
+   Choose the free tier to try it out, or a paid plan for recurring monthly access. See [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for details.
 
-   💳 You'll be asked for a credit card, but it won't be charged for the free plan
+   💳 A credit card is required even for the free tier
 
 4. **Create your API key**
 
@@ -94,7 +94,7 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
    Your API key will look like this:
 
    - Free tier: `fcb8779e-4837-4e2f-99ef-1ac7255d2ed2:fx` (ends with :fx)
-   - Pro tier: `fcb8779e-4837-4e2f-99ef-1ac7255d2ed2` (no :fx suffix)
+   - Paid tier: `fcb8779e-4837-4e2f-99ef-1ac7255d2ed2` (no :fx suffix)
 
 6. **Paste it in the extension**
 
@@ -106,4 +106,4 @@ Yes, it takes 5-10 minutes for one-time setup, but you get premium quality witho
 
 ### 💡 Note: DeepL Character Limits
 
-DeepL offers a free tier to get started. Once you run out of characters, check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for upgrade options. If that feels expensive, share one key with friends or fellow Finnish learners and split the cost! You can add up to 2 translation keys to this extension.
+DeepL's free tier gives a character allowance to get started (one-time, does not reset monthly). Once you run out, check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for paid options. If that feels expensive, share one key with friends or fellow Finnish learners and split the cost! You can add up to 2 translation keys to this extension.
