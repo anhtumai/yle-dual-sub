@@ -57,7 +57,6 @@ main/                           # Core extension logic
 ├── types.js                    # Shared JSDoc type definitions
 ├── translation/
 │   ├── deepl_api.js            # DeepL translation API calls
-│   └── google_translate_api.js # Google Translate API calls
 ├── background/
 │   ├── background.js           # Service worker: handles translation requests, context menus
 │   ├── inject.js               # Content script: injects injected.js into the page
