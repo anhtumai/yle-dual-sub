@@ -13,6 +13,6 @@ DeepL has updated their pricing model:
 | Free | Developer | 1,000,000 | One-time trial (does not reset monthly) |
 | Pro | Growth | 1,000,000/month | 29.75 EUR/month |
 
-**Existing users are not affected** — your current API keys continue to work as before. However, DeepL may change or cancel existing plans in the future, so keep an eye on your email for any notifications from them.
+**Existing users are not affected** — your current API keys continue to work as before. **Existing users do NOT need to pay the new fee**. However, DeepL may change or cancel existing plans in the future, so keep an eye on your email for any notifications from them.
 
-New users should be aware that the free character allowance is a one-time trial. Once it runs out, a paid subscription is needed. Check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for the most up-to-date pricing.
+New users should be aware that the free character allowance is a one-time trial. Once it runs out, a paid subscription is needed. Check [DeepL's current plans](https://www.deepl.com/en/pro/change-plan#api) for the most up-to-date pricing. If you find it expensive, consider sharing the key to other people as well.
