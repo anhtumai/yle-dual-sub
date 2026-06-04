@@ -39,7 +39,7 @@ let targetLanguage = "EN-US";
 loadTargetLanguageFromChromeStorageSync().then((loadedTargetLanguage) => {
   targetLanguage = loadedTargetLanguage;
 }).catch((error) => {
-  console.error("YleDualSubExtension: Error loading target language from storage:", error);
+  console.error("FinnishStreamingDualSubExtension: Error loading target language from storage:", error);
 });
 
 // State of Dual Sub Switch, to manage whether to add display subtitles wrapper
@@ -88,11 +88,11 @@ openDatabase().then(db => {
   globalDatabaseInstance = db;
 
   cleanupOldMovieData(db).then((cleanCount) => {
-    console.info(`YleDualSubExtension: Clean ${cleanCount} movies data`);
-  }).catch(error => { console.error("YleDualSubExtension: Error when cleaning old movie data: ", error) });
+    console.info(`FinnishStreamingDualSubExtension: Clean ${cleanCount} movies data`);
+  }).catch(error => { console.error("FinnishStreamingDualSubExtension: Error when cleaning old movie data: ", error) });
 }).
   catch((error) => {
-    console.error("YleDualSubExtension: Failed to established connection to indexDB: ", error);
+    console.error("FinnishStreamingDualSubExtension: Failed to established connection to indexDB: ", error);
   })
 
 // ==================================
@@ -172,7 +172,7 @@ class TranslationQueue {
             saveSubtitlesBatch(globalDatabaseInstance, toCacheSubtitleRecords)
               .then(() => { })
               .catch((error) => {
-                console.error("YleDualSubExtension: Error saving subtitles batch to cache:", error);
+                console.error("FinnishStreamingDualSubExtension: Error saving subtitles batch to cache:", error);
               });
           }
         }
@@ -188,7 +188,7 @@ class TranslationQueue {
         }
 
       } catch (error) {
-        console.error("YleDualSubExtension: System error when translating text:", error);
+        console.error("FinnishStreamingDualSubExtension: System error when translating text:", error);
       }
     }
 
@@ -254,7 +254,7 @@ function isMutationRelatedToSubtitlesWrapper(mutation) {
     // @ts-ignore - Node is used as HTMLElement at runtime
     return mutation.target instanceof HTMLElement && mutation.target.id !== "displayed-subtitles-rows-wrapper" && mutation.target.className.includes("Subtitles__LiveRegion");
   } catch (error) {
-    console.warn("YleDualSubExtension: Catch error checking mutation related to subtitles wrapper:", error);
+    console.warn("FinnishStreamingDualSubExtension: Catch error checking mutation related to subtitles wrapper:", error);
     return false;
   }
 }
@@ -441,7 +441,7 @@ function isVideoElementAppearMutation(mutation) {
 
     return false;
   } catch (error) {
-    console.warn("YleDualSubExtension: Error checking video element mutation:", error);
+    console.warn("FinnishStreamingDualSubExtension: Error checking video element mutation:", error);
     return false;
   }
 }
@@ -501,7 +501,7 @@ async function addDualSubExtensionSection() {
   }
 
   if (!bottomControlBarLeftControls) {
-    console.error("YleDualSubExtension: Cannot find bottom control bar left controls");
+    console.error("FinnishStreamingDualSubExtension: Cannot find bottom control bar left controls");
     return;
   }
 
@@ -511,12 +511,12 @@ async function addDualSubExtensionSection() {
       existingSection.remove();
     } catch (err) {
       // Probably never happens, but just in case
-      console.error("YleDualSubExtension: Error removing existing dual sub extension section:", err);
+      console.error("FinnishStreamingDualSubExtension: Error removing existing dual sub extension section:", err);
       if (existingSection.parentNode) {
         try {
           existingSection.parentNode.removeChild(existingSection);
         } catch (error) {
-          console.error("YleDualSubExtension: Error removing existing dual sub extension section via parentNode:", error);
+          console.error("FinnishStreamingDualSubExtension: Error removing existing dual sub extension section via parentNode:", error);
         }
       }
     }
@@ -652,14 +652,14 @@ async function addDualSubExtensionSection() {
     });
   }
   else {
-    console.error("YleDualSubExtension: Cannot find settings button");
+    console.error("FinnishStreamingDualSubExtension: Cannot find settings button");
   }
 
   // Rewind and forward button logic
   function rewindForwardLogicHandle() {
     const videoElement = document.querySelector('video');
     if (!videoElement) {
-      console.error("YleDualSubExtension: Cannot find video element");
+      console.error("FinnishStreamingDualSubExtension: Cannot find video element");
       return;
     }
 
@@ -692,7 +692,7 @@ async function addDualSubExtensionSection() {
       });
     }
     else {
-      console.error("YleDualSubExtension: Cannot find rewind button");
+      console.error("FinnishStreamingDualSubExtension: Cannot find rewind button");
     }
 
     if (forwardButton) {
@@ -701,7 +701,7 @@ async function addDualSubExtensionSection() {
       });
     }
     else {
-      console.error("YleDualSubExtension: Cannot find forward button");
+      console.error("FinnishStreamingDualSubExtension: Cannot find forward button");
     }
   }
   rewindForwardLogicHandle();
@@ -802,9 +802,9 @@ async function addDualSubExtensionSection() {
         sharedTranslationMap.clear();
         if (globalDatabaseInstance && currentMovieName) {
           clearSubtitlesByMovieName(globalDatabaseInstance, currentMovieName).then(() => {
-            console.info(`YleDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
+            console.info(`FinnishStreamingDualSubExtension: Cleared cached subtitles for movie: ${currentMovieName}`);
           }).catch((error) => {
-            console.error("YleDualSubExtension: Error clearing cached subtitles for current movie:", error);
+            console.error("FinnishStreamingDualSubExtension: Error clearing cached subtitles for current movie:", error);
             alert(`Error clearing cache: ${error?.message || "Unknown error"}`);
           }).finally(() => {
             alert("We need to reload the page to apply changes.");
@@ -812,7 +812,7 @@ async function addDualSubExtensionSection() {
           });
         } else {
           console.warn(
-            "YleDualSubExtension: No database instance or current movie name found. " +
+            "FinnishStreamingDualSubExtension: No database instance or current movie name found. " +
             "Cannot clear cached subtitles from database."
           );
           alert("We need to reload the page to apply changes.");
@@ -840,7 +840,7 @@ async function getVideoTitle() {
   }
 
   if (!titleElement) {
-    console.error("YleDualSubExtension: Cannot get movie name. Title Element is null.");
+    console.error("FinnishStreamingDualSubExtension: Cannot get movie name. Title Element is null.");
     return null;
   }
 
@@ -874,7 +874,7 @@ async function loadMovieCacheAndUpdateMetadata() {
 
   const subtitleRecords = await loadSubtitlesByMovieName(db, currentMovieName, targetLanguage);
   if (Array.isArray(subtitleRecords)) {
-    console.info(`YleDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
+    console.info(`FinnishStreamingDualSubExtension: Loaded ${subtitleRecords.length} cached subtitles for movie: ${currentMovieName}`);
   }
   for (const subtitleRecord of subtitleRecords) {
     sharedTranslationMap.set(
@@ -903,10 +903,10 @@ const observer = new MutationObserver((mutations) => {
       }
       if (isVideoElementAppearMutation(mutation)) {
         addDualSubExtensionSection().then(() => { }).catch((error) => {
-          console.error("YleDualSubExtension: Error adding dual sub extension section:", error);
+          console.error("FinnishStreamingDualSubExtension: Error adding dual sub extension section:", error);
         });
         loadMovieCacheAndUpdateMetadata().then(() => { }).catch((error) => {
-          console.error("YleDualSubExtension: Error populating shared translation map from cache:", error);
+          console.error("FinnishStreamingDualSubExtension: Error populating shared translation map from cache:", error);
         });
       }
     }
@@ -944,7 +944,7 @@ document.addEventListener("sendTranslationTextEvent", (e) => {
   translationQueue.addToQueue(rawSubtitleFinnishText);
   translationQueue.processQueue().then(() => {
   }).catch((error) => {
-    console.error("YleDualSubExtension: Error processing translation queue:", error);
+    console.error("FinnishStreamingDualSubExtension: Error processing translation queue:", error);
   });
 });
 
@@ -977,7 +977,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 chrome.runtime.onMessage.addListener((msg) => {
   const appendTarget = document.querySelector('[class*="PlayerUI__UI"]') || document.body;
   handleLookupMessage(msg, targetLanguage, appendTarget).catch((error) => {
-    console.error("YleDualSubExtension: Error handling lookup message:", error);
+    console.error("FinnishStreamingDualSubExtension: Error handling lookup message:", error);
   });
 });
 
@@ -993,7 +993,7 @@ document.addEventListener("change", (e) => {
       const originalSubtitlesWrapper = document.querySelector('[data-testid="subtitles-wrapper"]');
       if (!originalSubtitlesWrapper) {
         console.error(
-          "YleDualSubExtension: This should not happen: " +
+          "FinnishStreamingDualSubExtension: This should not happen: " +
           "When the video is loaded the subtitles wrapper should be there"
         );
         e.target.checked = false;
@@ -1016,7 +1016,7 @@ document.addEventListener("change", (e) => {
         originalSubtitleRows,
       )
       translationQueue.processQueue().then(() => { }).catch((error) => {
-        console.error("YleDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
+        console.error("FinnishStreamingDualSubExtension: Error processing translation queue after enabling dual subtitles:", error);
       });
     }
     else {

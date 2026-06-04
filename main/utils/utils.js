@@ -21,15 +21,15 @@ async function loadSelectedTokenFromChromeStorageSync() {
           isPro: selectedTokenInfo.type === "pro"
         };
       } else {
-        console.info('YleDualSubExtension: No selected token found in storage');
+        console.info('FinnishStreamingDualSubExtension: No selected token found in storage');
         return null;
       }
     } else {
-      console.info('YleDualSubExtension: No tokens found in storage');
+      console.info('FinnishStreamingDualSubExtension: No tokens found in storage');
       return null;
     }
   } catch (error) {
-    console.error('YleDualSubExtension: Error loading application settings (to get token information) from storage:', error);
+    console.error('FinnishStreamingDualSubExtension: Error loading application settings (to get token information) from storage:', error);
     return null;
   }
 }
@@ -43,7 +43,7 @@ async function loadTargetLanguageFromChromeStorageSync() {
   try {
     const storageSyncInformation = await chrome.storage.sync.get("targetLanguage");
     if (!storageSyncInformation || typeof storageSyncInformation !== 'object') {
-      console.info('YleDualSubExtension: No settings found in storage');
+      console.info('FinnishStreamingDualSubExtension: No settings found in storage');
       return DEFAULT_TARGET_LANGUAGE;
     }
 
@@ -51,11 +51,11 @@ async function loadTargetLanguageFromChromeStorageSync() {
       typeof storageSyncInformation.targetLanguage === 'string') {
       return storageSyncInformation.targetLanguage;
     } else {
-      console.info('YleDualSubExtension: No target language found in storage, using default');
+      console.info('FinnishStreamingDualSubExtension: No target language found in storage, using default');
     }
     return DEFAULT_TARGET_LANGUAGE;
   } catch (error) {
-    console.error('YleDualSubExtension: Error loading application settings (to get target language) from storage:', error);
+    console.error('FinnishStreamingDualSubExtension: Error loading application settings (to get target language) from storage:', error);
     return DEFAULT_TARGET_LANGUAGE;
   }
 }
@@ -79,7 +79,7 @@ async function fetchTranslation(rawSubtitleFinnishTexts, targetLanguage, context
       });
     return response;
   } catch (error) {
-    console.error("YleDualSubExtension: Error sending message to background for translation:", error);
+    console.error("FinnishStreamingDualSubExtension: Error sending message to background for translation:", error);
     return [false, error.message || String(error)];
   }
 }

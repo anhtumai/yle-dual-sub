@@ -26,7 +26,7 @@ loadSelectedTokenFromChromeStorageSync().then((tokenInfo) => {
 // Listen for storage changes to update key when user changes selection
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync' && changes.tokenInfos) {
-    console.info('YleDualSubExtension: Key configuration changed, reloading...');
+    console.info('FinnishStreamingDualSubExtension: Key configuration changed, reloading...');
     if (changes.tokenInfos.newValue && Array.isArray(changes.tokenInfos.newValue)) {
       /**
        * @type {DeepLTokenInfoInStorage[]}
@@ -37,7 +37,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         deeplTokenKey = selectedTokenInfo.key;
         isDeepLPro = selectedTokenInfo.type === "pro";
       } else {
-        console.info('YleDualSubExtension: No selected key found in updated storage');
+        console.info('FinnishStreamingDualSubExtension: No selected key found in updated storage');
       }
     }
   }

@@ -106,7 +106,7 @@ async function translateTextsWithGoogleTranslate(rawSubtitleFinnishTexts, target
         }
         return [true, results];
     } catch (error) {
-        console.error('YleDualSubExtension: Google Translate failed:', error);
+        console.error('FinnishStreamingDualSubExtension: Google Translate failed:', error);
         return [false, 'Translation failed. Please check network or contact developers.'];
     }
 }
