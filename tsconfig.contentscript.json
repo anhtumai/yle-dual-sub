@@ -7,7 +7,6 @@
     "main/background/background.js",
     "main/translation/shared.js",
     "main/translation/deepl_api.js",
-    "main/translation/google_translate_api.js",
     "main/types.js",
     "globals.d.ts",
     "extension-popup/popup.js"

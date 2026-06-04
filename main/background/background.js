@@ -3,7 +3,6 @@
 importScripts('../utils/utils.js');
 importScripts('../translation/shared.js');
 importScripts('../translation/deepl_api.js');
-importScripts('../translation/google_translate_api.js');
 
 // Load selected DeepL key from Chrome storage sync
 /**
