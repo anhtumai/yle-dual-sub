@@ -23,3 +23,4 @@ For new users, I recommend:
 - If you want to try out Paid tier, consider sharing your subsription to other people as well. But only to the one you trust.
 
 I am reaching out to DeepL to explore whether a more affordable tier for individual language learners is possible. Stay tuned — I will share an update once I hear back.
+Follow: [Discord thread](https://discord.com/channels/1112756407335395428/1512790550582001787) and [DeepL Bridges thread](https://www.deepl-bridges.com/developers/general/post/can-you-introduce-an-affordable-b2c-tier-for-language-learners-pa8fEOiGRYrJBNV) for latest update from DeepL
