@@ -178,7 +178,7 @@ async function handleLookupMessage(msg, targetLanguage, appendTarget) {
   const wholeSentence = document.getElementById('finnish-subtitle-row')?.textContent || '';
 
   if (!wholeSentence) {
-    alert("Please pause the video before looking up words");
+    alert("Please turn on DualSub switch, pause the video and look up Finnish words only");
     return;
   }
 
