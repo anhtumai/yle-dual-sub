@@ -1,4 +1,4 @@
-zip -r yle-dual-sub-extension.zip \
+zip -r finnish-streaming-dual-sub-extension.zip \
   manifest.json \
   icons/ \
   main/ \

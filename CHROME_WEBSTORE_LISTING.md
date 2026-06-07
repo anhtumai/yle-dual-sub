@@ -107,7 +107,7 @@ TECHNICAL NOTES 🔧
 Requires a DeepL API key (get yours at https://www.deepl.com/en/pro/change-plan#api) 🔑
 Works on YLE Areena (https://areena.yle.fi/tv) and Ruutu (https://www.ruutu.fi) 📺
 No external servers — all processing happens locally 💻
-Open source on GitHub:  https://github.com/anhtumai/yle-dual-sub 💙
+Open source on GitHub:  https://github.com/anhtumai/finnish-streaming-dual-sub 💙
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------

@@ -28,7 +28,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'anhtumai', // Usually your GitHub org/user name.
-  projectName: 'yle-dual-sub', // Usually your repo name.
+  projectName: 'finnish-streaming-dual-sub', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
@@ -104,7 +104,7 @@ const config = {
             position: 'left',
           },
           {
-            href: 'https://github.com/anhtumai/yle-dual-sub',
+            href: 'https://github.com/anhtumai/finnish-streaming-dual-sub',
             label: 'GitHub',
             position: 'right',
           },
@@ -152,7 +152,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/anhtumai/yle-dual-sub',
+                href: 'https://github.com/anhtumai/finnish-streaming-dual-sub',
               },
             ],
           },
