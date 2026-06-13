@@ -40,11 +40,11 @@ jobs:
         run: |
           chmod +x package_project.sh
           ./package_project.sh
-          mv yle-dual-sub-extension.zip yle-dual-sub-extension_${{ inputs.version }}.zip
+          mv finnish-streaming-dual-sub-extension.zip finnish-streaming-dual-sub-extension_${{ inputs.version }}.zip
 
       - name: Create release and upload zip
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
           name: Release ${{ inputs.version }}
-          files: yle-dual-sub-extension_${{ inputs.version }}.zip
+          files: finnish-streaming-dual-sub-extension_${{ inputs.version }}.zip
